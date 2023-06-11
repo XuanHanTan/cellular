@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1915C22F2A30938300A22788 /* BluetoothViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1915C22E2A30938300A22788 /* BluetoothViewModel.swift */; };
+		1928BBE02A35B1030029BB8C /* StartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1928BBDF2A35B1030029BB8C /* StartView.swift */; };
 		19A0ED342A2E240B00AF4A5F /* CellularApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A0ED332A2E240B00AF4A5F /* CellularApp.swift */; };
 		19A0ED362A2E240B00AF4A5F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A0ED352A2E240B00AF4A5F /* ContentView.swift */; };
 		19A0ED382A2E240C00AF4A5F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 19A0ED372A2E240C00AF4A5F /* Assets.xcassets */; };
@@ -34,6 +36,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1915C22E2A30938300A22788 /* BluetoothViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothViewModel.swift; sourceTree = "<group>"; };
+		1915C2302A30986400A22788 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		1928BBDF2A35B1030029BB8C /* StartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartView.swift; sourceTree = "<group>"; };
 		19A0ED302A2E240B00AF4A5F /* Cellular.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cellular.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		19A0ED332A2E240B00AF4A5F /* CellularApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellularApp.swift; sourceTree = "<group>"; };
 		19A0ED352A2E240B00AF4A5F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -95,11 +100,14 @@
 		19A0ED322A2E240B00AF4A5F /* Cellular */ = {
 			isa = PBXGroup;
 			children = (
+				1915C2302A30986400A22788 /* Info.plist */,
 				19A0ED332A2E240B00AF4A5F /* CellularApp.swift */,
 				19A0ED352A2E240B00AF4A5F /* ContentView.swift */,
+				1915C22E2A30938300A22788 /* BluetoothViewModel.swift */,
 				19A0ED372A2E240C00AF4A5F /* Assets.xcassets */,
 				19A0ED3C2A2E240C00AF4A5F /* Cellular.entitlements */,
 				19A0ED392A2E240C00AF4A5F /* Preview Content */,
+				1928BBDF2A35B1030029BB8C /* StartView.swift */,
 			);
 			path = Cellular;
 			sourceTree = "<group>";
@@ -145,6 +153,8 @@
 			dependencies = (
 			);
 			name = Cellular;
+			packageProductDependencies = (
+			);
 			productName = Cellular;
 			productReference = 19A0ED302A2E240B00AF4A5F /* Cellular.app */;
 			productType = "com.apple.product-type.application";
@@ -217,6 +227,8 @@
 				Base,
 			);
 			mainGroup = 19A0ED272A2E240B00AF4A5F;
+			packageReferences = (
+			);
 			productRefGroup = 19A0ED312A2E240B00AF4A5F /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -261,6 +273,8 @@
 			files = (
 				19A0ED362A2E240B00AF4A5F /* ContentView.swift in Sources */,
 				19A0ED342A2E240B00AF4A5F /* CellularApp.swift in Sources */,
+				1915C22F2A30938300A22788 /* BluetoothViewModel.swift in Sources */,
+				1928BBE02A35B1030029BB8C /* StartView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -422,11 +436,16 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Cellular/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Cellular/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Cellular;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "To discover your Android device and start the mobile hotspot intelligently.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.xuanhan.Cellular;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -447,11 +466,16 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Cellular/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Cellular/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Cellular;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "To discover your Android device and start the mobile hotspot intelligently.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.xuanhan.Cellular;
 				PRODUCT_NAME = "$(TARGET_NAME)";
