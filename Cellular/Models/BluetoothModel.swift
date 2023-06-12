@@ -1,5 +1,5 @@
 //
-//  BluetoothViewModel.swift
+//  BluetoothModel.swift
 //  Cellular
 //
 //  Created by Xuan Han on 7/6/23.
@@ -8,15 +8,55 @@
 import Foundation
 import CoreBluetooth
 
-class BluetoothViewModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeripheralManagerDelegate {
-    var isPoweredOn = false
+class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeripheralManagerDelegate {
     private var peripheralManager: CBPeripheralManager!
-    private let cellularServiceUUID = CBUUID(string: "c3b9b9e9-be4e-4abf-9200-770f88b59977")
+    private let defaults = UserDefaults.standard
+    private var serviceUUID: CBUUID?
     private let commandCharacteristicUUID = CBUUID(string: "4748240c-95d5-4a64-b425-6c24c36d0323")
+    private var sharedKey: String?
     
     private var transferCharacteristic: CBMutableCharacteristic!
     
+    var isPoweredOn = false
+    @Published var isBluetoothOffDialogPresented = false
+    @Published var isBluetoothNotGrantedDialogPresented = false
+    var isBluetoothNotSupportedDialogPresented = false
+    @Published var isBluetoothUnknownErrorDialogPresented = false
+
+    func prepareForNewConnection() -> [String: String] {
+        serviceUUID = CBUUID(nsuuid: UUID())
+        defaults.set(serviceUUID!.uuidString, forKey: "serviceUUID")
+        
+        sharedKey = UUID().uuidString
+        defaults.set(sharedKey!, forKey: "sharedPIN")
+        
+        initializeBluetooth()
+        
+        return [
+            "serviceUUID": serviceUUID!.uuidString,
+            "sharedPIN": sharedKey!,
+        ]
+    }
+    
     func initializeBluetooth() {
+        if serviceUUID == nil {
+            guard let serviceUUIDString = defaults.string(forKey: "serviceUUID")
+            else {
+                print("Service UUID not set, call prepareForNewConnection() first.")
+                return
+            }
+            
+            serviceUUID = CBUUID(string: serviceUUIDString)
+        }
+        if sharedKey == nil {
+            sharedKey = defaults.string(forKey: "sharedPIN")
+            
+            if sharedKey == nil {
+                print("Shared PIN not set, call prepareForNewConnection() first.")
+                return
+            }
+        }
+        
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
     }
     
@@ -24,22 +64,31 @@ class BluetoothViewModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPe
         switch peripheral.state {
             case .poweredOn:
                 print("CBManager is powered on")
+                isPoweredOn = true
+                isBluetoothOffDialogPresented = false
+                isBluetoothNotGrantedDialogPresented = false
+                isBluetoothNotSupportedDialogPresented = false
+                isBluetoothUnknownErrorDialogPresented = false
                 setupPeripheral()
             case .poweredOff:
                 print("CBManager is not powered on")
+                isBluetoothOffDialogPresented = true
                 return
             case .resetting:
                 print("CBManager is resetting")
+                isBluetoothUnknownErrorDialogPresented = true
                 return
             case .unauthorized:
                 print("Bluetooth permission was not granted")
+                isBluetoothNotGrantedDialogPresented = true
                 return
             case .unsupported:
                 print("Bluetooth is not supported on this device")
+                isBluetoothNotSupportedDialogPresented = true
                 return
             default:
                 print("A previously unknown peripheral manager state occurred")
-                // In a real app, you'd deal with yet unknown cases that might occur in the future
+                isBluetoothUnknownErrorDialogPresented = true
                 return
         }
     }
@@ -52,7 +101,7 @@ class BluetoothViewModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPe
                                                              permissions: [.readable])
         
         // Create a service from the characteristic.
-        let transferService = CBMutableService(type: cellularServiceUUID, primary: true)
+        let transferService = CBMutableService(type: serviceUUID!, primary: true)
         
         // Add the characteristic to the service.
         transferService.characteristics = [transferCharacteristic]
@@ -63,7 +112,7 @@ class BluetoothViewModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPe
         // Save the characteristic for later.
         self.transferCharacteristic = transferCharacteristic
         
-        peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [cellularServiceUUID]])
+        peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [serviceUUID]])
     }
     
     func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
@@ -72,5 +121,9 @@ class BluetoothViewModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPe
     
     func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didUnsubscribeFrom characteristic: CBCharacteristic) {
         print("Central unsubscribed from characteristic \(characteristic.uuid.uuidString)")
+    }
+    
+    func disposeBluetooth() {
+        peripheralManager.stopAdvertising()
     }
 }

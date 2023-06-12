@@ -7,10 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1915C22F2A30938300A22788 /* BluetoothViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1915C22E2A30938300A22788 /* BluetoothViewModel.swift */; };
+		1915C22F2A30938300A22788 /* BluetoothModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1915C22E2A30938300A22788 /* BluetoothModel.swift */; };
 		1928BBE02A35B1030029BB8C /* StartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1928BBDF2A35B1030029BB8C /* StartView.swift */; };
+		1928BBE72A3610DF0029BB8C /* DownloadAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1928BBE62A3610DF0029BB8C /* DownloadAppView.swift */; };
+		1928BBEB2A371C0C0029BB8C /* AES.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1928BBEA2A371C0C0029BB8C /* AES.swift */; };
+		1928BBF52A374F360029BB8C /* QRCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1928BBF42A374F360029BB8C /* QRCodeView.swift */; };
 		19A0ED342A2E240B00AF4A5F /* CellularApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A0ED332A2E240B00AF4A5F /* CellularApp.swift */; };
-		19A0ED362A2E240B00AF4A5F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A0ED352A2E240B00AF4A5F /* ContentView.swift */; };
 		19A0ED382A2E240C00AF4A5F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 19A0ED372A2E240C00AF4A5F /* Assets.xcassets */; };
 		19A0ED3B2A2E240C00AF4A5F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 19A0ED3A2A2E240C00AF4A5F /* Preview Assets.xcassets */; };
 		19A0ED462A2E240C00AF4A5F /* CellularTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A0ED452A2E240C00AF4A5F /* CellularTests.swift */; };
@@ -36,12 +38,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		1915C22E2A30938300A22788 /* BluetoothViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothViewModel.swift; sourceTree = "<group>"; };
+		1915C22E2A30938300A22788 /* BluetoothModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothModel.swift; sourceTree = "<group>"; };
 		1915C2302A30986400A22788 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		1928BBDF2A35B1030029BB8C /* StartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartView.swift; sourceTree = "<group>"; };
+		1928BBE62A3610DF0029BB8C /* DownloadAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadAppView.swift; sourceTree = "<group>"; };
+		1928BBEA2A371C0C0029BB8C /* AES.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AES.swift; sourceTree = "<group>"; };
+		1928BBF42A374F360029BB8C /* QRCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeView.swift; sourceTree = "<group>"; };
 		19A0ED302A2E240B00AF4A5F /* Cellular.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cellular.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		19A0ED332A2E240B00AF4A5F /* CellularApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellularApp.swift; sourceTree = "<group>"; };
-		19A0ED352A2E240B00AF4A5F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		19A0ED372A2E240C00AF4A5F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		19A0ED3A2A2E240C00AF4A5F /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		19A0ED3C2A2E240C00AF4A5F /* Cellular.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Cellular.entitlements; sourceTree = "<group>"; };
@@ -77,6 +81,32 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1928BBEC2A3721BF0029BB8C /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				1928BBEA2A371C0C0029BB8C /* AES.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		1928BBED2A3721E80029BB8C /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				1928BBDF2A35B1030029BB8C /* StartView.swift */,
+				1928BBE62A3610DF0029BB8C /* DownloadAppView.swift */,
+				1928BBF42A374F360029BB8C /* QRCodeView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		1928BBEF2A37221B0029BB8C /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				1915C22E2A30938300A22788 /* BluetoothModel.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		19A0ED272A2E240B00AF4A5F = {
 			isa = PBXGroup;
 			children = (
@@ -101,13 +131,13 @@
 			isa = PBXGroup;
 			children = (
 				1915C2302A30986400A22788 /* Info.plist */,
-				19A0ED332A2E240B00AF4A5F /* CellularApp.swift */,
-				19A0ED352A2E240B00AF4A5F /* ContentView.swift */,
-				1915C22E2A30938300A22788 /* BluetoothViewModel.swift */,
 				19A0ED372A2E240C00AF4A5F /* Assets.xcassets */,
 				19A0ED3C2A2E240C00AF4A5F /* Cellular.entitlements */,
 				19A0ED392A2E240C00AF4A5F /* Preview Content */,
-				1928BBDF2A35B1030029BB8C /* StartView.swift */,
+				1928BBEC2A3721BF0029BB8C /* Utilities */,
+				1928BBED2A3721E80029BB8C /* Views */,
+				1928BBEF2A37221B0029BB8C /* Models */,
+				19A0ED332A2E240B00AF4A5F /* CellularApp.swift */,
 			);
 			path = Cellular;
 			sourceTree = "<group>";
@@ -271,10 +301,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				19A0ED362A2E240B00AF4A5F /* ContentView.swift in Sources */,
+				1928BBF52A374F360029BB8C /* QRCodeView.swift in Sources */,
+				1928BBE72A3610DF0029BB8C /* DownloadAppView.swift in Sources */,
 				19A0ED342A2E240B00AF4A5F /* CellularApp.swift in Sources */,
-				1915C22F2A30938300A22788 /* BluetoothViewModel.swift in Sources */,
+				1915C22F2A30938300A22788 /* BluetoothModel.swift in Sources */,
 				1928BBE02A35B1030029BB8C /* StartView.swift in Sources */,
+				1928BBEB2A371C0C0029BB8C /* AES.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -445,7 +477,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.xuanhan.Cellular;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -475,7 +507,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.xuanhan.Cellular;
 				PRODUCT_NAME = "$(TARGET_NAME)";
