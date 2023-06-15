@@ -44,7 +44,7 @@ struct CellularApp: App {
                         )
                 }
             }
-            .frame(minWidth: 700, idealWidth: 900, maxWidth: 1100,
+            .frame(minWidth: 900, idealWidth: 1000, maxWidth: 1100,
                     minHeight: 600, idealHeight: 800, maxHeight: 1000,
                     alignment: .center)
             .alert("Turn on Bluetooth", isPresented: $bluetoothModel.isBluetoothOffDialogPresented) {

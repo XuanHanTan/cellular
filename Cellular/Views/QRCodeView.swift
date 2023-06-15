@@ -19,6 +19,7 @@ struct QRCodeView: View {
                 Text("Scan this QR code when prompted to")
                     .font(.largeTitle)
                     .fontWeight(.bold)
+                    .padding(.bottom, 40)
                 Spacer()
                 VStack {
                     if qrCodeNSImage != nil && bluetoothModel.isPoweredOn {
@@ -34,7 +35,12 @@ struct QRCodeView: View {
                 }.padding(.bottom, 40)
                 Text("This QR code contains information to help your Mac securely pair with and receive information from your Android device over Bluetooth.")
                     .multilineTextAlignment(.center)
+                    .padding(.bottom, 20)
                 Spacer()
+                HStack(spacing: 10) {
+                    ProgressView().scaleEffect(0.5)
+                    Text("Waiting for device to connect...").font(.title3).fontWeight(.semibold)
+                }.padding(.bottom, 20)
             }.padding(.all, 30)
             Divider()
             HStack {

@@ -123,6 +123,8 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         print("Central unsubscribed from characteristic \(characteristic.uuid.uuidString)")
     }
     
+    
+    
     func disposeBluetooth() {
         peripheralManager.stopAdvertising()
     }
