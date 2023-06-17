@@ -12,6 +12,7 @@
 		1928BBE72A3610DF0029BB8C /* DownloadAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1928BBE62A3610DF0029BB8C /* DownloadAppView.swift */; };
 		1928BBEB2A371C0C0029BB8C /* AES.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1928BBEA2A371C0C0029BB8C /* AES.swift */; };
 		1928BBF52A374F360029BB8C /* QRCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1928BBF42A374F360029BB8C /* QRCodeView.swift */; };
+		19513C412A3D922000AA5668 /* HandySwift in Frameworks */ = {isa = PBXBuildFile; productRef = 19513C402A3D922000AA5668 /* HandySwift */; };
 		19A0ED342A2E240B00AF4A5F /* CellularApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A0ED332A2E240B00AF4A5F /* CellularApp.swift */; };
 		19A0ED382A2E240C00AF4A5F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 19A0ED372A2E240C00AF4A5F /* Assets.xcassets */; };
 		19A0ED3B2A2E240C00AF4A5F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 19A0ED3A2A2E240C00AF4A5F /* Preview Assets.xcassets */; };
@@ -61,6 +62,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				19513C412A3D922000AA5668 /* HandySwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -184,6 +186,7 @@
 			);
 			name = Cellular;
 			packageProductDependencies = (
+				19513C402A3D922000AA5668 /* HandySwift */,
 			);
 			productName = Cellular;
 			productReference = 19A0ED302A2E240B00AF4A5F /* Cellular.app */;
@@ -258,6 +261,7 @@
 			);
 			mainGroup = 19A0ED272A2E240B00AF4A5F;
 			packageReferences = (
+				19513C3F2A3D922000AA5668 /* XCRemoteSwiftPackageReference "HandySwift" */,
 			);
 			productRefGroup = 19A0ED312A2E240B00AF4A5F /* Products */;
 			projectDirPath = "";
@@ -624,6 +628,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		19513C3F2A3D922000AA5668 /* XCRemoteSwiftPackageReference "HandySwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/FlineDev/HandySwift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		19513C402A3D922000AA5668 /* HandySwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 19513C3F2A3D922000AA5668 /* XCRemoteSwiftPackageReference "HandySwift" */;
+			productName = HandySwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 19A0ED282A2E240B00AF4A5F /* Project object */;
 }
