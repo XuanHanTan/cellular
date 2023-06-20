@@ -33,7 +33,7 @@ struct QRCodeView: View {
                         }.frame(width: 256, height: 256)
                     }
                 }.padding(.bottom, 40)
-                Text("This QR code contains information to help your Mac securely pair with and receive information from your Android device over Bluetooth.")
+                Text("This QR code contains information to help your Mac securely pair with and receive information from your Android device over Bluetooth. Continue setup on your Android device after scanning the QR code.")
                     .multilineTextAlignment(.center)
                     .padding(.bottom, 20)
                 Spacer()

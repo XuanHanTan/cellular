@@ -10,9 +10,7 @@ import CoreBluetooth
 import HandySwift
 
 extension Data {
-
     init?(fromHexEncodedString string: String) {
-
         // Convert 0 ... 9, a ... f, A ...F to their decimal value,
         // return nil for all other input characters
         func decodeNibble(u: UInt8) -> UInt8? {
@@ -170,6 +168,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         for eachRequest in requests {
             guard let requestValue = eachRequest.value,
                   let stringFromData = String(data: requestValue, encoding: .utf8) else {
+                peripheral.respond(to: eachRequest, withResult: .attributeNotFound)
                 continue
             }
             
@@ -177,13 +176,14 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             
             guard !parts.isEmpty else {
                 print("Error: No usable parts found for this request.")
+                peripheral.respond(to: eachRequest, withResult: .attributeNotFound)
                 continue
             }
             
             let command = parts[0]
             
-            print(parts[1])
             guard let ivData = Data(fromHexEncodedString: String(parts[1])) else {
+                peripheral.respond(to: eachRequest, withResult: .attributeNotFound)
                 continue
             }
             let aes = AES(key: sharedKey!, ivData: ivData)
@@ -201,6 +201,8 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                 default:
                     print("Error: Unrecognised command (\(command))")
             }
+            
+            peripheral.respond(to: eachRequest, withResult: .success)
         }
     }
     
@@ -210,6 +212,8 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     }
     
     private func saveHotspotInfo(ssid: String, password: String) {
+        defaults.set(ssid, forKey: "ssid")
+        defaults.set(password, forKey: "password")
         print("Saved hotspot info: \(ssid) \(password)")
     }
 }
