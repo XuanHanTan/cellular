@@ -54,6 +54,9 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     @Published var isBluetoothNotGrantedDialogPresented = false
     var isBluetoothNotSupportedDialogPresented = false
     @Published var isBluetoothUnknownErrorDialogPresented = false
+    var isSettingUp = false
+    @Published var isHelloWorldReceived = false
+    @Published var isSetupComplete = false
     
     func prepareForNewConnection() -> [String: String] {
         serviceUUID = CBUUID(nsuuid: UUID())
@@ -62,6 +65,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         sharedKey = String(randomWithLength: 32, allowedCharactersType: .alphaNumeric)
         defaults.set(sharedKey!, forKey: "sharedKey")
         
+        isSettingUp = true
         initializeBluetooth()
         
         return [
@@ -182,27 +186,38 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             
             let command = parts[0]
             
-            guard let ivData = Data(fromHexEncodedString: String(parts[1])) else {
-                peripheral.respond(to: eachRequest, withResult: .attributeNotFound)
-                continue
-            }
-            let aes = AES(key: sharedKey!, ivData: ivData)
-            
             switch command {
                 case "0":
+                    print("Received Hello World")
+                    isHelloWorldReceived = true
+                    peripheral.respond(to: eachRequest, withResult: .success)
+                case "1":
+                    guard let ivData = Data(fromHexEncodedString: String(parts[1])) else {
+                        peripheral.respond(to: eachRequest, withResult: .attributeNotFound)
+                        continue
+                    }
+                    let aes = AES(key: sharedKey!, ivData: ivData)
                     let cipherText = parts[2]
+                    
                     if let decodedData = Data(base64Encoded: cipherText.data(using: .utf8)!) {
                         let plainText = aes!.decrypt(data: decodedData) ?? ""
                         let plainTextSplit = plainText.split(separator: " ")
                         let ssid = plainTextSplit[0]
                         let password = plainTextSplit[1]
                         saveHotspotInfo(ssid: String(ssid), password: String(password))
+                        peripheral.respond(to: eachRequest, withResult: .success)
+                        
+                        if (isSettingUp) {
+                            isSetupComplete = true
+                        }
+                    } else {
+                        print("Error: Could not decode payload")
+                        peripheral.respond(to: eachRequest, withResult: .attributeNotFound)
                     }
                 default:
                     print("Error: Unrecognised command (\(command))")
+                    peripheral.respond(to: eachRequest, withResult: .attributeNotFound)
             }
-            
-            peripheral.respond(to: eachRequest, withResult: .success)
         }
     }
     

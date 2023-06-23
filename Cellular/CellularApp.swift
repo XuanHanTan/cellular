@@ -10,7 +10,7 @@ import SwiftUI
 @main
 struct CellularApp: App {
     enum Views {
-    case start, downloadApp, qrCode
+    case start, downloadApp, qrCode, settingUp
     }
     
     @State private var currentView: Views = .start
@@ -39,9 +39,15 @@ struct CellularApp: App {
                         QRCodeView(
                             handleBackButton: {
                                 currentView = .downloadApp
+                                bluetoothModel.disposeBluetooth()
+                            },
+                            handleNextScreen: {
+                                currentView = .settingUp
                             },
                             bluetoothModel: bluetoothModel
                         )
+                    case .settingUp:
+                        SettingUpView()
                 }
             }
             .frame(minWidth: 1000, idealWidth: 1100, maxWidth: 1200,

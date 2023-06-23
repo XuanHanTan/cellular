@@ -9,6 +9,7 @@ import SwiftUI
 
 struct QRCodeView: View {
     let handleBackButton: () -> Void
+    let handleNextScreen: () -> Void
     
     @State private var qrCodeNSImage: NSImage?
     @ObservedObject var bluetoothModel: BluetoothModel
@@ -66,14 +67,16 @@ struct QRCodeView: View {
             } catch {
                 print(error.localizedDescription)
             }
-        }.onDisappear {
-            bluetoothModel.disposeBluetooth()
+        }.onChange(of: bluetoothModel.isHelloWorldReceived) { newValue in
+            if (newValue) {
+                handleNextScreen()
+            }
         }
     }
 }
 
 struct QRCodeView_Previews: PreviewProvider {
     static var previews: some View {
-        QRCodeView(handleBackButton: {}, bluetoothModel: BluetoothModel())
+        QRCodeView(handleBackButton: {}, handleNextScreen: {}, bluetoothModel: BluetoothModel())
     }
 }
