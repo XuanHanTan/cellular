@@ -13,6 +13,15 @@
 		1928BBEB2A371C0C0029BB8C /* AES.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1928BBEA2A371C0C0029BB8C /* AES.swift */; };
 		1928BBF52A374F360029BB8C /* QRCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1928BBF42A374F360029BB8C /* QRCodeView.swift */; };
 		19513C412A3D922000AA5668 /* HandySwift in Frameworks */ = {isa = PBXBuildFile; productRef = 19513C402A3D922000AA5668 /* HandySwift */; };
+		1959D9C72A46A711001BBE0F /* FinishSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1959D9C62A46A711001BBE0F /* FinishSetupView.swift */; };
+		1959D9C92A46AC03001BBE0F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1959D9C82A46AC03001BBE0F /* SettingsView.swift */; };
+		1959D9CB2A46E68F001BBE0F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1959D9CA2A46E68F001BBE0F /* AppDelegate.swift */; };
+		1959D9D32A472B6E001BBE0F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1959D9D22A472B6E001BBE0F /* AppDelegate.swift */; };
+		1959D9D72A472B70001BBE0F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1959D9D62A472B70001BBE0F /* Assets.xcassets */; };
+		1959D9E52A472B70001BBE0F /* Cellular_HelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1959D9E42A472B70001BBE0F /* Cellular_HelperTests.swift */; };
+		1959D9EF2A472B70001BBE0F /* Cellular_HelperUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1959D9EE2A472B70001BBE0F /* Cellular_HelperUITests.swift */; };
+		1959D9F12A472B70001BBE0F /* Cellular_HelperUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1959D9F02A472B70001BBE0F /* Cellular_HelperUITestsLaunchTests.swift */; };
+		1959DA002A472DD5001BBE0F /* Cellular Helper.app in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1959D9D02A472B6E001BBE0F /* Cellular Helper.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		198A7A1E2A45A4FA0097C0DD /* SettingUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 198A7A1D2A45A4FA0097C0DD /* SettingUpView.swift */; };
 		19A0ED342A2E240B00AF4A5F /* CellularApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A0ED332A2E240B00AF4A5F /* CellularApp.swift */; };
 		19A0ED382A2E240C00AF4A5F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 19A0ED372A2E240C00AF4A5F /* Assets.xcassets */; };
@@ -23,6 +32,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		1959D9E12A472B70001BBE0F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 19A0ED282A2E240B00AF4A5F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1959D9CF2A472B6E001BBE0F;
+			remoteInfo = "Cellular Helper";
+		};
+		1959D9EB2A472B70001BBE0F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 19A0ED282A2E240B00AF4A5F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1959D9CF2A472B6E001BBE0F;
+			remoteInfo = "Cellular Helper";
+		};
 		19A0ED422A2E240C00AF4A5F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 19A0ED282A2E240B00AF4A5F /* Project object */;
@@ -39,6 +62,19 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		1959D9FF2A472DA6001BBE0F /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Contents/Library/LoginItems;
+			dstSubfolderSpec = 1;
+			files = (
+				1959DA002A472DD5001BBE0F /* Cellular Helper.app in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		1915C22E2A30938300A22788 /* BluetoothModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothModel.swift; sourceTree = "<group>"; };
 		1915C2302A30986400A22788 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -46,6 +82,18 @@
 		1928BBE62A3610DF0029BB8C /* DownloadAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadAppView.swift; sourceTree = "<group>"; };
 		1928BBEA2A371C0C0029BB8C /* AES.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AES.swift; sourceTree = "<group>"; };
 		1928BBF42A374F360029BB8C /* QRCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeView.swift; sourceTree = "<group>"; };
+		1959D9C62A46A711001BBE0F /* FinishSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinishSetupView.swift; sourceTree = "<group>"; };
+		1959D9C82A46AC03001BBE0F /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		1959D9CA2A46E68F001BBE0F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		1959D9D02A472B6E001BBE0F /* Cellular Helper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Cellular Helper.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1959D9D22A472B6E001BBE0F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		1959D9D62A472B70001BBE0F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1959D9DB2A472B70001BBE0F /* Cellular_Helper.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Cellular_Helper.entitlements; sourceTree = "<group>"; };
+		1959D9E02A472B70001BBE0F /* Cellular HelperTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Cellular HelperTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1959D9E42A472B70001BBE0F /* Cellular_HelperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cellular_HelperTests.swift; sourceTree = "<group>"; };
+		1959D9EA2A472B70001BBE0F /* Cellular HelperUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Cellular HelperUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1959D9EE2A472B70001BBE0F /* Cellular_HelperUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cellular_HelperUITests.swift; sourceTree = "<group>"; };
+		1959D9F02A472B70001BBE0F /* Cellular_HelperUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cellular_HelperUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		198A7A1D2A45A4FA0097C0DD /* SettingUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingUpView.swift; sourceTree = "<group>"; };
 		19A0ED302A2E240B00AF4A5F /* Cellular.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cellular.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		19A0ED332A2E240B00AF4A5F /* CellularApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellularApp.swift; sourceTree = "<group>"; };
@@ -60,6 +108,27 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		1959D9CD2A472B6E001BBE0F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1959D9DD2A472B70001BBE0F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1959D9E72A472B70001BBE0F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		19A0ED2D2A2E240B00AF4A5F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -100,6 +169,8 @@
 				1928BBE62A3610DF0029BB8C /* DownloadAppView.swift */,
 				1928BBF42A374F360029BB8C /* QRCodeView.swift */,
 				198A7A1D2A45A4FA0097C0DD /* SettingUpView.swift */,
+				1959D9C62A46A711001BBE0F /* FinishSetupView.swift */,
+				1959D9C82A46AC03001BBE0F /* SettingsView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -112,12 +183,42 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		1959D9D12A472B6E001BBE0F /* Cellular Helper */ = {
+			isa = PBXGroup;
+			children = (
+				1959D9D22A472B6E001BBE0F /* AppDelegate.swift */,
+				1959D9D62A472B70001BBE0F /* Assets.xcassets */,
+				1959D9DB2A472B70001BBE0F /* Cellular_Helper.entitlements */,
+			);
+			path = "Cellular Helper";
+			sourceTree = "<group>";
+		};
+		1959D9E32A472B70001BBE0F /* Cellular HelperTests */ = {
+			isa = PBXGroup;
+			children = (
+				1959D9E42A472B70001BBE0F /* Cellular_HelperTests.swift */,
+			);
+			path = "Cellular HelperTests";
+			sourceTree = "<group>";
+		};
+		1959D9ED2A472B70001BBE0F /* Cellular HelperUITests */ = {
+			isa = PBXGroup;
+			children = (
+				1959D9EE2A472B70001BBE0F /* Cellular_HelperUITests.swift */,
+				1959D9F02A472B70001BBE0F /* Cellular_HelperUITestsLaunchTests.swift */,
+			);
+			path = "Cellular HelperUITests";
+			sourceTree = "<group>";
+		};
 		19A0ED272A2E240B00AF4A5F = {
 			isa = PBXGroup;
 			children = (
 				19A0ED322A2E240B00AF4A5F /* Cellular */,
 				19A0ED442A2E240C00AF4A5F /* CellularTests */,
 				19A0ED4E2A2E240C00AF4A5F /* CellularUITests */,
+				1959D9D12A472B6E001BBE0F /* Cellular Helper */,
+				1959D9E32A472B70001BBE0F /* Cellular HelperTests */,
+				1959D9ED2A472B70001BBE0F /* Cellular HelperUITests */,
 				19A0ED312A2E240B00AF4A5F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -128,6 +229,9 @@
 				19A0ED302A2E240B00AF4A5F /* Cellular.app */,
 				19A0ED412A2E240C00AF4A5F /* CellularTests.xctest */,
 				19A0ED4B2A2E240C00AF4A5F /* CellularUITests.xctest */,
+				1959D9D02A472B6E001BBE0F /* Cellular Helper.app */,
+				1959D9E02A472B70001BBE0F /* Cellular HelperTests.xctest */,
+				1959D9EA2A472B70001BBE0F /* Cellular HelperUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -143,6 +247,7 @@
 				1928BBED2A3721E80029BB8C /* Views */,
 				1928BBEF2A37221B0029BB8C /* Models */,
 				19A0ED332A2E240B00AF4A5F /* CellularApp.swift */,
+				1959D9CA2A46E68F001BBE0F /* AppDelegate.swift */,
 			);
 			path = Cellular;
 			sourceTree = "<group>";
@@ -175,6 +280,59 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		1959D9CF2A472B6E001BBE0F /* Cellular Helper */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1959D9F22A472B70001BBE0F /* Build configuration list for PBXNativeTarget "Cellular Helper" */;
+			buildPhases = (
+				1959D9CC2A472B6E001BBE0F /* Sources */,
+				1959D9CD2A472B6E001BBE0F /* Frameworks */,
+				1959D9CE2A472B6E001BBE0F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Cellular Helper";
+			productName = "Cellular Helper";
+			productReference = 1959D9D02A472B6E001BBE0F /* Cellular Helper.app */;
+			productType = "com.apple.product-type.application";
+		};
+		1959D9DF2A472B70001BBE0F /* Cellular HelperTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1959D9F52A472B70001BBE0F /* Build configuration list for PBXNativeTarget "Cellular HelperTests" */;
+			buildPhases = (
+				1959D9DC2A472B70001BBE0F /* Sources */,
+				1959D9DD2A472B70001BBE0F /* Frameworks */,
+				1959D9DE2A472B70001BBE0F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1959D9E22A472B70001BBE0F /* PBXTargetDependency */,
+			);
+			name = "Cellular HelperTests";
+			productName = "Cellular HelperTests";
+			productReference = 1959D9E02A472B70001BBE0F /* Cellular HelperTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		1959D9E92A472B70001BBE0F /* Cellular HelperUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1959D9F82A472B70001BBE0F /* Build configuration list for PBXNativeTarget "Cellular HelperUITests" */;
+			buildPhases = (
+				1959D9E62A472B70001BBE0F /* Sources */,
+				1959D9E72A472B70001BBE0F /* Frameworks */,
+				1959D9E82A472B70001BBE0F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1959D9EC2A472B70001BBE0F /* PBXTargetDependency */,
+			);
+			name = "Cellular HelperUITests";
+			productName = "Cellular HelperUITests";
+			productReference = 1959D9EA2A472B70001BBE0F /* Cellular HelperUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		19A0ED2F2A2E240B00AF4A5F /* Cellular */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 19A0ED552A2E240C00AF4A5F /* Build configuration list for PBXNativeTarget "Cellular" */;
@@ -182,6 +340,7 @@
 				19A0ED2C2A2E240B00AF4A5F /* Sources */,
 				19A0ED2D2A2E240B00AF4A5F /* Frameworks */,
 				19A0ED2E2A2E240B00AF4A5F /* Resources */,
+				1959D9FF2A472DA6001BBE0F /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -241,6 +400,17 @@
 				LastSwiftUpdateCheck = 1430;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					1959D9CF2A472B6E001BBE0F = {
+						CreatedOnToolsVersion = 14.3;
+					};
+					1959D9DF2A472B70001BBE0F = {
+						CreatedOnToolsVersion = 14.3;
+						TestTargetID = 1959D9CF2A472B6E001BBE0F;
+					};
+					1959D9E92A472B70001BBE0F = {
+						CreatedOnToolsVersion = 14.3;
+						TestTargetID = 1959D9CF2A472B6E001BBE0F;
+					};
 					19A0ED2F2A2E240B00AF4A5F = {
 						CreatedOnToolsVersion = 14.3;
 					};
@@ -273,11 +443,36 @@
 				19A0ED2F2A2E240B00AF4A5F /* Cellular */,
 				19A0ED402A2E240C00AF4A5F /* CellularTests */,
 				19A0ED4A2A2E240C00AF4A5F /* CellularUITests */,
+				1959D9CF2A472B6E001BBE0F /* Cellular Helper */,
+				1959D9DF2A472B70001BBE0F /* Cellular HelperTests */,
+				1959D9E92A472B70001BBE0F /* Cellular HelperUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		1959D9CE2A472B6E001BBE0F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1959D9D72A472B70001BBE0F /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1959D9DE2A472B70001BBE0F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1959D9E82A472B70001BBE0F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		19A0ED2E2A2E240B00AF4A5F /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -304,6 +499,31 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		1959D9CC2A472B6E001BBE0F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1959D9D32A472B6E001BBE0F /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1959D9DC2A472B70001BBE0F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1959D9E52A472B70001BBE0F /* Cellular_HelperTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1959D9E62A472B70001BBE0F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1959D9F12A472B70001BBE0F /* Cellular_HelperUITestsLaunchTests.swift in Sources */,
+				1959D9EF2A472B70001BBE0F /* Cellular_HelperUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		19A0ED2C2A2E240B00AF4A5F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -311,9 +531,12 @@
 				198A7A1E2A45A4FA0097C0DD /* SettingUpView.swift in Sources */,
 				1928BBF52A374F360029BB8C /* QRCodeView.swift in Sources */,
 				1928BBE72A3610DF0029BB8C /* DownloadAppView.swift in Sources */,
+				1959D9C92A46AC03001BBE0F /* SettingsView.swift in Sources */,
 				19A0ED342A2E240B00AF4A5F /* CellularApp.swift in Sources */,
 				1915C22F2A30938300A22788 /* BluetoothModel.swift in Sources */,
+				1959D9C72A46A711001BBE0F /* FinishSetupView.swift in Sources */,
 				1928BBE02A35B1030029BB8C /* StartView.swift in Sources */,
+				1959D9CB2A46E68F001BBE0F /* AppDelegate.swift in Sources */,
 				1928BBEB2A371C0C0029BB8C /* AES.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -338,6 +561,16 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		1959D9E22A472B70001BBE0F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1959D9CF2A472B6E001BBE0F /* Cellular Helper */;
+			targetProxy = 1959D9E12A472B70001BBE0F /* PBXContainerItemProxy */;
+		};
+		1959D9EC2A472B70001BBE0F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1959D9CF2A472B6E001BBE0F /* Cellular Helper */;
+			targetProxy = 1959D9EB2A472B70001BBE0F /* PBXContainerItemProxy */;
+		};
 		19A0ED432A2E240C00AF4A5F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 19A0ED2F2A2E240B00AF4A5F /* Cellular */;
@@ -351,6 +584,134 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		1959D9F32A472B70001BBE0F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Cellular Helper/Cellular_Helper.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Cellular;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_LSBackgroundOnly = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.xuanhan.cellularhelper;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		1959D9F42A472B70001BBE0F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Cellular Helper/Cellular_Helper.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Cellular;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_LSBackgroundOnly = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.xuanhan.cellularhelper;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		1959D9F62A472B70001BBE0F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.3;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.xuanhan.Cellular-HelperTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Cellular Helper.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Cellular Helper";
+			};
+			name = Debug;
+		};
+		1959D9F72A472B70001BBE0F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.3;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.xuanhan.Cellular-HelperTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Cellular Helper.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Cellular Helper";
+			};
+			name = Release;
+		};
+		1959D9F92A472B70001BBE0F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.xuanhan.Cellular-HelperUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = "Cellular Helper";
+			};
+			name = Debug;
+		};
+		1959D9FA2A472B70001BBE0F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.xuanhan.Cellular-HelperUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = "Cellular Helper";
+			};
+			name = Release;
+		};
 		19A0ED532A2E240C00AF4A5F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -401,7 +762,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 13.2;
+				MACOSX_DEPLOYMENT_TARGET = 13.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -455,7 +816,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 13.2;
+				MACOSX_DEPLOYMENT_TARGET = 13.3;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
@@ -479,15 +840,16 @@
 				INFOPLIST_FILE = Cellular/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Cellular;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "To discover your Android device and start the mobile hotspot intelligently.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.xuanhan.Cellular;
+				PRODUCT_BUNDLE_IDENTIFIER = com.xuanhan.cellular;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -509,15 +871,16 @@
 				INFOPLIST_FILE = Cellular/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Cellular;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "To discover your Android device and start the mobile hotspot intelligently.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.xuanhan.Cellular;
+				PRODUCT_BUNDLE_IDENTIFIER = com.xuanhan.cellular;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -595,6 +958,33 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		1959D9F22A472B70001BBE0F /* Build configuration list for PBXNativeTarget "Cellular Helper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1959D9F32A472B70001BBE0F /* Debug */,
+				1959D9F42A472B70001BBE0F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1959D9F52A472B70001BBE0F /* Build configuration list for PBXNativeTarget "Cellular HelperTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1959D9F62A472B70001BBE0F /* Debug */,
+				1959D9F72A472B70001BBE0F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1959D9F82A472B70001BBE0F /* Build configuration list for PBXNativeTarget "Cellular HelperUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1959D9F92A472B70001BBE0F /* Debug */,
+				1959D9FA2A472B70001BBE0F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		19A0ED2B2A2E240B00AF4A5F /* Build configuration list for PBXProject "Cellular" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

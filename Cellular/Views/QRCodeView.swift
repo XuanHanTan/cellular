@@ -68,7 +68,7 @@ struct QRCodeView: View {
                 print(error.localizedDescription)
             }
         }.onChange(of: bluetoothModel.isHelloWorldReceived) { newValue in
-            if (newValue) {
+            if newValue {
                 handleNextScreen()
             }
         }

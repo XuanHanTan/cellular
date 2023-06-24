@@ -54,9 +54,13 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     @Published var isBluetoothNotGrantedDialogPresented = false
     var isBluetoothNotSupportedDialogPresented = false
     @Published var isBluetoothUnknownErrorDialogPresented = false
-    var isSettingUp = false
     @Published var isHelloWorldReceived = false
     @Published var isSetupComplete = false
+    
+    override init() {
+        super.init()
+        isSetupComplete = defaults.bool(forKey: "isSetupComplete")
+    }
     
     func prepareForNewConnection() -> [String: String] {
         serviceUUID = CBUUID(nsuuid: UUID())
@@ -65,7 +69,6 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         sharedKey = String(randomWithLength: 32, allowedCharactersType: .alphaNumeric)
         defaults.set(sharedKey!, forKey: "sharedKey")
         
-        isSettingUp = true
         initializeBluetooth()
         
         return [
@@ -207,8 +210,9 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                         saveHotspotInfo(ssid: String(ssid), password: String(password))
                         peripheral.respond(to: eachRequest, withResult: .success)
                         
-                        if (isSettingUp) {
+                        if !isSetupComplete {
                             isSetupComplete = true
+                            defaults.set(isSetupComplete, forKey: "isSetupComplete")
                         }
                     } else {
                         print("Error: Could not decode payload")
@@ -221,14 +225,14 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         }
     }
     
-    func disposeBluetooth() {
-        peripheralManager.stopAdvertising()
-        peripheralManager.removeAllServices()
-    }
-    
     private func saveHotspotInfo(ssid: String, password: String) {
         defaults.set(ssid, forKey: "ssid")
         defaults.set(password, forKey: "password")
         print("Saved hotspot info: \(ssid) \(password)")
+    }
+    
+    func disposeBluetooth() {
+        peripheralManager.stopAdvertising()
+        peripheralManager.removeAllServices()
     }
 }
