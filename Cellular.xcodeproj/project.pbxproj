@@ -29,6 +29,8 @@
 		19A0ED462A2E240C00AF4A5F /* CellularTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A0ED452A2E240C00AF4A5F /* CellularTests.swift */; };
 		19A0ED502A2E240C00AF4A5F /* CellularUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A0ED4F2A2E240C00AF4A5F /* CellularUITests.swift */; };
 		19A0ED522A2E240C00AF4A5F /* CellularUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A0ED512A2E240C00AF4A5F /* CellularUITestsLaunchTests.swift */; };
+		19BDE0692A4878E300C038BA /* MenuBarContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19BDE0682A4878E300C038BA /* MenuBarContentView.swift */; };
+		19BDE06B2A4878ED00C038BA /* MenuBarIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19BDE06A2A4878ED00C038BA /* MenuBarIconView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -105,6 +107,8 @@
 		19A0ED4B2A2E240C00AF4A5F /* CellularUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CellularUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		19A0ED4F2A2E240C00AF4A5F /* CellularUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellularUITests.swift; sourceTree = "<group>"; };
 		19A0ED512A2E240C00AF4A5F /* CellularUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellularUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		19BDE0682A4878E300C038BA /* MenuBarContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarContentView.swift; sourceTree = "<group>"; };
+		19BDE06A2A4878ED00C038BA /* MenuBarIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarIconView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -171,6 +175,8 @@
 				198A7A1D2A45A4FA0097C0DD /* SettingUpView.swift */,
 				1959D9C62A46A711001BBE0F /* FinishSetupView.swift */,
 				1959D9C82A46AC03001BBE0F /* SettingsView.swift */,
+				19BDE0682A4878E300C038BA /* MenuBarContentView.swift */,
+				19BDE06A2A4878ED00C038BA /* MenuBarIconView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -531,8 +537,10 @@
 				198A7A1E2A45A4FA0097C0DD /* SettingUpView.swift in Sources */,
 				1928BBF52A374F360029BB8C /* QRCodeView.swift in Sources */,
 				1928BBE72A3610DF0029BB8C /* DownloadAppView.swift in Sources */,
+				19BDE0692A4878E300C038BA /* MenuBarContentView.swift in Sources */,
 				1959D9C92A46AC03001BBE0F /* SettingsView.swift in Sources */,
 				19A0ED342A2E240B00AF4A5F /* CellularApp.swift in Sources */,
+				19BDE06B2A4878ED00C038BA /* MenuBarIconView.swift in Sources */,
 				1915C22F2A30938300A22788 /* BluetoothModel.swift in Sources */,
 				1959D9C72A46A711001BBE0F /* FinishSetupView.swift in Sources */,
 				1928BBE02A35B1030029BB8C /* StartView.swift in Sources */,
