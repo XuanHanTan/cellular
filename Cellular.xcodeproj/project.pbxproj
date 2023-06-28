@@ -29,6 +29,7 @@
 		19A0ED462A2E240C00AF4A5F /* CellularTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A0ED452A2E240C00AF4A5F /* CellularTests.swift */; };
 		19A0ED502A2E240C00AF4A5F /* CellularUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A0ED4F2A2E240C00AF4A5F /* CellularUITests.swift */; };
 		19A0ED522A2E240C00AF4A5F /* CellularUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A0ED512A2E240C00AF4A5F /* CellularUITestsLaunchTests.swift */; };
+		19B4F8D82A49D66900AC2B90 /* MenuBarExtraAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 19B4F8D72A49D66900AC2B90 /* MenuBarExtraAccess */; };
 		19BDE0692A4878E300C038BA /* MenuBarContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19BDE0682A4878E300C038BA /* MenuBarContentView.swift */; };
 		19BDE06B2A4878ED00C038BA /* MenuBarIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19BDE06A2A4878ED00C038BA /* MenuBarIconView.swift */; };
 /* End PBXBuildFile section */
@@ -137,6 +138,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				19B4F8D82A49D66900AC2B90 /* MenuBarExtraAccess in Frameworks */,
 				19513C412A3D922000AA5668 /* HandySwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -355,6 +357,7 @@
 			name = Cellular;
 			packageProductDependencies = (
 				19513C402A3D922000AA5668 /* HandySwift */,
+				19B4F8D72A49D66900AC2B90 /* MenuBarExtraAccess */,
 			);
 			productName = Cellular;
 			productReference = 19A0ED302A2E240B00AF4A5F /* Cellular.app */;
@@ -441,6 +444,7 @@
 			mainGroup = 19A0ED272A2E240B00AF4A5F;
 			packageReferences = (
 				19513C3F2A3D922000AA5668 /* XCRemoteSwiftPackageReference "HandySwift" */,
+				19B4F8D62A49D66900AC2B90 /* XCRemoteSwiftPackageReference "MenuBarExtraAccess" */,
 			);
 			productRefGroup = 19A0ED312A2E240B00AF4A5F /* Products */;
 			projectDirPath = "";
@@ -1040,6 +1044,14 @@
 				minimumVersion = 3.0.0;
 			};
 		};
+		19B4F8D62A49D66900AC2B90 /* XCRemoteSwiftPackageReference "MenuBarExtraAccess" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/orchetect/MenuBarExtraAccess";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1047,6 +1059,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 19513C3F2A3D922000AA5668 /* XCRemoteSwiftPackageReference "HandySwift" */;
 			productName = HandySwift;
+		};
+		19B4F8D72A49D66900AC2B90 /* MenuBarExtraAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 19B4F8D62A49D66900AC2B90 /* XCRemoteSwiftPackageReference "MenuBarExtraAccess" */;
+			productName = MenuBarExtraAccess;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

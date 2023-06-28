@@ -7,6 +7,7 @@
 
 import SwiftUI
 import ServiceManagement
+import MenuBarExtraAccess
 
 @main
 struct CellularApp: App {
@@ -17,6 +18,7 @@ struct CellularApp: App {
     }
     
     @State private var currentView: Views = .start
+    @State private var menuBarItemPresented = false
     @StateObject private var bluetoothModel = BluetoothModel()
     
     func finishSetup() {
@@ -68,11 +70,7 @@ struct CellularApp: App {
                     case .finishSetup:
                         FinishSetupView(handlePreferencesButton: {
                             finishSetup()
-                            if #available(macOS 13, *) {
-                                NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
-                            } else {
-                                NSApp.sendAction(Selector(("showPreferencesWindow:")), to: nil, from: nil)
-                            }
+                            NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
                         }, handleFinishButton: {
                             finishSetup()
                             NSApp.hide(self)
@@ -107,5 +105,15 @@ struct CellularApp: App {
                 SettingsView()
             }
         }
+        MenuBarExtra(
+            content: {
+                MenuBarContentView(bluetoothModel: bluetoothModel, isMenuBarItemPresented: $menuBarItemPresented)
+            },
+            label: {
+                MenuBarIconView(bluetoothModel: bluetoothModel)
+            }
+        )
+        .menuBarExtraStyle(.window)
+        .menuBarExtraAccess(isPresented: $menuBarItemPresented)
     }
 }

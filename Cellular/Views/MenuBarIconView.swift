@@ -8,15 +8,18 @@
 import SwiftUI
 
 struct MenuBarIconView: View {
+    @ObservedObject var bluetoothModel: BluetoothModel
+    @State private var isSetupComplete = false
+    
     var body: some View {
         HStack {
-            Text("5G")
+            if isSetupComplete {
+                Text("5G")
+            } else {
+                Image(systemName: "cellularbars")
+            }
+        }.onReceive(bluetoothModel.$isSetupComplete) { isSetupComplete in
+            self.isSetupComplete = isSetupComplete
         }
-    }
-}
-
-struct MenuBarIconView_Previews: PreviewProvider {
-    static var previews: some View {
-        MenuBarIconView()
     }
 }
