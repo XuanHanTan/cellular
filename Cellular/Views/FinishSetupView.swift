@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct FinishSetupView: View {
-    let handlePreferencesButton: () -> Void
+    let handleSettingsButton: () -> Void
     let handleFinishButton: () -> Void
     
     var body: some View {
@@ -29,7 +29,7 @@ struct FinishSetupView: View {
             Divider()
             HStack {
                 Spacer()
-                Button("Settings", action: handlePreferencesButton)
+                Button("Settings", action: handleSettingsButton)
                     .controlSize(.large)
                     .padding(.trailing, 5)
                 Button("Finish", action: handleFinishButton)
@@ -42,6 +42,6 @@ struct FinishSetupView: View {
 
 struct FinishSetupView_Previews: PreviewProvider {
     static var previews: some View {
-        FinishSetupView(handlePreferencesButton: {}, handleFinishButton: {})
+        FinishSetupView(handleSettingsButton: {}, handleFinishButton: {})
     }
 }

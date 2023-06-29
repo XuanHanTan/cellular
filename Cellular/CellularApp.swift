@@ -22,7 +22,13 @@ struct CellularApp: App {
     @StateObject private var bluetoothModel = BluetoothModel()
     
     func finishSetup() {
+        // Close setup window
         NSApplication.shared.keyWindow?.close()
+        
+        // Make app an accessory (no icon in Dock)
+        NSApp.setActivationPolicy(.accessory)
+        
+        // Register login item to auto-start app on startup
         do {
             try SMAppService.loginItem(identifier: "com.xuanhan.cellularhelper").register()
         } catch {
@@ -68,14 +74,16 @@ struct CellularApp: App {
                             bluetoothModel: bluetoothModel
                         )
                     case .finishSetup:
-                        FinishSetupView(handlePreferencesButton: {
-                            finishSetup()
-                            NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
-                        }, handleFinishButton: {
-                            finishSetup()
-                            NSApp.hide(self)
-                            NSApp.setActivationPolicy(.accessory)
-                        })
+                        FinishSetupView(
+                            handleSettingsButton: {
+                                finishSetup()
+                                
+                                // Open settings window
+                                NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+                            }, handleFinishButton: {
+                                finishSetup()
+                            }
+                        )
                 }
             }
             .frame(minWidth: 1000, idealWidth: 1100, maxWidth: 1200,
@@ -93,10 +101,14 @@ struct CellularApp: App {
             } message: {
                 Text("Cellular is not able to communicate with the Bluetooth service and will retry automatically.")
             }.onAppear {
-                NSApp.setActivationPolicy(.regular)
-                NSApp.activate(ignoringOtherApps: true)
+                if !bluetoothModel.isSetupComplete {
+                    // Make app a regular app to show the setup window
+                    NSApp.setActivationPolicy(.regular)
+                    NSApp.activate(ignoringOtherApps: true)
+                }
             }
         }.windowStyle(.hiddenTitleBar).commands {
+            // Disable new window command in Menu Bar
             CommandGroup(replacing: CommandGroupPlacement.newItem) {
             }
         }

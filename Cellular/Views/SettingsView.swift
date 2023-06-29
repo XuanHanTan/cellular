@@ -51,12 +51,10 @@ struct SettingsView: View {
                     openURL(url)
                 }
             }.frame(maxWidth: .infinity, alignment: .trailing).padding(.all, 20)
-        }.frame(minWidth: 600, idealWidth: 600, maxWidth: 600,
-                minHeight: 400, idealHeight: 400, maxHeight: 400,
-                alignment: .center)
-        .onDisappear {
-            NSApp.setActivationPolicy(.accessory)
         }
+        .frame(minWidth: 600, idealWidth: 600, maxWidth: 600,
+               minHeight: 400, idealHeight: 400, maxHeight: 400,
+               alignment: .center)
     }
 }
 
