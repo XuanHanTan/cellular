@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreBluetooth
+import CoreWLAN
 import HandySwift
 
 extension Data {
@@ -44,13 +45,17 @@ extension Data {
  This class handles all things related to connecting to and communicating with the Cellular Companion app on the Android device.
  */
 class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeripheralManagerDelegate {
+    private let cwWiFiClient = CWWiFiClient()
     private var peripheralManager: CBPeripheralManager!
     private let defaults = UserDefaults.standard
     private var serviceUUID: CBUUID?
     private let commandCharacteristicUUID = CBUUID(string: "00000001-0000-1000-8000-00805f9b34fb")
     private var sharedKey: String?
     private var centralUUID: UUID?
-    
+    private var connectedCentral: CBCentral?
+    private var resendValueQueue: [String] = []
+    private var ssid: String?
+    private var password: String?
     private var commandCharacteristic: CBMutableCharacteristic!
     
     var isPoweredOn = false
@@ -61,6 +66,11 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     
     @Published var isHelloWorldReceived = false
     @Published var isSetupComplete = false
+    @Published var isDeviceConnected = false
+    
+    @Published var signalLevel: Int?
+    @Published var networkType: String?
+    @Published var batteryLevel: Int?
     
     override init() {
         super.init()
@@ -115,6 +125,8 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                 return
             }
         }
+        ssid = defaults.string(forKey: "ssid")
+        password = defaults.string(forKey: "password")
         
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
     }
@@ -184,13 +196,27 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     }
     
     func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
+        guard central.identifier == centralUUID else {
+            print("Error: Unknown central subscribed to characteristic.")
+            return
+        }
+        
         print("Central subscribed to characteristic \(characteristic.uuid.uuidString)")
-        // TODO: stop advertising
+        connectedCentral = central
+        isDeviceConnected = true
+        peripheralManager.stopAdvertising()
     }
     
     func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didUnsubscribeFrom characteristic: CBCharacteristic) {
+        guard central.identifier == centralUUID else {
+            print("Unknown central unsubscribed from characteristic.")
+            return
+        }
+        
         print("Central unsubscribed from characteristic \(characteristic.uuid.uuidString)")
-        // TODO: start advertising
+        connectedCentral = nil
+        isDeviceConnected = false
+        peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [serviceUUID]])
     }
     
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
@@ -200,6 +226,14 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         }
         
         print("Central wrote value to characteristic \(characteristic.uuid.uuidString): \(String(bytes: characteristic.value!, encoding: .utf8) ?? "")")
+    }
+    
+    func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
+        if let firstResendValue = resendValueQueue.first {
+            peripheralManager.updateValue(firstResendValue.data(using: .utf8)!, for: commandCharacteristic, onSubscribedCentrals: [connectedCentral!])
+            resendValueQueue.removeFirst()
+            print("Resending value \(firstResendValue) to central.")
+        }
     }
     
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
@@ -216,13 +250,34 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             // Split parts from request payload string
             let parts = stringFromData.split(separator: " ")
             let command = parts[0]
+            var plainTextSplit: [String.SubSequence]?
             
-            // Check for known central if needed
             if command != "0" {
+                // Check for known central
                 guard eachRequest.central.identifier == centralUUID else {
                     print("Error: Request received from unknown central.")
                     peripheral.respond(to: eachRequest, withResult: .insufficientAuthorization)
                     continue
+                }
+                
+                if command != "3" {
+                    // Ensure that IV data is present
+                    guard let ivData = Data(fromHexEncodedString: String(parts[1])) else {
+                        peripheral.respond(to: eachRequest, withResult: .attributeNotFound)
+                        continue
+                    }
+                    
+                    // Prepare for decryption of data using shared key and IV
+                    let aes = AES(key: sharedKey!, ivData: ivData)
+                    let cipherText = parts[2]
+                    
+                    if let decodedData = Data(base64Encoded: cipherText.data(using: .utf8)!) {
+                        let plainText = aes!.decrypt(data: decodedData) ?? ""
+                        plainTextSplit = plainText.split(separator: " ")
+                    } else {
+                        print("Error: Could not decode payload")
+                        peripheral.respond(to: eachRequest, withResult: .attributeNotFound)
+                    }
                 }
             }
             
@@ -245,46 +300,44 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                         peripheral.respond(to: eachRequest, withResult: .requestNotSupported)
                     }
                 case "1":
-                    // Ensure that IV data is present
-                    guard let ivData = Data(fromHexEncodedString: String(parts[1])) else {
-                        peripheral.respond(to: eachRequest, withResult: .attributeNotFound)
+                    // Ensure that plaintext has two parts
+                    guard plainTextSplit!.count == 2 else {
+                        print("Error: Payload is invalid.")
+                        peripheral.respond(to: eachRequest, withResult: .unlikelyError)
                         continue
                     }
                     
-                    // Prepare for decryption of data using shared key and IV
-                    let aes = AES(key: sharedKey!, ivData: ivData)
-                    let cipherText = parts[2]
+                    // Split plaintext to SSID and password
+                    let ssid = plainTextSplit![0]
+                    let password = plainTextSplit![1]
                     
-                    if let decodedData = Data(base64Encoded: cipherText.data(using: .utf8)!) {
-                        let plainText = aes!.decrypt(data: decodedData) ?? ""
-                        let plainTextSplit = plainText.split(separator: " ")
-                        
-                        // Ensure that plaintext has two parts
-                        guard plainTextSplit.count == 2 else {
-                            print("Error: Payload is invalid.")
-                            peripheral.respond(to: eachRequest, withResult: .unlikelyError)
-                            continue
-                        }
-                        
-                        // Split plaintext to SSID and password
-                        let ssid = plainTextSplit[0]
-                        let password = plainTextSplit[1]
-                        
-                        // Store hotspot info in UserDefaults
-                        saveHotspotInfo(ssid: String(ssid), password: String(password))
-                        
-                        // Indicate successful BLE operation
-                        peripheral.respond(to: eachRequest, withResult: .success)
-                        
-                        // Set setup to be complete if needed
-                        if !isSetupComplete {
-                            isSetupComplete = true
-                            defaults.set(isSetupComplete, forKey: "isSetupComplete")
-                        }
-                    } else {
-                        print("Error: Could not decode payload")
-                        peripheral.respond(to: eachRequest, withResult: .attributeNotFound)
+                    // Store hotspot info in UserDefaults
+                    saveHotspotInfo(ssid: String(ssid), password: String(password))
+                    
+                    // Indicate successful BLE operation
+                    peripheral.respond(to: eachRequest, withResult: .success)
+                    
+                    // Set setup to be complete if needed
+                    if !isSetupComplete {
+                        isSetupComplete = true
+                        defaults.set(isSetupComplete, forKey: "isSetupComplete")
                     }
+                case "2":
+                    // Ensure that plaintext has two parts
+                    guard plainTextSplit!.count == 3 else {
+                        print("Error: Payload is invalid.")
+                        peripheral.respond(to: eachRequest, withResult: .unlikelyError)
+                        continue
+                    }
+                    
+                    // Split plaintext to signal level, network type and battery level
+                    if let signalLevel = Int(plainTextSplit![0]), let batteryLevel = Int(plainTextSplit![2]) {
+                        let networkType = plainTextSplit![1]
+                        setPhoneInfo(signalLevel: signalLevel, networkType: String(networkType), batteryLevel: batteryLevel)
+                    }
+                case "3":
+                    // Connect to hotspot
+                    connectToHotspot()
                 default:
                     print("Error: Unrecognised command (\(command))")
                     peripheral.respond(to: eachRequest, withResult: .attributeNotFound)
@@ -298,9 +351,70 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
      - parameter password: The password of the hotspot
      */
     private func saveHotspotInfo(ssid: String, password: String) {
+        self.ssid = ssid
+        self.password = password
         defaults.set(ssid, forKey: "ssid")
         defaults.set(password, forKey: "password")
+        
         print("Saved hotspot info: \(ssid) \(password)")
+    }
+    
+    private func setPhoneInfo(signalLevel: Int, networkType: String, batteryLevel: Int) {
+        self.signalLevel = signalLevel
+        self.networkType = networkType
+        self.batteryLevel = batteryLevel
+        
+        print("Phone info set: \(signalLevel) \(networkType) \(batteryLevel)")
+    }
+    
+    private func updateCharacteristicValue(value: String) {
+        let status = peripheralManager.updateValue(value.data(using: .utf8)!, for: commandCharacteristic, onSubscribedCentrals: [connectedCentral!])
+        if status {
+            print("Value \(value) sent successfully.")
+        } else {
+            resendValueQueue.append(value)
+            print("Value \(value) send failed, adding to resend queue.")
+        }
+    }
+    
+    func enableHotspot() {
+        guard isPoweredOn else {
+            print("Error: Peripheral manager is not powered on.")
+            return
+        }
+        
+        guard connectedCentral != nil else {
+            print("Error: Device must be connected to Android Companion.")
+            return
+        }
+        
+        updateCharacteristicValue(value: "0")
+    }
+    
+    private func connectToHotspot() {
+        guard ssid != nil else {
+            print("Hotspot SSID must be set before calling this function.")
+            return
+        }
+        guard password != nil else {
+            print("Hotspot password must be set before calling this function.")
+            return
+        }
+        
+        let cwInterface = cwWiFiClient.interface()!
+        do {
+            var selNetwork: CWNetwork? = nil
+            for network in try cwInterface.scanForNetworks(withName: nil) {
+                if network.ssid == ssid {
+                    selNetwork = network
+                }
+            }
+            if selNetwork != nil {
+                try cwInterface.associate(to: selNetwork!, password: password)
+            }
+        } catch {
+            print(error.localizedDescription)
+        }
     }
     
     /**
@@ -315,6 +429,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         serviceUUID = nil
         sharedKey = nil
         centralUUID = nil
+        connectedCentral = nil
         isBluetoothOffDialogPresented = false
         isBluetoothNotGrantedDialogPresented = false
         isBluetoothNotSupportedDialogPresented = false
