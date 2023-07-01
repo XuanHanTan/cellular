@@ -55,6 +55,9 @@ struct SettingsView: View {
         .frame(minWidth: 600, idealWidth: 600, maxWidth: 600,
                minHeight: 400, idealHeight: 400, maxHeight: 400,
                alignment: .center)
+        .onReceive(NotificationCenter.default.publisher(for: NSWindow.willCloseNotification)) { newValue in
+            NSApp.setActivationPolicy(.accessory)
+        }
     }
 }
 

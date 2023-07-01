@@ -25,9 +25,6 @@ struct CellularApp: App {
         // Close setup window
         NSApplication.shared.keyWindow?.close()
         
-        // Make app an accessory (no icon in Dock)
-        NSApp.setActivationPolicy(.accessory)
-        
         // Register login item to auto-start app on startup
         do {
             try SMAppService.loginItem(identifier: "com.xuanhan.cellularhelper").register()
@@ -82,6 +79,9 @@ struct CellularApp: App {
                                 NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
                             }, handleFinishButton: {
                                 finishSetup()
+                                
+                                // Make app an accessory (no icon in Dock)
+                                NSApp.setActivationPolicy(.accessory)
                             }
                         )
                 }

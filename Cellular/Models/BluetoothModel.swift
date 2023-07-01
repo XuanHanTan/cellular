@@ -271,13 +271,13 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                     let aes = AES(key: sharedKey!, ivData: ivData)
                     let cipherText = parts[2]
                     
-                    if let decodedData = Data(base64Encoded: cipherText.data(using: .utf8)!) {
-                        let plainText = aes!.decrypt(data: decodedData) ?? ""
-                        plainTextSplit = plainText.split(separator: " ")
-                    } else {
+                    guard let decodedData = Data(base64Encoded: cipherText.data(using: .utf8)!) else {
                         print("Error: Could not decode payload")
                         peripheral.respond(to: eachRequest, withResult: .attributeNotFound)
+                        continue
                     }
+                    let plainText = aes!.decrypt(data: decodedData) ?? ""
+                    plainTextSplit = plainText.split(separator: " ")
                 }
             }
             
@@ -331,10 +331,14 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                     }
                     
                     // Split plaintext to signal level, network type and battery level
-                    if let signalLevel = Int(plainTextSplit![0]), let batteryLevel = Int(plainTextSplit![2]) {
-                        let networkType = plainTextSplit![1]
-                        setPhoneInfo(signalLevel: signalLevel, networkType: String(networkType), batteryLevel: batteryLevel)
+                    guard let signalLevel = Int(plainTextSplit![0]), let batteryLevel = Int(plainTextSplit![2]) else {
+                        print("Error: Payload is invalid.")
+                        peripheral.respond(to: eachRequest, withResult: .unlikelyError)
+                        continue
                     }
+                    
+                    let networkType = plainTextSplit![1]
+                    setPhoneInfo(signalLevel: signalLevel, networkType: String(networkType), batteryLevel: batteryLevel)
                 case "3":
                     // Connect to hotspot
                     connectToHotspot()
