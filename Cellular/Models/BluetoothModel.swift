@@ -260,9 +260,10 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                     continue
                 }
                 
-                if command != "3" {
+                if command == "1" {
                     // Ensure that IV data is present
                     guard let ivData = Data(fromHexEncodedString: String(parts[1])) else {
+                        print("Error: IV data is missing")
                         peripheral.respond(to: eachRequest, withResult: .attributeNotFound)
                         continue
                     }
@@ -278,6 +279,15 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                     }
                     let plainText = aes!.decrypt(data: decodedData) ?? ""
                     plainTextSplit = plainText.split(separator: " ")
+                } else {
+                    guard parts.count >= 2 else {
+                        print("Error: Payload is invalid.")
+                        peripheral.respond(to: eachRequest, withResult: .unlikelyError)
+                        continue
+                    }
+                    
+                    plainTextSplit = parts
+                    plainTextSplit!.removeFirst()
                 }
             }
             
@@ -364,9 +374,15 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     }
     
     private func setPhoneInfo(signalLevel: Int, networkType: String, batteryLevel: Int) {
-        self.signalLevel = signalLevel
-        self.networkType = networkType
-        self.batteryLevel = batteryLevel
+        if signalLevel != -1 {
+            self.signalLevel = signalLevel
+        }
+        if networkType != "-1" {
+            self.networkType = networkType
+        }
+        if batteryLevel != -1 {
+            self.batteryLevel = batteryLevel
+        }
         
         print("Phone info set: \(signalLevel) \(networkType) \(batteryLevel)")
     }

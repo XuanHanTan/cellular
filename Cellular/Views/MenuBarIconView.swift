@@ -20,6 +20,8 @@ struct MenuBarIconView: View {
             }
         }.onReceive(bluetoothModel.$isSetupComplete) { isSetupComplete in
             self.isSetupComplete = isSetupComplete
+        }.onAppear {
+            bluetoothModel.initializeBluetooth()
         }
     }
 }
