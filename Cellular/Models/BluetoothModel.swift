@@ -57,6 +57,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     private var ssid: String?
     private var password: String?
     private var commandCharacteristic: CBMutableCharacteristic!
+    private let acceptableNetworkTypes = ["-1", "GPRS", "E", "3G", "4G", "5G"]
     
     var isPoweredOn = false
     @Published var isBluetoothOffDialogPresented = false
@@ -68,9 +69,9 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     @Published var isSetupComplete = false
     @Published var isDeviceConnected = false
     
-    @Published var signalLevel: Int?
-    @Published var networkType: String?
-    @Published var batteryLevel: Int?
+    @Published var signalLevel = -1
+    @Published var networkType = "-1"
+    @Published var batteryLevel = -1
     
     override init() {
         super.init()
@@ -340,15 +341,16 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                         continue
                     }
                     
+                    let networkType = String(plainTextSplit![1])
+                    
                     // Split plaintext to signal level, network type and battery level
-                    guard let signalLevel = Int(plainTextSplit![0]), let batteryLevel = Int(plainTextSplit![2]) else {
+                    guard let signalLevel = Int(plainTextSplit![0]), let batteryLevel = Int(plainTextSplit![2]), signalLevel >= -1, signalLevel <= 3, batteryLevel >= -1, batteryLevel <= 100, batteryLevel % 25 == 0, acceptableNetworkTypes.contains(networkType) else {
                         print("Error: Payload is invalid.")
                         peripheral.respond(to: eachRequest, withResult: .unlikelyError)
                         continue
                     }
-                    
-                    let networkType = plainTextSplit![1]
-                    setPhoneInfo(signalLevel: signalLevel, networkType: String(networkType), batteryLevel: batteryLevel)
+                
+                    setPhoneInfo(signalLevel: signalLevel, networkType: networkType, batteryLevel: batteryLevel)
                 case "3":
                     // Connect to hotspot
                     connectToHotspot()
