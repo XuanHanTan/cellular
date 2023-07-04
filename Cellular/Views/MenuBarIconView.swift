@@ -18,26 +18,27 @@ struct MenuBarIconView: View {
         HStack {
             if isSetupComplete {
                 Image("cellularbars.\(signalLevel)")
-                if networkType != "-1" {
+                /*if networkType != "-1" {
                     Text(networkType)
                 }
                 if batteryLevel == -1 {
                     Image(systemName: "battery.0")
                 } else if batteryLevel % 25 == 0 {
                     Image(systemName: "battery.\(batteryLevel)")
-                }
+                }*/
             } else {
-                Image(systemName: "cellularbars")
+                Image(systemName: "iphone.gen3.slash")
             }
         }.onReceive(bluetoothModel.$isSetupComplete) { isSetupComplete in
             self.isSetupComplete = isSetupComplete
         }.onReceive(bluetoothModel.$signalLevel) { signalLevel in
             self.signalLevel = signalLevel
-        }.onReceive(bluetoothModel.$networkType) { networkType in
+        }/*.onReceive(bluetoothModel.$networkType) { networkType in
             self.networkType = networkType
         }.onReceive(bluetoothModel.$batteryLevel) { batteryLevel in
             self.batteryLevel = batteryLevel
-        }.onAppear {
+            print("rendering battery \(batteryLevel)")
+        }*/.onAppear {
             bluetoothModel.initializeBluetooth()
         }
     }

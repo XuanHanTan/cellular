@@ -334,7 +334,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                         defaults.set(isSetupComplete, forKey: "isSetupComplete")
                     }
                 case "2":
-                    // Ensure that plaintext has two parts
+                    // Ensure that plaintext has three parts
                     guard plainTextSplit!.count == 3 else {
                         print("Error: Payload is invalid.")
                         peripheral.respond(to: eachRequest, withResult: .unlikelyError)
@@ -344,7 +344,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                     let networkType = String(plainTextSplit![1])
                     
                     // Split plaintext to signal level, network type and battery level
-                    guard let signalLevel = Int(plainTextSplit![0]), let batteryLevel = Int(plainTextSplit![2]), signalLevel >= -1, signalLevel <= 3, batteryLevel >= -1, batteryLevel <= 100, batteryLevel % 25 == 0, acceptableNetworkTypes.contains(networkType) else {
+                    guard let signalLevel = Int(plainTextSplit![0]), let batteryLevel = Int(plainTextSplit![2]), signalLevel >= -1, signalLevel <= 3, batteryLevel >= -1, batteryLevel <= 100, (batteryLevel != -1 ? batteryLevel % 25 == 0: true), acceptableNetworkTypes.contains(networkType) else {
                         print("Error: Payload is invalid.")
                         peripheral.respond(to: eachRequest, withResult: .unlikelyError)
                         continue
