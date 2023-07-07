@@ -120,6 +120,7 @@ struct CellularApp: App {
         MenuBarExtra(
             content: {
                 MenuBarContentView(bluetoothModel: bluetoothModel, isMenuBarItemPresented: $menuBarItemPresented)
+                    .frame(width: 300, height: 400)
             },
             label: {
                 MenuBarIconView(bluetoothModel: bluetoothModel)

@@ -19,6 +19,7 @@
     "version" : 1
   },
   "properties" : {
+    "compression-type" : "lossless",
     "preserves-vector-representation" : true
   }
 }

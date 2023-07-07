@@ -68,6 +68,8 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     @Published var isHelloWorldReceived = false
     @Published var isSetupComplete = false
     @Published var isDeviceConnected = false
+    @Published var isConnectingToHotspot = false
+    @Published var isConnectedToHotspot = false
     
     @Published var signalLevel = -1
     @Published var networkType = "-1"
@@ -217,6 +219,8 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         print("Central unsubscribed from characteristic \(characteristic.uuid.uuidString)")
         connectedCentral = nil
         isDeviceConnected = false
+        isConnectingToHotspot = false
+        isConnectedToHotspot = false
         peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [serviceUUID]])
     }
     
@@ -349,11 +353,14 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                         peripheral.respond(to: eachRequest, withResult: .unlikelyError)
                         continue
                     }
-                
+                    
                     setPhoneInfo(signalLevel: signalLevel, networkType: networkType, batteryLevel: batteryLevel)
                 case "3":
                     // Connect to hotspot
                     connectToHotspot()
+                case "4":
+                    // Disconnect from hotspot
+                    internalDisconnectFromHotspot()
                 default:
                     print("Error: Unrecognised command (\(command))")
                     peripheral.respond(to: eachRequest, withResult: .attributeNotFound)
@@ -410,6 +417,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             return
         }
         
+        isConnectingToHotspot = true
         updateCharacteristicValue(value: "0")
     }
     
@@ -433,10 +441,24 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             }
             if selNetwork != nil {
                 try cwInterface.associate(to: selNetwork!, password: password)
+                isConnectedToHotspot = true
             }
         } catch {
             print(error.localizedDescription)
         }
+        isConnectingToHotspot = false
+    }
+    
+    private func internalDisconnectFromHotspot() {
+        let cwInterface = cwWiFiClient.interface()!
+        cwInterface.disassociate()
+        isConnectedToHotspot = false
+        isConnectingToHotspot = false
+    }
+    
+    func userDisconnectFromHotspot() {
+        updateCharacteristicValue(value: "1")
+        internalDisconnectFromHotspot()
     }
     
     /**
