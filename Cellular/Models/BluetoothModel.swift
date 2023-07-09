@@ -50,13 +50,14 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     private let defaults = UserDefaults.standard
     private var serviceUUID: CBUUID?
     private let commandCharacteristicUUID = CBUUID(string: "00000001-0000-1000-8000-00805f9b34fb")
+    private let notificationCharacteristicUUID = CBUUID(string: "00000002-0000-1000-8000-00805f9b34fb")
     private var sharedKey: String?
     private var centralUUID: UUID?
     private var connectedCentral: CBCentral?
     private var resendValueQueue: [String] = []
     private var ssid: String?
     private var password: String?
-    private var commandCharacteristic: CBMutableCharacteristic!
+    private var notificationCharacteristic: CBMutableCharacteristic!
     private let acceptableNetworkTypes = ["-1", "GPRS", "E", "3G", "4G", "5G"]
     
     var isPoweredOn = false
@@ -176,23 +177,27 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             return
         }
         
-        // Create the characteristic
+        // Create the characteristics
         let commandCharacteristic = CBMutableCharacteristic(type: commandCharacteristicUUID,
-                                                            properties: [.notify, .write],
+                                                            properties: .write,
                                                             value: nil,
-                                                            permissions: [.readable, .writeable])
+                                                            permissions: .writeable)
+        let notificationCharacteristic = CBMutableCharacteristic(type: notificationCharacteristicUUID,
+                                                                 properties: .indicate,
+                                                                 value: nil,
+                                                                 permissions: .readable)
         
-        // Create a service from the characteristic
+        // Create a service for the characteristics
         let commandService = CBMutableService(type: serviceUUID!, primary: true)
         
-        // Add the characteristic to the service
-        commandService.characteristics = [commandCharacteristic]
+        // Add the characteristics to the service
+        commandService.characteristics = [commandCharacteristic, notificationCharacteristic]
         
         // Add the service to the peripheral manager.
         peripheralManager.add(commandService)
         
-        // Save the characteristic for later
-        self.commandCharacteristic = commandCharacteristic
+        // Save the notification characteristic for later
+        self.notificationCharacteristic = notificationCharacteristic
         
         // Start advertising the service
         peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [serviceUUID]])
@@ -224,18 +229,9 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [serviceUUID]])
     }
     
-    func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
-        guard characteristic.value != nil else {
-            print("Value is empty!")
-            return
-        }
-        
-        print("Central wrote value to characteristic \(characteristic.uuid.uuidString): \(String(bytes: characteristic.value!, encoding: .utf8) ?? "")")
-    }
-    
     func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
         if let firstResendValue = resendValueQueue.first {
-            peripheralManager.updateValue(firstResendValue.data(using: .utf8)!, for: commandCharacteristic, onSubscribedCentrals: [connectedCentral!])
+            peripheralManager.updateValue(firstResendValue.data(using: .utf8)!, for: notificationCharacteristic, onSubscribedCentrals: [connectedCentral!])
             resendValueQueue.removeFirst()
             print("Resending value \(firstResendValue) to central.")
         }
@@ -354,7 +350,11 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                         continue
                     }
                     
+                    // Update UI with new phone info accordingly
                     setPhoneInfo(signalLevel: signalLevel, networkType: networkType, batteryLevel: batteryLevel)
+                    
+                    // Indicate successful BLE operation
+                    peripheral.respond(to: eachRequest, withResult: .success)
                 case "3":
                     // Connect to hotspot
                     connectToHotspot()
@@ -397,7 +397,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     }
     
     private func updateCharacteristicValue(value: String) {
-        let status = peripheralManager.updateValue(value.data(using: .utf8)!, for: commandCharacteristic, onSubscribedCentrals: [connectedCentral!])
+        let status = peripheralManager.updateValue(value.data(using: .utf8)!, for: notificationCharacteristic, onSubscribedCentrals: [connectedCentral!])
         if status {
             print("Value \(value) sent successfully.")
         } else {
@@ -474,6 +474,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         sharedKey = nil
         centralUUID = nil
         connectedCentral = nil
+        notificationCharacteristic = nil
         isBluetoothOffDialogPresented = false
         isBluetoothNotGrantedDialogPresented = false
         isBluetoothNotSupportedDialogPresented = false

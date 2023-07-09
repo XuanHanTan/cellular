@@ -27,9 +27,9 @@ struct MenuBarContentView: View {
     @State private var isDeviceConnected = false
     @State private var isConnectingToHotspot = false
     @State private var isConnectedToHotspot = false
-    @State private var signalLevel = 3
-    @State private var networkType = "5G"
-    @State private var batteryLevel = 75
+    @State private var signalLevel = -1
+    @State private var networkType = "-1"
+    @State private var batteryLevel = -1
     
     func getHotspotStatus() -> String {
         if isConnectedToHotspot {
@@ -75,7 +75,7 @@ struct MenuBarContentView: View {
                     }
                     Spacer()
                     Button {
-                        
+                        bluetoothModel.enableHotspot()
                     } label: {
                         Image(systemName: "personalhotspot")
                             .font(Font.system(size: 30, design: .default))
@@ -107,13 +107,13 @@ struct MenuBarContentView: View {
                 self.isSetupComplete = isSetupComplete
             }.onReceive(bluetoothModel.$isDeviceConnected) { isDeviceConnected in
                 self.isDeviceConnected = isDeviceConnected
-            }/*.onReceive(bluetoothModel.$signalLevel) { signalLevel in
-              self.signalLevel = signalLevel
-              }.onReceive(bluetoothModel.$networkType) { networkType in
-              self.networkType = networkType
-              }.onReceive(bluetoothModel.$batteryLevel) { batteryLevel in
-              self.batteryLevel = batteryLevel
-              }*/
+            }.onReceive(bluetoothModel.$signalLevel) { signalLevel in
+                self.signalLevel = signalLevel
+            }.onReceive(bluetoothModel.$networkType) { networkType in
+                self.networkType = networkType
+            }.onReceive(bluetoothModel.$batteryLevel) { batteryLevel in
+                self.batteryLevel = batteryLevel
+            }
         }
         .background(colorScheme == .dark ? Color(hex: 0x1A1C18): Color(hex: 0xFCFDF6))
     }
