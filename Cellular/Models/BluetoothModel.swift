@@ -63,7 +63,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     var isPoweredOn = false
     @Published var isBluetoothOffDialogPresented = false
     @Published var isBluetoothNotGrantedDialogPresented = false
-    var isBluetoothNotSupportedDialogPresented = false
+    @Published var isBluetoothNotSupportedDialogPresented = false
     @Published var isBluetoothUnknownErrorDialogPresented = false
     
     @Published var isHelloWorldReceived = false
@@ -145,25 +145,31 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                 isBluetoothNotSupportedDialogPresented = false
                 isBluetoothUnknownErrorDialogPresented = false
                 setupPeripheral()
+                return
             case .poweredOff:
                 print("CBManager is not powered on")
                 isBluetoothOffDialogPresented = true
+                isPoweredOn = false
                 return
             case .resetting:
                 print("CBManager is resetting")
                 isBluetoothUnknownErrorDialogPresented = true
+                isPoweredOn = false
                 return
             case .unauthorized:
                 print("Bluetooth permission was not granted")
                 isBluetoothNotGrantedDialogPresented = true
+                isPoweredOn = false
                 return
             case .unsupported:
                 print("Bluetooth is not supported on this device")
                 isBluetoothNotSupportedDialogPresented = true
+                isPoweredOn = false
                 return
             default:
                 print("A previously unknown peripheral manager state occurred")
                 isBluetoothUnknownErrorDialogPresented = true
+                isPoweredOn = false
                 return
         }
     }
