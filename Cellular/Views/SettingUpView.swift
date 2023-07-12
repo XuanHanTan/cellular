@@ -19,10 +19,13 @@ struct SettingUpView: View {
                 .fontWeight(.bold)
                 .padding(.bottom, 40)
             Spacer()
-            ProgressView().scaleEffect(0.5)
+            ProgressView()
+                .scaleEffect(0.5)
             Text("Receiving hotspot details...")
             Spacer()
-        }.padding(.all, 30).onChange(of: bluetoothModel.isSetupComplete) { newValue in
+        }
+        .padding(.all, 30)
+        .onChange(of: bluetoothModel.isSetupComplete) { newValue in
             if newValue {
                 handleNextScreen()
             }

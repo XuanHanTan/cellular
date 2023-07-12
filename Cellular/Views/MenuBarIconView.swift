@@ -19,7 +19,9 @@ struct MenuBarIconView: View {
             }
         }
         .onAppear {
-            bluetoothModel.initializeBluetooth()
+            if bluetoothModel.isSetupComplete {
+                bluetoothModel.initializeBluetooth()
+            }
         }
     }
 }

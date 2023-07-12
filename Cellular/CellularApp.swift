@@ -107,7 +107,8 @@ struct CellularApp: App {
                     NSApp.activate(ignoringOtherApps: true)
                 }
             }
-        }.windowStyle(.hiddenTitleBar).commands {
+        }
+        .windowStyle(.hiddenTitleBar).commands {
             // Disable new window command in Menu Bar
             CommandGroup(replacing: CommandGroupPlacement.newItem) {
             }

@@ -25,7 +25,8 @@ struct FinishSetupView: View {
                 Text("Thank you for your purchase!\nSee device information and configure your settings by opening the Cellular menu bar extension.")
                     .multilineTextAlignment(.center)
                 Spacer()
-            }.padding(.all, 30)
+            }
+            .padding(.all, 30)
             Divider()
             HStack {
                 Spacer()
@@ -35,7 +36,8 @@ struct FinishSetupView: View {
                 Button("Finish", action: handleFinishButton)
                     .controlSize(.large)
                     .keyboardShortcut(.defaultAction)
-            }.padding(.all, 15)
+            }
+            .padding(.all, 15)
         }
     }
 }

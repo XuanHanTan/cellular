@@ -25,7 +25,8 @@ struct DownloadAppView: View {
                 Text("The Cellular Companion app will help your Mac remain connected to your Android device and control the mobile hotspot settings of your device. It is available on the Google Play Store. Click the Continue button once you have installed the Cellular Companion app.")
                     .multilineTextAlignment(.center)
                 Spacer()
-            }.padding(.all, 30)
+            }
+            .padding(.all, 30)
             Divider()
             HStack {
                 Spacer()
@@ -36,7 +37,8 @@ struct DownloadAppView: View {
                 Button("Continue", action: handleNextButton)
                     .controlSize(.large)
                     .keyboardShortcut(.defaultAction)
-            }.padding(.all, 15)
+            }
+            .padding(.all, 15)
         }
     }
 }

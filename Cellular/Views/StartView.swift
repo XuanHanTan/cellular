@@ -28,7 +28,8 @@ struct StartView: View {
                 .controlSize(.large)
                 .keyboardShortcut(.defaultAction)
                 .padding(.bottom, 20)
-        }.padding(.all)
+        }
+        .padding(.all)
     }
 }
 

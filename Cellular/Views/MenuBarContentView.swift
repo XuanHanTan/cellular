@@ -130,6 +130,9 @@ struct MenuBarContentView: View {
                             .multilineTextAlignment(.center).padding(.bottom, 10)
                     }
                 } else {
+                    HStack {
+                        Spacer()
+                    }
                     Spacer()
                     Image(systemName: "exclamationmark.circle")
                         .font(Font.system(size: 50, design: .default))

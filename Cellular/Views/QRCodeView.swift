@@ -31,7 +31,8 @@ struct QRCodeView: View {
                     } else {
                         ZStack {
                             ProgressView()
-                        }.frame(width: 256, height: 256)
+                        }
+                        .frame(width: 256, height: 256)
                     }
                 }.padding(.bottom, 40)
                 Text("This QR code contains information to help your Mac securely pair with and receive information from your Android device over Bluetooth. Continue setup on your Android device after scanning the QR code.")
@@ -39,18 +40,25 @@ struct QRCodeView: View {
                     .padding(.bottom, 20)
                 Spacer()
                 HStack(spacing: 10) {
-                    ProgressView().scaleEffect(0.5)
-                    Text("Waiting for device to connect...").font(.title3).fontWeight(.semibold)
-                }.padding(.bottom, 20)
-            }.padding(.all, 30)
+                    ProgressView()
+                        .scaleEffect(0.5)
+                    Text("Waiting for device to connect...")
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                }
+                .padding(.bottom, 20)
+            }
+            .padding(.all, 30)
             Divider()
             HStack {
                 Spacer()
                 Button("Back", action: handleBackButton)
                     .controlSize(.large)
                     .keyboardShortcut(.cancelAction)
-            }.padding(.all, 15)
-        }.onAppear {
+            }
+            .padding(.all, 15)
+        }
+        .onAppear {
             do {
                 let qrCodeData = try JSONSerialization.data(withJSONObject: bluetoothModel.prepareForNewConnection())
                 
@@ -67,7 +75,8 @@ struct QRCodeView: View {
             } catch {
                 print(error.localizedDescription)
             }
-        }.onChange(of: bluetoothModel.isHelloWorldReceived) { newValue in
+        }
+        .onChange(of: bluetoothModel.isHelloWorldReceived) { newValue in
             if newValue {
                 handleNextScreen()
             }

@@ -22,35 +22,49 @@ struct SettingsView: View {
                 Section {
                     Toggle(isOn: $isAutoConnectOn) {
                         Text("Connect when trusted Wi-Fi networks are unavailable")
-                    }.toggleStyle(.switch)
+                    }
+                    .toggleStyle(.switch)
                     Toggle(isOn: $isAutoDisconnectWhenSleep) {
                         Text("Disconnect when your Mac is put to sleep")
-                    }.toggleStyle(.switch)
+                    }
+                    .toggleStyle(.switch)
                     Toggle(isOn: $isAutoDisconnectWhenTrustedWiFiAvailableOn) {
                         Text("Disconnect when trusted Wi-Fi networks are available")
-                    }.toggleStyle(.switch)
+                    }
+                    .toggleStyle(.switch)
                     Picker("Disconnect when phone battery is below", selection: $phoneBatteryLimit) {
-                        Text("Off").tag(0)
-                        Text("10%").tag(10)
-                        Text("20%").tag(20)
-                        Text("30%").tag(30)
-                        Text("40%").tag(40)
-                        Text("50%").tag(50)
+                        Text("Off")
+                            .tag(0)
+                        Text("10%")
+                            .tag(10)
+                        Text("20%")
+                            .tag(20)
+                        Text("30%")
+                            .tag(30)
+                        Text("40%")
+                            .tag(40)
+                        Text("50%")
+                            .tag(50)
                     }
                 }
                 Section {
                     Toggle(isOn: $seePhoneInfo) {
                         Text("See phone information on your Mac")
                         Text("When enabled, your Mac will display your phone’s network signal strength, mobile network type and battery level. This will consume more energy on both devices.")
-                    }.toggleStyle(.switch)
+                    }
+                    .toggleStyle(.switch)
                 }
-            }.formStyle(.grouped).padding(.bottom, 10)
+            }
+            .formStyle(.grouped)
+            .padding(.bottom, 10)
             HStack {
                 Button("Contact the creator...") {
                     let url = URL(string: "mailto:contactxuanhan@gmail.com")!
                     openURL(url)
                 }
-            }.frame(maxWidth: .infinity, alignment: .trailing).padding(.all, 20)
+            }
+            .frame(maxWidth: .infinity, alignment: .trailing)
+            .padding(.all, 20)
         }
         .frame(minWidth: 600, idealWidth: 600, maxWidth: 600,
                minHeight: 400, idealHeight: 400, maxHeight: 400,
