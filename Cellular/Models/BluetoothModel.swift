@@ -76,6 +76,19 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     @Published var networkType = "-1"
     @Published var batteryLevel = -1
     
+    enum NotificationType: String {
+        case EnableHotspot = "0"
+        case DisableHotspot = "1"
+    }
+    
+    enum CommandType: String {
+        case HelloWorld = "0"
+        case ShareHotspotDetails = "1"
+        case SharePhoneInfo = "2"
+        case ConnectToHotspot = "3"
+        case DisconnectFromHotspot = "4"
+    }
+    
     override init() {
         super.init()
         isSetupComplete = defaults.bool(forKey: "isSetupComplete")
@@ -256,10 +269,24 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             
             // Split parts from request payload string
             let parts = stringFromData.split(separator: " ")
-            let command = parts[0]
+            let commandString = String(parts[0])
+            
+            // Ensure that command is within known range
+            guard let commandInt = Int(commandString) else {
+                print("Error: Command is not an integer.")
+                peripheral.respond(to: eachRequest, withResult: .unlikelyError)
+                continue
+            }
+            guard commandInt >= 0 && commandInt <= 4 else {
+                print("Error: Command is not within the range 0 to 4.")
+                peripheral.respond(to: eachRequest, withResult: .unlikelyError)
+                continue
+            }
+            
+            let command = CommandType(rawValue: commandString)
             var plainTextSplit: [String.SubSequence]?
             
-            if command != "0" {
+            if command != CommandType.HelloWorld {
                 // Check for known central
                 guard eachRequest.central.identifier == centralUUID else {
                     print("Error: Request received from unknown central.")
@@ -267,7 +294,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                     continue
                 }
                 
-                if command == "1" {
+                if command == CommandType.ShareHotspotDetails {
                     // Ensure that IV data is present
                     guard let ivData = Data(fromHexEncodedString: String(parts[1])) else {
                         print("Error: IV data is missing")
@@ -299,8 +326,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             }
             
             switch command {
-                    // Hello World command
-                case "0":
+                case .HelloWorld:
                     // Ensure that the Hello World command is only received during setup
                     if !isSetupComplete {
                         print("Received Hello World")
@@ -316,7 +342,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                         print("Error: Setup has completed but Hello World is received.")
                         peripheral.respond(to: eachRequest, withResult: .requestNotSupported)
                     }
-                case "1":
+                case .ShareHotspotDetails:
                     // Ensure that plaintext has two parts
                     guard plainTextSplit!.count == 2 else {
                         print("Error: Payload is invalid.")
@@ -339,7 +365,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                         isSetupComplete = true
                         defaults.set(isSetupComplete, forKey: "isSetupComplete")
                     }
-                case "2":
+                case .SharePhoneInfo:
                     // Ensure that plaintext has three parts
                     guard plainTextSplit!.count == 3 else {
                         print("Error: Payload is invalid.")
@@ -361,14 +387,14 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                     
                     // Indicate successful BLE operation
                     peripheral.respond(to: eachRequest, withResult: .success)
-                case "3":
+                case .ConnectToHotspot:
                     // Connect to hotspot
                     connectToHotspot()
-                case "4":
+                case .DisconnectFromHotspot:
                     // Disconnect from hotspot
                     internalDisconnectFromHotspot()
                 default:
-                    print("Error: Unrecognised command (\(command))")
+                    print("Error: Unrecognised command")
                     peripheral.respond(to: eachRequest, withResult: .attributeNotFound)
             }
         }
