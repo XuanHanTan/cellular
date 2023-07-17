@@ -314,12 +314,6 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                     let plainText = aes!.decrypt(data: decodedData) ?? ""
                     plainTextSplit = plainText.split(separator: " ")
                 } else {
-                    guard parts.count >= 2 else {
-                        print("Error: Payload is invalid.")
-                        peripheral.respond(to: eachRequest, withResult: .unlikelyError)
-                        continue
-                    }
-                    
                     plainTextSplit = parts
                     plainTextSplit!.removeFirst()
                 }
