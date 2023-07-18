@@ -55,6 +55,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     private var centralUUID: UUID?
     private var connectedCentral: CBCentral?
     private var resendValueQueue: [String] = []
+    private var connectHotspotRetryCount = 0
     private var ssid: String?
     private var password: String?
     private var notificationCharacteristic: CBMutableCharacteristic!
@@ -306,13 +307,16 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                     let aes = AES(key: sharedKey!, ivData: ivData)
                     let cipherText = parts[2]
                     
+                    print(stringFromData)
+                    
                     guard let decodedData = Data(base64Encoded: cipherText.data(using: .utf8)!) else {
                         print("Error: Could not decode payload")
                         peripheral.respond(to: eachRequest, withResult: .attributeNotFound)
                         continue
                     }
                     let plainText = aes!.decrypt(data: decodedData) ?? ""
-                    plainTextSplit = plainText.split(separator: " ")
+                    plainTextSplit = plainText.split(separator: "\" \"")
+                    print(plainTextSplit)
                 } else {
                     plainTextSplit = parts
                     plainTextSplit!.removeFirst()
@@ -344,9 +348,9 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                         continue
                     }
                     
-                    // Split plaintext to SSID and password
-                    let ssid = plainTextSplit![0]
-                    let password = plainTextSplit![1]
+                    // Split plaintext to SSID and password and trim leading/trailing quotation marks
+                    let ssid = plainTextSplit![0].trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+                    let password = plainTextSplit![1].trimmingCharacters(in: CharacterSet(charactersIn: "\""))
                     
                     // Store hotspot info in UserDefaults
                     saveHotspotInfo(ssid: String(ssid), password: String(password))
@@ -382,9 +386,11 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                     // Indicate successful BLE operation
                     peripheral.respond(to: eachRequest, withResult: .success)
                 case .ConnectToHotspot:
+                    print("Connecting to hotspot...")
                     // Connect to hotspot
                     connectToHotspot()
                 case .DisconnectFromHotspot:
+                    print("Disconnecting from hotspot...")
                     // Disconnect from hotspot
                     internalDisconnectFromHotspot()
                 default:
@@ -457,10 +463,18 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             return
         }
         
+        connectHotspotRetryCount = 0
+        
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.startConnectToHotspot()
+        }
+    }
+    
+    private func startConnectToHotspot() {
         let cwInterface = cwWiFiClient.interface()!
         do {
             var selNetwork: CWNetwork? = nil
-            for network in try cwInterface.scanForNetworks(withName: nil) {
+            for network in try cwInterface.scanForNetworks(withName: ssid) {
                 if network.ssid == ssid {
                     selNetwork = network
                 }
@@ -468,11 +482,19 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             if selNetwork != nil {
                 try cwInterface.associate(to: selNetwork!, password: password)
                 isConnectedToHotspot = true
+                isConnectingToHotspot = false
+            } else if (connectHotspotRetryCount < 3) {
+                Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { timer in
+                    self.startConnectToHotspot()
+                }
+                connectHotspotRetryCount += 1
+            } else {
+                isConnectingToHotspot = false
             }
         } catch {
             print(error.localizedDescription)
+            isConnectingToHotspot = false
         }
-        isConnectingToHotspot = false
     }
     
     private func internalDisconnectFromHotspot() {
@@ -501,6 +523,8 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         centralUUID = nil
         connectedCentral = nil
         notificationCharacteristic = nil
+        resendValueQueue.removeAll()
+        connectHotspotRetryCount = 0
         isBluetoothOffDialogPresented = false
         isBluetoothNotGrantedDialogPresented = false
         isBluetoothNotSupportedDialogPresented = false

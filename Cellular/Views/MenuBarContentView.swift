@@ -109,7 +109,11 @@ struct MenuBarContentView: View {
                     }
                     Spacer()
                     Button {
-                        bluetoothModel.enableHotspot()
+                        if bluetoothModel.isConnectedToHotspot {
+                            bluetoothModel.userDisconnectFromHotspot()
+                        } else {
+                            bluetoothModel.enableHotspot()
+                        }
                     } label: {
                         Image(systemName: "personalhotspot")
                             .font(Font.system(size: 30, design: .default))
