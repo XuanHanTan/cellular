@@ -492,10 +492,14 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                     isConnectingToHotspot = false
                 }
             } else if (connectHotspotRetryCount < 3) {
-                let retryTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { timer in
-                    self.startConnectToHotspot()
+                DispatchQueue.main.sync {
+                    let retryTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { timer in
+                        DispatchQueue.global(qos: .userInitiated).async {
+                            self.startConnectToHotspot()
+                        }
+                    }
                 }
-                RunLoop.main.add(retryTimer, forMode: .common)
+
                 connectHotspotRetryCount += 1
                 print("Connection attempt \(connectHotspotRetryCount)")
             } else {
@@ -512,10 +516,15 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     }
     
     private func internalDisconnectFromHotspot() {
-        let cwInterface = cwWiFiClient.interface()!
-        cwInterface.disassociate()
-        isConnectedToHotspot = false
-        isConnectingToHotspot = false
+        DispatchQueue.global(qos: .userInitiated).async { [self] in
+            let cwInterface = cwWiFiClient.interface()!
+            cwInterface.disassociate()
+            
+            DispatchQueue.main.sync {
+                isConnectedToHotspot = false
+                isConnectingToHotspot = false
+            }
+        }
     }
     
     func userDisconnectFromHotspot() {
