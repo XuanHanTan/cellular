@@ -389,10 +389,16 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                     print("Connecting to hotspot...")
                     // Connect to hotspot
                     connectToHotspot()
+                    
+                    // Indicate successful BLE operation
+                    peripheral.respond(to: eachRequest, withResult: .success)
                 case .DisconnectFromHotspot:
                     print("Disconnecting from hotspot...")
                     // Disconnect from hotspot
                     internalDisconnectFromHotspot()
+                    
+                    // Indicate successful BLE operation
+                    peripheral.respond(to: eachRequest, withResult: .success)
                 default:
                     print("Error: Unrecognised command")
                     peripheral.respond(to: eachRequest, withResult: .attributeNotFound)
@@ -481,19 +487,27 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             }
             if selNetwork != nil {
                 try cwInterface.associate(to: selNetwork!, password: password)
-                isConnectedToHotspot = true
-                isConnectingToHotspot = false
+                DispatchQueue.main.sync {
+                    isConnectedToHotspot = true
+                    isConnectingToHotspot = false
+                }
             } else if (connectHotspotRetryCount < 3) {
-                Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { timer in
+                let retryTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { timer in
                     self.startConnectToHotspot()
                 }
+                RunLoop.main.add(retryTimer, forMode: .common)
                 connectHotspotRetryCount += 1
+                print("Connection attempt \(connectHotspotRetryCount)")
             } else {
-                isConnectingToHotspot = false
+                DispatchQueue.main.sync {
+                    isConnectingToHotspot = false
+                }
             }
         } catch {
             print(error.localizedDescription)
-            isConnectingToHotspot = false
+            DispatchQueue.main.sync {
+                isConnectingToHotspot = false
+            }
         }
     }
     
