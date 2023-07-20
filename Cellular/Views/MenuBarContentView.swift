@@ -109,24 +109,48 @@ struct MenuBarContentView: View {
                     }
                     Spacer()
                     Button {
-                        if bluetoothModel.isConnectedToHotspot {
+                        if bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot {
                             bluetoothModel.userDisconnectFromHotspot()
                         } else {
                             bluetoothModel.enableHotspot()
                         }
                     } label: {
-                        Image(systemName: "personalhotspot")
-                            .font(Font.system(size: 30, design: .default))
-                            .padding(.all, 64)
-                            .foregroundColor(Color(hex: colorScheme == .dark ? 0x35D11B: 0x1C850B))
-                            .background(Color(hex: colorScheme == .dark ? 0x292F28: 0xDCF4D6))
-                            .clipShape(Circle())
-                            .overlay {
-                                Circle().strokeBorder(Color(hex: colorScheme == .dark ? 0x5C8C54: 0x8FD684), lineWidth: 4)
-                            }
+                        if bluetoothModel.isConnectedToHotspot {
+                            Image(systemName: "personalhotspot")
+                                .font(Font.system(size: 30, design: .default))
+                                .padding(.all, 64)
+                                .foregroundColor(Color(hex: colorScheme == .dark ? 0x35D11B: 0x1C850B))
+                                .background(Color(hex: colorScheme == .dark ? 0x292F28: 0xDCF4D6))
+                                .clipShape(Circle())
+                                .overlay {
+                                    Circle().strokeBorder(Color(hex: colorScheme == .dark ? 0x5C8C54: 0x8FD684), lineWidth: 4)
+                                }
+                        } else if bluetoothModel.isConnectingToHotspot {
+                            Circle()
+                                .foregroundColor(Color(hex: colorScheme == .dark ? 0x313131: 0xF0F0F0))
+                                .overlay {
+                                    ZStack {
+                                        ProgressView()
+                                    }
+                                    .frame(width: 30, height: 30)
+                                    .padding(.all, 0)
+                                    Circle().strokeBorder(Color(hex: colorScheme == .dark ? 0x505050: 0xD6D6D6), lineWidth: 4)
+                                }.frame(width: 30 + 64 + 64, height: 30 + 64 + 64)
+                        } else {
+                            Image(systemName: "personalhotspot")
+                                .font(Font.system(size: 30, design: .default))
+                                .padding(.all, 64)
+                                .foregroundColor(Color(hex: 0x848484))
+                                .background(Color(hex: colorScheme == .dark ? 0x313131: 0xF0F0F0))
+                                .clipShape(Circle())
+                                .overlay {
+                                    Circle().strokeBorder(Color(hex: colorScheme == .dark ? 0x505050: 0xD6D6D6), lineWidth: 4)
+                                }
+                        }
                     }
                     .frame(width: 200, height: 200)
                     .buttonStyle(.plain)
+                    .disabled(!bluetoothModel.isDeviceConnected)
                     Spacer()
                     if bluetoothModel.isPoweredOn {
                         Text("Cellular will disconnect when a trusted network is available.")
