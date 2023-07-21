@@ -316,7 +316,6 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                     }
                     let plainText = aes!.decrypt(data: decodedData) ?? ""
                     plainTextSplit = plainText.split(separator: "\" \"")
-                    print(plainTextSplit)
                 } else {
                     plainTextSplit = parts
                     plainTextSplit!.removeFirst()
@@ -470,6 +469,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         }
         
         connectHotspotRetryCount = 0
+        isConnectingToHotspot = true
         
         DispatchQueue.global(qos: .userInitiated).async {
             self.startConnectToHotspot()
@@ -492,8 +492,8 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                     isConnectingToHotspot = false
                 }
             } else if (connectHotspotRetryCount < 3) {
-                DispatchQueue.main.sync {
-                    let retryTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { timer in
+                _ = DispatchQueue.main.sync {
+                    Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { timer in
                         DispatchQueue.global(qos: .userInitiated).async {
                             self.startConnectToHotspot()
                         }
