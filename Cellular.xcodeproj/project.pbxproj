@@ -30,6 +30,7 @@
 		19A0ED502A2E240C00AF4A5F /* CellularUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A0ED4F2A2E240C00AF4A5F /* CellularUITests.swift */; };
 		19A0ED522A2E240C00AF4A5F /* CellularUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A0ED512A2E240C00AF4A5F /* CellularUITestsLaunchTests.swift */; };
 		19B4F8D82A49D66900AC2B90 /* MenuBarExtraAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 19B4F8D72A49D66900AC2B90 /* MenuBarExtraAccess */; };
+		19BA1A292A6D5E0300477517 /* WLANModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19BA1A282A6D5E0300477517 /* WLANModel.swift */; };
 		19BDE0692A4878E300C038BA /* MenuBarContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19BDE0682A4878E300C038BA /* MenuBarContentView.swift */; };
 		19BDE06B2A4878ED00C038BA /* MenuBarIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19BDE06A2A4878ED00C038BA /* MenuBarIconView.swift */; };
 /* End PBXBuildFile section */
@@ -108,6 +109,7 @@
 		19A0ED4B2A2E240C00AF4A5F /* CellularUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CellularUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		19A0ED4F2A2E240C00AF4A5F /* CellularUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellularUITests.swift; sourceTree = "<group>"; };
 		19A0ED512A2E240C00AF4A5F /* CellularUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellularUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		19BA1A282A6D5E0300477517 /* WLANModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WLANModel.swift; sourceTree = "<group>"; };
 		19BDE0682A4878E300C038BA /* MenuBarContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarContentView.swift; sourceTree = "<group>"; };
 		19BDE06A2A4878ED00C038BA /* MenuBarIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarIconView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -187,6 +189,7 @@
 			isa = PBXGroup;
 			children = (
 				1915C22E2A30938300A22788 /* BluetoothModel.swift */,
+				19BA1A282A6D5E0300477517 /* WLANModel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -539,6 +542,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				198A7A1E2A45A4FA0097C0DD /* SettingUpView.swift in Sources */,
+				19BA1A292A6D5E0300477517 /* WLANModel.swift in Sources */,
 				1928BBF52A374F360029BB8C /* QRCodeView.swift in Sources */,
 				1928BBE72A3610DF0029BB8C /* DownloadAppView.swift in Sources */,
 				19BDE0692A4878E300C038BA /* MenuBarContentView.swift in Sources */,

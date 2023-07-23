@@ -7,7 +7,6 @@
 
 import Foundation
 import CoreBluetooth
-import CoreWLAN
 import HandySwift
 
 extension Data {
@@ -45,7 +44,7 @@ extension Data {
  This class handles all things related to connecting to and communicating with the Cellular Companion app on the Android device.
  */
 class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeripheralManagerDelegate {
-    private let cwWiFiClient = CWWiFiClient()
+    private let wlanModel = WLANModel()
     private var peripheralManager: CBPeripheralManager!
     private let defaults = UserDefaults.standard
     private var serviceUUID: CBUUID?
@@ -55,7 +54,6 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     private var centralUUID: UUID?
     private var connectedCentral: CBCentral?
     private var resendValueQueue: [String] = []
-    private var connectHotspotRetryCount = 0
     private var ssid: String?
     private var password: String?
     private var notificationCharacteristic: CBMutableCharacteristic!
@@ -233,6 +231,8 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         connectedCentral = central
         isDeviceConnected = true
         peripheralManager.stopAdvertising()
+        
+        peripheralManagerIsReady(toUpdateSubscribers: peripheral)
     }
     
     func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didUnsubscribeFrom characteristic: CBCharacteristic) {
@@ -434,6 +434,17 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     }
     
     private func updateCharacteristicValue(value: String) {
+        guard isPoweredOn else {
+            print("Error: Peripheral manager is not powered on.")
+            return
+        }
+        
+        guard connectedCentral != nil else {
+            print("Device is not connected to the Android Companion. Value will be added to resend queue.")
+            resendValueQueue.append(value)
+            return
+        }
+        
         let status = peripheralManager.updateValue(value.data(using: .utf8)!, for: notificationCharacteristic, onSubscribedCentrals: [connectedCentral!])
         if status {
             print("Value \(value) sent successfully.")
@@ -468,62 +479,20 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             return
         }
         
-        connectHotspotRetryCount = 0
         isConnectingToHotspot = true
         
-        DispatchQueue.global(qos: .userInitiated).async {
-            self.startConnectToHotspot()
-        }
-    }
-    
-    private func startConnectToHotspot() {
-        let cwInterface = cwWiFiClient.interface()!
-        do {
-            var selNetwork: CWNetwork? = nil
-            for network in try cwInterface.scanForNetworks(withName: ssid) {
-                if network.ssid == ssid {
-                    selNetwork = network
-                }
-            }
-            if selNetwork != nil {
-                try cwInterface.associate(to: selNetwork!, password: password)
-                DispatchQueue.main.sync {
-                    isConnectedToHotspot = true
-                    isConnectingToHotspot = false
-                }
-            } else if (connectHotspotRetryCount < 3) {
-                _ = DispatchQueue.main.sync {
-                    Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { timer in
-                        DispatchQueue.global(qos: .userInitiated).async {
-                            self.startConnectToHotspot()
-                        }
-                    }
-                }
-
-                connectHotspotRetryCount += 1
-                print("Connection attempt \(connectHotspotRetryCount)")
-            } else {
-                DispatchQueue.main.sync {
-                    isConnectingToHotspot = false
-                }
-            }
-        } catch {
-            print(error.localizedDescription)
-            DispatchQueue.main.sync {
-                isConnectingToHotspot = false
-            }
+        wlanModel.connect(ssid: ssid!, password: password!) { [self] in
+            isConnectedToHotspot = true
+            isConnectingToHotspot = false
+        } onError: { [self] in
+            isConnectingToHotspot = false
         }
     }
     
     private func internalDisconnectFromHotspot() {
-        DispatchQueue.global(qos: .userInitiated).async { [self] in
-            let cwInterface = cwWiFiClient.interface()!
-            cwInterface.disassociate()
-            
-            DispatchQueue.main.sync {
-                isConnectedToHotspot = false
-                isConnectingToHotspot = false
-            }
+        wlanModel.disconnect { [self] in
+            isConnectedToHotspot = false
+            isConnectingToHotspot = false
         }
     }
     
@@ -547,13 +516,15 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         connectedCentral = nil
         notificationCharacteristic = nil
         resendValueQueue.removeAll()
-        connectHotspotRetryCount = 0
         isBluetoothOffDialogPresented = false
         isBluetoothNotGrantedDialogPresented = false
         isBluetoothNotSupportedDialogPresented = false
         isBluetoothUnknownErrorDialogPresented = false
         isHelloWorldReceived = false
         isSetupComplete = false
+        
+        // Dispose WLAN model
+        wlanModel.dispose()
         
         defaults.removeObject(forKey: "serviceUUID")
         defaults.removeObject(forKey: "sharedKey")
