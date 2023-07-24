@@ -31,6 +31,7 @@
 		19A0ED522A2E240C00AF4A5F /* CellularUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A0ED512A2E240C00AF4A5F /* CellularUITestsLaunchTests.swift */; };
 		19B4F8D82A49D66900AC2B90 /* MenuBarExtraAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 19B4F8D72A49D66900AC2B90 /* MenuBarExtraAccess */; };
 		19BA1A292A6D5E0300477517 /* WLANModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19BA1A282A6D5E0300477517 /* WLANModel.swift */; };
+		19BA1A2B2A6D6B9500477517 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 19BA1A2A2A6D6B9500477517 /* Main.storyboard */; };
 		19BDE0692A4878E300C038BA /* MenuBarContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19BDE0682A4878E300C038BA /* MenuBarContentView.swift */; };
 		19BDE06B2A4878ED00C038BA /* MenuBarIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19BDE06A2A4878ED00C038BA /* MenuBarIconView.swift */; };
 /* End PBXBuildFile section */
@@ -110,6 +111,7 @@
 		19A0ED4F2A2E240C00AF4A5F /* CellularUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellularUITests.swift; sourceTree = "<group>"; };
 		19A0ED512A2E240C00AF4A5F /* CellularUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellularUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		19BA1A282A6D5E0300477517 /* WLANModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WLANModel.swift; sourceTree = "<group>"; };
+		19BA1A2A2A6D6B9500477517 /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		19BDE0682A4878E300C038BA /* MenuBarContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarContentView.swift; sourceTree = "<group>"; };
 		19BDE06A2A4878ED00C038BA /* MenuBarIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarIconView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -200,6 +202,7 @@
 				1959D9D22A472B6E001BBE0F /* AppDelegate.swift */,
 				1959D9D62A472B70001BBE0F /* Assets.xcassets */,
 				1959D9DB2A472B70001BBE0F /* Cellular_Helper.entitlements */,
+				19BA1A2A2A6D6B9500477517 /* Main.storyboard */,
 			);
 			path = "Cellular Helper";
 			sourceTree = "<group>";
@@ -469,6 +472,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1959D9D72A472B70001BBE0F /* Assets.xcassets in Resources */,
+				19BA1A2B2A6D6B9500477517 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -609,6 +613,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Z53V82N954;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Cellular;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -639,6 +644,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Z53V82N954;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Cellular;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -847,10 +853,12 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Cellular/Cellular.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Cellular/Preview Content\"";
+				DEVELOPMENT_TEAM = Z53V82N954;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Cellular/Info.plist;
@@ -867,6 +875,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.xuanhan.cellular;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
@@ -878,10 +887,12 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Cellular/Cellular.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Cellular/Preview Content\"";
+				DEVELOPMENT_TEAM = Z53V82N954;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Cellular/Info.plist;
@@ -898,6 +909,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.xuanhan.cellular;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};

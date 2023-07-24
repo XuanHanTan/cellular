@@ -40,11 +40,19 @@ extension Data {
     }
 }
 
+func syncMain<T>(_ closure: () -> T) -> T {
+    if Thread.isMainThread {
+        return closure()
+    } else {
+        return DispatchQueue.main.sync(execute: closure)
+    }
+}
+
 /**
  This class handles all things related to connecting to and communicating with the Cellular Companion app on the Android device.
  */
 class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeripheralManagerDelegate {
-    private let wlanModel = WLANModel()
+    private var wlanModel: WLANModel!
     private var peripheralManager: CBPeripheralManager!
     private let defaults = UserDefaults.standard
     private var serviceUUID: CBUUID?
@@ -53,9 +61,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     private var sharedKey: String?
     private var centralUUID: UUID?
     private var connectedCentral: CBCentral?
-    private var resendValueQueue: [String] = []
-    private var ssid: String?
-    private var password: String?
+    private var resendValueQueue: [NotificationType] = []
     private var notificationCharacteristic: CBMutableCharacteristic!
     private let acceptableNetworkTypes = ["-1", "GPRS", "E", "3G", "4G", "5G"]
     
@@ -78,6 +84,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     enum NotificationType: String {
         case EnableHotspot = "0"
         case DisableHotspot = "1"
+        case IndicateConnectedHotspot = "2"
     }
     
     enum CommandType: String {
@@ -91,6 +98,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     override init() {
         super.init()
         isSetupComplete = defaults.bool(forKey: "isSetupComplete")
+        wlanModel = WLANModel(bluetoothModel: self)
     }
     
     /**
@@ -141,8 +149,10 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                 return
             }
         }
-        ssid = defaults.string(forKey: "ssid")
-        password = defaults.string(forKey: "password")
+        
+        if let ssid = defaults.string(forKey: "ssid"), let password = defaults.string(forKey: "password") {
+            wlanModel.setHotspotDetails(ssid: ssid, password: password)
+        }
         
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
     }
@@ -244,14 +254,19 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         print("Central unsubscribed from characteristic \(characteristic.uuid.uuidString)")
         connectedCentral = nil
         isDeviceConnected = false
-        isConnectingToHotspot = false
-        isConnectedToHotspot = false
+        
+        // TODO: except when resetting
+        if isConnectedToHotspot || isConnectingToHotspot {
+            isConnectingToHotspot = false
+            isConnectedToHotspot = false
+        }
+        
         peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [serviceUUID]])
     }
     
     func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
         if let firstResendValue = resendValueQueue.first {
-            peripheralManager.updateValue(firstResendValue.data(using: .utf8)!, for: notificationCharacteristic, onSubscribedCentrals: [connectedCentral!])
+            peripheralManager.updateValue(firstResendValue.rawValue.data(using: .utf8)!, for: notificationCharacteristic, onSubscribedCentrals: [connectedCentral!])
             resendValueQueue.removeFirst()
             print("Resending value \(firstResendValue) to central.")
         }
@@ -411,8 +426,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
      - parameter password: The password of the hotspot
      */
     private func saveHotspotInfo(ssid: String, password: String) {
-        self.ssid = ssid
-        self.password = password
+        wlanModel.setHotspotDetails(ssid: ssid, password: password)
         defaults.set(ssid, forKey: "ssid")
         defaults.set(password, forKey: "password")
         
@@ -433,7 +447,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         print("Phone info set: \(signalLevel) \(networkType) \(batteryLevel)")
     }
     
-    private func updateCharacteristicValue(value: String) {
+    private func updateCharacteristicValue(value: NotificationType) {
         guard isPoweredOn else {
             print("Error: Peripheral manager is not powered on.")
             return
@@ -445,7 +459,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             return
         }
         
-        let status = peripheralManager.updateValue(value.data(using: .utf8)!, for: notificationCharacteristic, onSubscribedCentrals: [connectedCentral!])
+        let status = peripheralManager.updateValue(value.rawValue.data(using: .utf8)!, for: notificationCharacteristic, onSubscribedCentrals: [connectedCentral!])
         if status {
             print("Value \(value) sent successfully.")
         } else {
@@ -466,22 +480,13 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         }
         
         isConnectingToHotspot = true
-        updateCharacteristicValue(value: "0")
+        updateCharacteristicValue(value: .EnableHotspot)
     }
     
     private func connectToHotspot() {
-        guard ssid != nil else {
-            print("Hotspot SSID must be set before calling this function.")
-            return
-        }
-        guard password != nil else {
-            print("Hotspot password must be set before calling this function.")
-            return
-        }
-        
         isConnectingToHotspot = true
         
-        wlanModel.connect(ssid: ssid!, password: password!) { [self] in
+        wlanModel.connect { [self] in
             isConnectedToHotspot = true
             isConnectingToHotspot = false
         } onError: { [self] in
@@ -489,16 +494,44 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         }
     }
     
-    private func internalDisconnectFromHotspot() {
-        wlanModel.disconnect { [self] in
-            isConnectedToHotspot = false
+    func indicateConnectedToHotspot() {
+        guard isPoweredOn else {
+            print("Error: Peripheral manager is not powered on.")
+            return
+        }
+        
+        guard connectedCentral != nil else {
+            print("Error: Device must be connected to Android Companion.")
+            return
+        }
+        
+        guard isConnectedToHotspot != true else {
+            print("Error: Device is already known to be connected to hotspot.")
+            return
+        }
+        
+        updateCharacteristicValue(value: .IndicateConnectedHotspot)
+        
+        syncMain {
+            isConnectedToHotspot = true
             isConnectingToHotspot = false
         }
     }
     
-    func userDisconnectFromHotspot() {
-        updateCharacteristicValue(value: "1")
-        internalDisconnectFromHotspot()
+    private func internalDisconnectFromHotspot() {
+        wlanModel.disconnect()
+        isConnectedToHotspot = false
+        isConnectingToHotspot = false
+    }
+    
+    func userDisconnectFromHotspot(indicateOnly: Bool = false) {
+        updateCharacteristicValue(value: .DisableHotspot)
+        
+        if !indicateOnly {
+            syncMain { [self] in
+                internalDisconnectFromHotspot()
+            }
+        }
     }
     
     /**
