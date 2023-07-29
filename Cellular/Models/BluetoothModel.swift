@@ -40,14 +40,6 @@ extension Data {
     }
 }
 
-func syncMain<T>(_ closure: () -> T) -> T {
-    if Thread.isMainThread {
-        return closure()
-    } else {
-        return DispatchQueue.main.sync(execute: closure)
-    }
-}
-
 /**
  This class handles all things related to connecting to and communicating with the Cellular Companion app on the Android device.
  */
@@ -76,6 +68,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     @Published var isDeviceConnected = false
     @Published var isConnectingToHotspot = false
     @Published var isConnectedToHotspot = false
+    var userRecentlyDisconnectedFromHotspot = false
     
     @Published var signalLevel = -1
     @Published var networkType = "-1"
@@ -479,8 +472,10 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             return
         }
         
-        isConnectingToHotspot = true
-        updateCharacteristicValue(value: .EnableHotspot)
+        if !(isConnectingToHotspot || isConnectedToHotspot) {
+            isConnectingToHotspot = true
+            updateCharacteristicValue(value: .EnableHotspot)
+        }
     }
     
     private func connectToHotspot() {
@@ -512,10 +507,8 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         
         updateCharacteristicValue(value: .IndicateConnectedHotspot)
         
-        syncMain {
-            isConnectedToHotspot = true
-            isConnectingToHotspot = false
-        }
+        isConnectedToHotspot = true
+        isConnectingToHotspot = false
     }
     
     private func internalDisconnectFromHotspot() {
@@ -525,10 +518,11 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     }
     
     func userDisconnectFromHotspot(indicateOnly: Bool = false) {
-        updateCharacteristicValue(value: .DisableHotspot)
-        
-        if !indicateOnly {
-            syncMain { [self] in
+        if isConnectingToHotspot || isConnectedToHotspot {
+            updateCharacteristicValue(value: .DisableHotspot)
+            userRecentlyDisconnectedFromHotspot = true
+            
+            if !indicateOnly {
                 internalDisconnectFromHotspot()
             }
         }

@@ -10,9 +10,9 @@ import SwiftUI
 struct SettingsView: View {
     @Environment(\.openURL) private var openURL
     
-    @AppStorage("autoConnect") var isAutoConnectOn = false
+    @AppStorage("autoConnect") var isAutoConnect = false
     @AppStorage("autoDisconnectWhenSleep") var isAutoDisconnectWhenSleep = false
-    @AppStorage("autoDisconnectWhenTrustedWiFiAvailable") var isAutoDisconnectWhenTrustedWiFiAvailableOn = false
+    // @AppStorage("autoDisconnectWhenTrustedWiFiAvailable") var isAutoDisconnectWhenTrustedWiFiAvailableOn = false
     @AppStorage("phoneBatteryLimit") var phoneBatteryLimit = 0
     @AppStorage("seePhoneInfo") var seePhoneInfo = true
     
@@ -20,18 +20,19 @@ struct SettingsView: View {
         VStack {
             Form {
                 Section {
-                    Toggle(isOn: $isAutoConnectOn) {
-                        Text("Connect when trusted Wi-Fi networks are unavailable")
+                    // TODO: check if need to be connected immediately
+                    Toggle(isOn: $isAutoConnect) {
+                        Text("Connect when known Wi-Fi networks are unavailable")
                     }
                     .toggleStyle(.switch)
                     Toggle(isOn: $isAutoDisconnectWhenSleep) {
                         Text("Disconnect when your Mac is put to sleep")
                     }
                     .toggleStyle(.switch)
-                    Toggle(isOn: $isAutoDisconnectWhenTrustedWiFiAvailableOn) {
+                    /*Toggle(isOn: $isAutoDisconnectWhenTrustedWiFiAvailableOn) {
                         Text("Disconnect when trusted Wi-Fi networks are available")
                     }
-                    .toggleStyle(.switch)
+                    .toggleStyle(.switch)*/
                     Picker("Disconnect when phone battery is below", selection: $phoneBatteryLimit) {
                         Text("Off")
                             .tag(0)
