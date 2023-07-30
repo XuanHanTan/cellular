@@ -23,6 +23,7 @@ struct MenuBarContentView: View {
     @Environment(\.colorScheme) var colorScheme
     @ObservedObject var bluetoothModel: BluetoothModel
     @Binding var isMenuBarItemPresented: Bool
+    @AppStorage("seePhoneInfo") var seePhoneInfo = true
     
     func getBluetoothError() -> String {
         if bluetoothModel.isBluetoothOffDialogPresented {
@@ -84,29 +85,34 @@ struct MenuBarContentView: View {
                         .buttonStyle(.borderless)
                     }
                     .padding(.bottom, 30)
-                    if bluetoothModel.isDeviceConnected {
-                        HStack(spacing: 0) {
-                            Image("cellularbars.\(bluetoothModel.signalLevel)")
-                                .padding(.trailing, 7.5)
-                            if bluetoothModel.networkType != "-1" {
-                                Text(bluetoothModel.networkType)
-                                    .font(.title3)
-                                    .padding(.trailing, 6)
-                            }
-                            if bluetoothModel.batteryLevel == -1 {
-                                Image(systemName: "battery.0")
+                    HStack(spacing: 0) {
+                        if bluetoothModel.isDeviceConnected {
+                            if seePhoneInfo && bluetoothModel.signalLevel != -1 && bluetoothModel.networkType != "-1" && bluetoothModel.batteryLevel != -1 {
+                                Image("cellularbars.\(bluetoothModel.signalLevel)")
+                                    .padding(.trailing, 7.5)
+                                if bluetoothModel.networkType != "-1" {
+                                    Text(bluetoothModel.networkType)
+                                        .font(.title3)
+                                        .padding(.trailing, 6)
+                                }
+                                if bluetoothModel.batteryLevel == -1 {
+                                    Image(systemName: "battery.0")
+                                        .font(.title2)
+                                        .padding(.bottom, 1)
+                                } else if bluetoothModel.batteryLevel % 25 == 0 {
+                                    Image(systemName: "battery.\(bluetoothModel.batteryLevel)")
+                                        .font(.title2)
+                                        .padding(.bottom, 1)
+                                }
+                            } else {
+                                Image(systemName: "iphone.gen3")
                                     .font(.title2)
-                                    .padding(.bottom, 1)
-                            } else if bluetoothModel.batteryLevel % 25 == 0 {
-                                Image(systemName: "battery.\(bluetoothModel.batteryLevel)")
-                                    .font(.title2)
-                                    .padding(.bottom, 1)
                             }
+                        } else {
+                            Image(systemName: "iphone.gen3.slash")
+                                .font(.title2)
                         }
-                    } else {
-                        Image(systemName: "iphone.gen3.slash")
-                            .font(.title2)
-                    }
+                    }.frame(height: 15)
                     Spacer()
                     Button {
                         if bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot {

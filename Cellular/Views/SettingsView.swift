@@ -60,6 +60,13 @@ struct SettingsView: View {
                         Text("When enabled, your Mac will display your phone’s network signal strength, mobile network type and battery level. This will consume more energy on both devices.")
                     }
                     .toggleStyle(.switch)
+                    .onChange(of: seePhoneInfo) { seePhoneInfo in
+                        if seePhoneInfo {
+                            bluetoothModel.enableSeePhoneInfo()
+                        } else {
+                            bluetoothModel.disableSeePhoneInfo()
+                        }
+                    }
                 }
             }
             .formStyle(.grouped)

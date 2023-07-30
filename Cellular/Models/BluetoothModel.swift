@@ -79,6 +79,8 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         case DisableHotspot = "1 0"
         case DisableHotspotIndicateOnly = "1 1"
         case IndicateConnectedHotspot = "2"
+        case EnableSeePhoneInfo = "3"
+        case DisableSeePhoneInfo = "4"
     }
     
     enum CommandType: String {
@@ -237,6 +239,12 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         peripheralManagerIsReady(toUpdateSubscribers: peripheral)
         
         if isSetupComplete {
+            // Enable seeing phone info if needed
+            let seePhoneInfo = defaults.bool(forKey: "seePhoneInfo")
+            if seePhoneInfo {
+                enableSeePhoneInfo()
+            }
+            
             // Evaluate whether Wi-Fi connection-based functions need to be run
             let cwWiFiClient = CWWiFiClient.shared()
             let cwInterface = cwWiFiClient.interface()!
@@ -532,6 +540,17 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             userRecentlyDisconnectedFromHotspot = true
             internalDisconnectFromHotspot(indicateOnly: indicateOnly)
         }
+    }
+    
+    func enableSeePhoneInfo() {
+        updateCharacteristicValue(value: .EnableSeePhoneInfo)
+    }
+    
+    func disableSeePhoneInfo() {
+        updateCharacteristicValue(value: .DisableSeePhoneInfo)
+        signalLevel = -1
+        networkType = "-1"
+        batteryLevel = -1
     }
     
     /**
