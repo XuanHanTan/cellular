@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreBluetooth
+import CoreWLAN
 import HandySwift
 
 extension Data {
@@ -44,7 +45,6 @@ extension Data {
  This class handles all things related to connecting to and communicating with the Cellular Companion app on the Android device.
  */
 class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeripheralManagerDelegate {
-    private var wlanModel: WLANModel!
     private var peripheralManager: CBPeripheralManager!
     private let defaults = UserDefaults.standard
     private var serviceUUID: CBUUID?
@@ -76,7 +76,8 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     
     enum NotificationType: String {
         case EnableHotspot = "0"
-        case DisableHotspot = "1"
+        case DisableHotspot = "1 0"
+        case DisableHotspotIndicateOnly = "1 1"
         case IndicateConnectedHotspot = "2"
     }
     
@@ -91,7 +92,6 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     override init() {
         super.init()
         isSetupComplete = defaults.bool(forKey: "isSetupComplete")
-        wlanModel = WLANModel(bluetoothModel: self)
     }
     
     /**
@@ -234,8 +234,14 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         connectedCentral = central
         isDeviceConnected = true
         peripheralManager.stopAdvertising()
-        
         peripheralManagerIsReady(toUpdateSubscribers: peripheral)
+        
+        if isSetupComplete {
+            // Evaluate whether Wi-Fi connection-based functions need to be run
+            let cwWiFiClient = CWWiFiClient.shared()
+            let cwInterface = cwWiFiClient.interface()!
+            wlanModel.linkDidChangeForWiFiInterface(withName: cwInterface.interfaceName ?? "")
+        }
     }
     
     func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didUnsubscribeFrom characteristic: CBCharacteristic) {
@@ -511,20 +517,20 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         isConnectingToHotspot = false
     }
     
-    private func internalDisconnectFromHotspot() {
-        wlanModel.disconnect()
+    private func internalDisconnectFromHotspot(indicateOnly: Bool = false) {
+        if !indicateOnly {
+            wlanModel.disconnect()
+        }
+        
         isConnectedToHotspot = false
         isConnectingToHotspot = false
     }
     
     func userDisconnectFromHotspot(indicateOnly: Bool = false) {
         if isConnectingToHotspot || isConnectedToHotspot {
-            updateCharacteristicValue(value: .DisableHotspot)
+            updateCharacteristicValue(value: indicateOnly ? .DisableHotspotIndicateOnly : .DisableHotspot)
             userRecentlyDisconnectedFromHotspot = true
-            
-            if !indicateOnly {
-                internalDisconnectFromHotspot()
-            }
+            internalDisconnectFromHotspot(indicateOnly: indicateOnly)
         }
     }
     

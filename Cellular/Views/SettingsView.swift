@@ -10,6 +10,8 @@ import SwiftUI
 struct SettingsView: View {
     @Environment(\.openURL) private var openURL
     
+    @ObservedObject var wlanModel: WLANModel
+    
     @AppStorage("autoConnect") var isAutoConnect = false
     @AppStorage("autoDisconnectWhenSleep") var isAutoDisconnectWhenSleep = false
     // @AppStorage("autoDisconnectWhenTrustedWiFiAvailable") var isAutoDisconnectWhenTrustedWiFiAvailableOn = false
@@ -20,11 +22,15 @@ struct SettingsView: View {
         VStack {
             Form {
                 Section {
-                    // TODO: check if need to be connected immediately
                     Toggle(isOn: $isAutoConnect) {
                         Text("Connect when known Wi-Fi networks are unavailable")
                     }
                     .toggleStyle(.switch)
+                    .onChange(of: isAutoConnect) { isAutoConnect in
+                        if isAutoConnect {
+                            wlanModel.evalAutoEnableHotspot(immediate: true)
+                        }
+                    }
                     Toggle(isOn: $isAutoDisconnectWhenSleep) {
                         Text("Disconnect when your Mac is put to sleep")
                     }
@@ -73,11 +79,5 @@ struct SettingsView: View {
         .onReceive(NotificationCenter.default.publisher(for: NSWindow.willCloseNotification)) { newValue in
             NSApp.setActivationPolicy(.accessory)
         }
-    }
-}
-
-struct SettingsView_Previews: PreviewProvider {
-    static var previews: some View {
-        SettingsView()
     }
 }

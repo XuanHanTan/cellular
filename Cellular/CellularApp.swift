@@ -9,6 +9,9 @@ import SwiftUI
 import ServiceManagement
 import MenuBarExtraAccess
 
+let wlanModel = WLANModel()
+let bluetoothModel = BluetoothModel()
+
 @main
 struct CellularApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
@@ -19,7 +22,8 @@ struct CellularApp: App {
     
     @State private var currentView: Views = .start
     @State private var menuBarItemPresented = false
-    @StateObject private var bluetoothModel = BluetoothModel()
+    @StateObject private var wlanModel = Cellular.wlanModel
+    @StateObject private var bluetoothModel = Cellular.bluetoothModel
     
     func finishSetup() {
         // Close setup window
@@ -115,7 +119,7 @@ struct CellularApp: App {
         }
         Settings {
             if bluetoothModel.isSetupComplete {
-                SettingsView()
+                SettingsView(wlanModel: wlanModel)
             }
         }
         MenuBarExtra(

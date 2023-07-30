@@ -16,17 +16,17 @@ func syncMain<T>(_ closure: () -> T) -> T {
     }
 }
 
-class WLANModel: CWEventDelegate {
-    let bluetoothModel: BluetoothModel
-    
+class WLANModel: NSObject, ObservableObject, CWEventDelegate {
     private let defaults = UserDefaults.standard
     private let cwWiFiClient = CWWiFiClient.shared()
+    private let cwInterface: CWInterface!
     private var ssid: String?
     private var password: String?
     private var connectHotspotRetryCount = 0
     
-    init(bluetoothModel: BluetoothModel) {
-        self.bluetoothModel = bluetoothModel
+    override init() {
+        cwInterface = cwWiFiClient.interface()!
+        super.init()
         cwWiFiClient.delegate = self
         
         do {
@@ -52,7 +52,6 @@ class WLANModel: CWEventDelegate {
         }
         
         DispatchQueue.global(qos: .userInitiated).async { [self] in
-            let cwInterface = cwWiFiClient.interface()!
             do {
                 var selNetwork: CWNetwork? = nil
                 for network in try cwInterface.scanForNetworks(withName: ssid) {
@@ -98,7 +97,6 @@ class WLANModel: CWEventDelegate {
     
     func disconnect() {
         DispatchQueue.global(qos: .userInitiated).async { [self] in
-            let cwInterface = cwWiFiClient.interface()!
             cwInterface.disassociate()
         }
     }
@@ -107,33 +105,67 @@ class WLANModel: CWEventDelegate {
     ///  1. Disconnect from hotspot when network ssid is not hotspot ssid and hotspot is supposed to be connected
     ///  2. Indicate to android device that hotspot has been connected if hotspot connected when not supposed to
     ///  3. Connect to hotspot when device is not connecting/connected to hotspot and user has not disconnected from hotspot recently
-    // TODO: run these on startup too
     func linkDidChangeForWiFiInterface(withName interfaceName: String) {
-        let cwInterface = cwWiFiClient.interface()!
         let currSsid = cwInterface.ssid()
         let linkState = currSsid != nil
-        
-        let isAutoConnect = defaults.bool(forKey: "autoConnect")
-        
+
         print("Link state changed: \(linkState)")
         
         if linkState {
             bluetoothModel.userRecentlyDisconnectedFromHotspot = false
         }
         
-        syncMain {
-            if bluetoothModel.isConnectedToHotspot && currSsid != ssid {
-                print("Indicating disconnected to hotspot...")
-                bluetoothModel.userDisconnectFromHotspot(indicateOnly: true)
-            } else if !(bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) && currSsid == ssid {
-                print("Indicating connected to hotspot...")
-                bluetoothModel.indicateConnectedToHotspot()
-            } else if isAutoConnect && !(bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) && !linkState && !bluetoothModel.userRecentlyDisconnectedFromHotspot {
+        if bluetoothModel.isDeviceConnected {
+            syncMain {
+                evalIndicateDisconnectHotspot()
+                evalIndicateConnectHotspot()
+                evalAutoEnableHotspot()
+            }
+        }
+    }
+    
+    private func evalIndicateDisconnectHotspot(immediate: Bool = false) {
+        func startIndicateDisconnectHotspot() {
+            print("Indicating disconnected from hotspot...")
+            bluetoothModel.userDisconnectFromHotspot(indicateOnly: true)
+        }
+        
+        let currSsid = cwInterface.ssid()
+        if bluetoothModel.isConnectedToHotspot && currSsid != ssid {
+            if immediate {
+                startIndicateDisconnectHotspot()
+            } else {
                 _ = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { [self] timer in
-                    if cwInterface.ssid() == nil {
-                        print("Enabling hotspot because known Wi-Fi network is not available")
-                        bluetoothModel.enableHotspot()
-                    }
+                    evalIndicateDisconnectHotspot(immediate: true)
+                }
+            }
+        }
+    }
+    
+    private func evalIndicateConnectHotspot() {
+        let currSsid = cwInterface.ssid()
+        if !(bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) && currSsid == ssid {
+            print("Indicating connected to hotspot...")
+            bluetoothModel.indicateConnectedToHotspot()
+        }
+    }
+    
+    func evalAutoEnableHotspot(immediate: Bool = false) {
+        func startAutoEnableHotspot() {
+            print("Enabling hotspot because known Wi-Fi network is not available")
+            bluetoothModel.enableHotspot()
+        }
+        
+        let currSsid = cwInterface.ssid()
+        let linkState = currSsid != nil
+        let isAutoConnect = defaults.bool(forKey: "autoConnect")
+        
+        if isAutoConnect && !(bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) && !linkState && !bluetoothModel.userRecentlyDisconnectedFromHotspot {
+            if immediate {
+                startAutoEnableHotspot()
+            } else {
+                _ = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { [self] timer in
+                    evalAutoEnableHotspot(immediate: true)
                 }
             }
         }
