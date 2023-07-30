@@ -18,5 +18,28 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             window.close()
             NSApp.setActivationPolicy(.accessory)
         }
+        
+        // Register for sleep/wake notifications
+        NSWorkspace.shared.notificationCenter.addObserver(
+            self, selector: #selector(onWakeNotification(notification:)),
+            name: NSWorkspace.didWakeNotification, object: nil)
+
+        NSWorkspace.shared.notificationCenter.addObserver(
+            self, selector: #selector(onSleepNotification(notification:)),
+            name: NSWorkspace.willSleepNotification, object: nil)
+    }
+    
+    @objc func onWakeNotification(notification: NSNotification) {
+        wlanModel.evalAutoEnableHotspot()
+    }
+
+    @objc func onSleepNotification(notification: NSNotification) {
+        print("on sleep")
+        
+        let isAutoDisconnectWhenSleep = defaults.bool(forKey: "autoDisconnectWhenSleep")
+        
+        if isAutoDisconnectWhenSleep && bluetoothModel.isDeviceConnected && (bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) {
+            bluetoothModel.userDisconnectFromHotspot()
+        }
     }
 }
