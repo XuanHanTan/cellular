@@ -409,8 +409,10 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                     // Update UI with new phone info accordingly
                     setPhoneInfo(signalLevel: signalLevel, networkType: networkType, batteryLevel: batteryLevel)
                     
-                    // Evaluate if minimum battery reached
-                    evalMinimumBattery(batteryLevel: batteryLevel)
+                    if batteryLevel != -1 {
+                        // Evaluate if minimum battery reached
+                        evalMinimumBattery(batteryLevel: batteryLevel)
+                    }
                     
                     // Indicate successful BLE operation
                     peripheral.respond(to: eachRequest, withResult: .success)
@@ -461,7 +463,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             userDisconnectFromHotspot()
         }
         
-        wlanModel.autoConnectAllowed = batteryLevel <= minimumBatteryLevel
+        wlanModel.autoConnectAllowed = batteryLevel > minimumBatteryLevel
     }
     
     private func updateCharacteristicValue(value: NotificationType) {
