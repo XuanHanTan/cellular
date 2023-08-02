@@ -76,11 +76,16 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     
     enum NotificationType: String {
         case EnableHotspot = "0"
-        case DisableHotspot = "1 0"
-        case DisableHotspotIndicateOnly = "1 1"
+        case DisableHotspot = "1"
         case IndicateConnectedHotspot = "2"
         case EnableSeePhoneInfo = "3"
         case DisableSeePhoneInfo = "4"
+        case SetMinimumBatteryLevel0 = "5 0"
+        case SetMinimumBatteryLevel10 = "5 10"
+        case SetMinimumBatteryLevel20 = "5 20"
+        case SetMinimumBatteryLevel30 = "5 30"
+        case SetMinimumBatteryLevel40 = "5 40"
+        case SetMinimumBatteryLevel50 = "5 50"
     }
     
     enum CommandType: String {
@@ -88,7 +93,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         case ShareHotspotDetails = "1"
         case SharePhoneInfo = "2"
         case ConnectToHotspot = "3"
-        case DisconnectFromHotspot = "4"
+        case IndicateLowBattery = "4"
     }
     
     override init() {
@@ -395,7 +400,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                     let networkType = String(plainTextSplit![1])
                     
                     // Split plaintext to signal level, network type and battery level
-                    guard let signalLevel = Int(plainTextSplit![0]), let batteryLevel = Int(plainTextSplit![2]), signalLevel >= -1, signalLevel <= 3, batteryLevel >= -1, batteryLevel <= 100, (batteryLevel != -1 ? batteryLevel % 25 == 0: true), acceptableNetworkTypes.contains(networkType) else {
+                    guard let signalLevel = Int(plainTextSplit![0]), let batteryLevel = Int(plainTextSplit![2]), signalLevel >= -1, signalLevel <= 3, batteryLevel >= -1, batteryLevel <= 100, acceptableNetworkTypes.contains(networkType) else {
                         print("Error: Payload is invalid.")
                         peripheral.respond(to: eachRequest, withResult: .unlikelyError)
                         continue
@@ -404,19 +409,15 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                     // Update UI with new phone info accordingly
                     setPhoneInfo(signalLevel: signalLevel, networkType: networkType, batteryLevel: batteryLevel)
                     
+                    // Evaluate if minimum battery reached
+                    evalMinimumBattery(batteryLevel: batteryLevel)
+                    
                     // Indicate successful BLE operation
                     peripheral.respond(to: eachRequest, withResult: .success)
                 case .ConnectToHotspot:
                     print("Connecting to hotspot...")
                     // Connect to hotspot
                     connectToHotspot()
-                    
-                    // Indicate successful BLE operation
-                    peripheral.respond(to: eachRequest, withResult: .success)
-                case .DisconnectFromHotspot:
-                    print("Disconnecting from hotspot...")
-                    // Disconnect from hotspot
-                    internalDisconnectFromHotspot()
                     
                     // Indicate successful BLE operation
                     peripheral.respond(to: eachRequest, withResult: .success)
@@ -448,10 +449,19 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             self.networkType = networkType
         }
         if batteryLevel != -1 {
-            self.batteryLevel = batteryLevel
+            self.batteryLevel = Int(floor(Double(batteryLevel + 12) / 25)) * 25
         }
         
         print("Phone info set: \(signalLevel) \(networkType) \(batteryLevel)")
+    }
+    
+    private func evalMinimumBattery(batteryLevel: Int) {
+        let minimumBatteryLevel = defaults.integer(forKey: "minimumBatteryLevel")
+        if wlanModel.autoConnectAllowed && batteryLevel <= minimumBatteryLevel && (isConnectingToHotspot || isConnectedToHotspot) {
+            userDisconnectFromHotspot()
+        }
+        
+        wlanModel.autoConnectAllowed = batteryLevel <= minimumBatteryLevel
     }
     
     private func updateCharacteristicValue(value: NotificationType) {
@@ -525,20 +535,17 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         isConnectingToHotspot = false
     }
     
-    private func internalDisconnectFromHotspot(indicateOnly: Bool = false) {
-        if !indicateOnly {
-            wlanModel.disconnect()
-        }
-        
-        isConnectedToHotspot = false
-        isConnectingToHotspot = false
-    }
-    
     func userDisconnectFromHotspot(indicateOnly: Bool = false) {
         if isConnectingToHotspot || isConnectedToHotspot {
-            updateCharacteristicValue(value: indicateOnly ? .DisableHotspotIndicateOnly : .DisableHotspot)
+            updateCharacteristicValue(value: .DisableHotspot)
             userRecentlyDisconnectedFromHotspot = true
-            internalDisconnectFromHotspot(indicateOnly: indicateOnly)
+            
+            if !indicateOnly {
+                wlanModel.disconnect()
+            }
+            
+            isConnectedToHotspot = false
+            isConnectingToHotspot = false
         }
     }
     

@@ -15,7 +15,7 @@ struct SettingsView: View {
     @AppStorage("autoConnect") var isAutoConnect = false
     @AppStorage("autoDisconnectWhenSleep") var isAutoDisconnectWhenSleep = false
     // @AppStorage("autoDisconnectWhenTrustedWiFiAvailable") var isAutoDisconnectWhenTrustedWiFiAvailableOn = false
-    @AppStorage("phoneBatteryLimit") var phoneBatteryLimit = 0
+    @AppStorage("minimumBatteryLevel") var minimumBatteryLevel = 0
     @AppStorage("seePhoneInfo") var seePhoneInfo = true
     
     var body: some View {
@@ -39,8 +39,8 @@ struct SettingsView: View {
                         Text("Disconnect when trusted Wi-Fi networks are available")
                     }
                     .toggleStyle(.switch)*/
-                    Picker("Disconnect when phone battery is below", selection: $phoneBatteryLimit) {
-                        Text("Off")
+                    Picker("Disconnect when phone battery is below", selection: $minimumBatteryLevel) {
+                        Text("Never")
                             .tag(0)
                         Text("10%")
                             .tag(10)

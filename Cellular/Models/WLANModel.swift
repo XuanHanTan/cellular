@@ -23,6 +23,7 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
     private var ssid: String?
     private var password: String?
     private var connectHotspotRetryCount = 0
+    var autoConnectAllowed = true
     
     override init() {
         cwInterface = cwWiFiClient.interface()!
@@ -160,7 +161,7 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
         let linkState = currSsid != nil
         let isAutoConnect = defaults.bool(forKey: "autoConnect")
         
-        if isAutoConnect && !(bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) && !linkState && !bluetoothModel.userRecentlyDisconnectedFromHotspot {
+        if isAutoConnect && autoConnectAllowed && !(bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) && !linkState && !bluetoothModel.userRecentlyDisconnectedFromHotspot {
             if immediate {
                 startAutoEnableHotspot()
             } else {
