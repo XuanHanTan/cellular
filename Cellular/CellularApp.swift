@@ -90,9 +90,7 @@ struct CellularApp: App {
                         )
                 }
             }
-            .frame(minWidth: 1000, idealWidth: 1100, maxWidth: 1200,
-                   minHeight: 700, idealHeight: 900, maxHeight: 1100,
-                   alignment: .center)
+            .frame(width: 1100, height: 900, alignment: .center)
             .alert("Turn on Bluetooth", isPresented: $bluetoothModel.isBluetoothOffDialogPresented) {
             } message: {
                 Text("You must leave Bluetooth on so Cellular can remain connected to your Android device.")
@@ -113,12 +111,12 @@ struct CellularApp: App {
             }
         }
         .windowStyle(.hiddenTitleBar)
+        .windowResizability(.contentSize)
         .commands {
             // Disable new window command in Menu Bar
             CommandGroup(replacing: CommandGroupPlacement.newItem) {
             }
         }
-        .windowResizability(.contentSize)
         Settings {
             if bluetoothModel.isSetupComplete {
                 SettingsView(wlanModel: wlanModel)
