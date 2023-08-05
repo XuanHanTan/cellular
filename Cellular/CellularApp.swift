@@ -112,16 +112,19 @@ struct CellularApp: App {
                 }
             }
         }
-        .windowStyle(.hiddenTitleBar).commands {
+        .windowStyle(.hiddenTitleBar)
+        .commands {
             // Disable new window command in Menu Bar
             CommandGroup(replacing: CommandGroupPlacement.newItem) {
             }
         }
+        .windowResizability(.contentSize)
         Settings {
             if bluetoothModel.isSetupComplete {
                 SettingsView(wlanModel: wlanModel)
             }
         }
+        .windowResizability(.contentSize)
         MenuBarExtra(
             content: {
                 MenuBarContentView(bluetoothModel: bluetoothModel, isMenuBarItemPresented: $menuBarItemPresented)

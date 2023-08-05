@@ -55,13 +55,25 @@ struct TrustedNetworksSettingsView: View {
                     }
                     .toggleStyle(.switch)
                     .controlSize(.large)
+                    .onChange(of: useTrustedNetworks) { newValue in
+                        if !newValue {
+                            selectedNetworkIndex = nil
+                            isTextFieldFocused = false
+                            isAdding = false
+                            DispatchQueue.main.async {
+                                if trustedNetworks.last == "" {
+                                    trustedNetworks.removeLast()
+                                }
+                            }
+                        }
+                    }
                     List(selection: $selectedNetworkIndex) {
                         ForEach(Array(trustedNetworks.enumerated()), id: \.offset) { index, network in
                             if isAdding && index == trustedNetworks.count - 1 {
                                 TextField("Network name", text: $trustedNetworks[index]) {
+                                    isTextFieldFocused = false
                                     selectedNetworkIndex = nil
                                     isAdding = false
-                                    isTextFieldFocused = false
                                     DispatchQueue.main.async {
                                         if trustedNetworks[index] == "" {
                                             trustedNetworks.removeLast()
@@ -71,14 +83,23 @@ struct TrustedNetworksSettingsView: View {
                                     }
                                 }
                                 .focused($isTextFieldFocused)
-                                    .submitScope()
-                                    .tag(index)
+                                .submitScope()
+                                .tag(index)
                             } else {
                                 Text(network)
+                                    .foregroundColor(useTrustedNetworks ? .none : .gray)
                                     .tag(index)
                             }
                         }
-                    }.frame(minHeight: 100)
+                    }
+                    .frame(minHeight: 100)
+                    .overlay {
+                        if useTrustedNetworks && trustedNetworks.isEmpty {
+                            Text("No trusted networks added.\nClick Add (+) to add a network.")
+                                .multilineTextAlignment(.center)
+                        }
+                    }
+                    .disabled(!useTrustedNetworks)
                     HStack(spacing: 10) {
                         Button {
                             if !isAdding {
@@ -91,13 +112,15 @@ struct TrustedNetworksSettingsView: View {
                             Image(systemName: "plus")
                         }
                         .buttonStyle(.borderless)
+                        .keyboardShortcut(KeyEquivalent.return, modifiers: [])
                         Button {
                             if selectedNetworkIndex != nil {
-                                isAdding = false
+                                let prevSelectedNetworkIndex = selectedNetworkIndex!
+                                selectedNetworkIndex = nil
                                 isTextFieldFocused = false
+                                isAdding = false
                                 DispatchQueue.main.async {
-                                    trustedNetworks.remove(at: selectedNetworkIndex!)
-                                    selectedNetworkIndex = nil
+                                    trustedNetworks.remove(at: prevSelectedNetworkIndex)
                                 }
                             }
                         } label: {
@@ -105,13 +128,14 @@ struct TrustedNetworksSettingsView: View {
                         }
                         .buttonStyle(.borderless)
                         .disabled(selectedNetworkIndex == nil)
+                        .keyboardShortcut(KeyEquivalent.delete, modifiers: [])
                     }
+                    .disabled(!useTrustedNetworks)
                 }
             }
             .formStyle(.grouped)
         }
         .padding(.vertical)
-        .frame(minWidth: 500, idealWidth: 600, maxWidth: 700,
-               minHeight: 300, idealHeight: 400, maxHeight: 500)
+        .frame(width: 600, height: 400)
     }
 }
