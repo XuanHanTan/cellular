@@ -22,6 +22,7 @@
 		1959D9EF2A472B70001BBE0F /* Cellular_HelperUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1959D9EE2A472B70001BBE0F /* Cellular_HelperUITests.swift */; };
 		1959D9F12A472B70001BBE0F /* Cellular_HelperUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1959D9F02A472B70001BBE0F /* Cellular_HelperUITestsLaunchTests.swift */; };
 		1959DA002A472DD5001BBE0F /* Cellular Helper.app in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1959D9D02A472B6E001BBE0F /* Cellular Helper.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		1978800A2A7CA3BD007F7B66 /* TrustedNetworksSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 197880092A7CA3BD007F7B66 /* TrustedNetworksSettingsView.swift */; };
 		198A7A1E2A45A4FA0097C0DD /* SettingUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 198A7A1D2A45A4FA0097C0DD /* SettingUpView.swift */; };
 		19A0ED342A2E240B00AF4A5F /* CellularApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A0ED332A2E240B00AF4A5F /* CellularApp.swift */; };
 		19A0ED382A2E240C00AF4A5F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 19A0ED372A2E240C00AF4A5F /* Assets.xcassets */; };
@@ -99,6 +100,7 @@
 		1959D9EA2A472B70001BBE0F /* Cellular HelperUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Cellular HelperUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1959D9EE2A472B70001BBE0F /* Cellular_HelperUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cellular_HelperUITests.swift; sourceTree = "<group>"; };
 		1959D9F02A472B70001BBE0F /* Cellular_HelperUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cellular_HelperUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		197880092A7CA3BD007F7B66 /* TrustedNetworksSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrustedNetworksSettingsView.swift; sourceTree = "<group>"; };
 		198A7A1D2A45A4FA0097C0DD /* SettingUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingUpView.swift; sourceTree = "<group>"; };
 		19A0ED302A2E240B00AF4A5F /* Cellular.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cellular.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		19A0ED332A2E240B00AF4A5F /* CellularApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellularApp.swift; sourceTree = "<group>"; };
@@ -183,6 +185,7 @@
 				1959D9C82A46AC03001BBE0F /* SettingsView.swift */,
 				19BDE0682A4878E300C038BA /* MenuBarContentView.swift */,
 				19BDE06A2A4878ED00C038BA /* MenuBarIconView.swift */,
+				197880092A7CA3BD007F7B66 /* TrustedNetworksSettingsView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -553,6 +556,7 @@
 				1959D9C92A46AC03001BBE0F /* SettingsView.swift in Sources */,
 				19A0ED342A2E240B00AF4A5F /* CellularApp.swift in Sources */,
 				19BDE06B2A4878ED00C038BA /* MenuBarIconView.swift in Sources */,
+				1978800A2A7CA3BD007F7B66 /* TrustedNetworksSettingsView.swift in Sources */,
 				1915C22F2A30938300A22788 /* BluetoothModel.swift in Sources */,
 				1959D9C72A46A711001BBE0F /* FinishSetupView.swift in Sources */,
 				1928BBE02A35B1030029BB8C /* StartView.swift in Sources */,
