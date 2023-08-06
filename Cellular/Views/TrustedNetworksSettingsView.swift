@@ -9,11 +9,14 @@ import SwiftUI
 
 struct TrustedNetworksSettingsView: View {
     @Binding var path: NavigationPath
-    @AppStorage("useTrustedNetworks") var useTrustedNetworks = true
+    @AppStorage("useTrustedNetworks") private var useTrustedNetworks = true
     @State private var trustedNetworks: [String] = []
     @State private var selectedNetworkIndex: Int?
     @State private var isAdding = false
     @FocusState private var isTextFieldFocused: Bool
+    @State private var tempAddText = ""
+    
+    let defaults = UserDefaults.standard
     
     struct BackButtonStyle: ButtonStyle {
         @State private var isOverButton = false
@@ -28,6 +31,17 @@ struct TrustedNetworksSettingsView: View {
                 }
                 .cornerRadius(6.0)
                 .animation(.default, value: self.isOverButton)
+        }
+    }
+    
+    func onSubmitNetworkName() {
+        isTextFieldFocused = false
+        selectedNetworkIndex = nil
+        isAdding = false
+        
+        if tempAddText != "" {
+            trustedNetworks.append(tempAddText)
+            tempAddText = ""
         }
     }
     
@@ -57,39 +71,21 @@ struct TrustedNetworksSettingsView: View {
                     .controlSize(.large)
                     .onChange(of: useTrustedNetworks) { newValue in
                         if !newValue {
-                            selectedNetworkIndex = nil
-                            isTextFieldFocused = false
-                            isAdding = false
-                            DispatchQueue.main.async {
-                                if trustedNetworks.last == "" {
-                                    trustedNetworks.removeLast()
-                                }
-                            }
+                            onSubmitNetworkName()
                         }
                     }
                     List(selection: $selectedNetworkIndex) {
                         ForEach(Array(trustedNetworks.enumerated()), id: \.offset) { index, network in
-                            if isAdding && index == trustedNetworks.count - 1 {
-                                TextField("Network name", text: $trustedNetworks[index]) {
-                                    isTextFieldFocused = false
-                                    selectedNetworkIndex = nil
-                                    isAdding = false
-                                    DispatchQueue.main.async {
-                                        if trustedNetworks[index] == "" {
-                                            trustedNetworks.removeLast()
-                                        } else {
-                                            // Store new network name in UserDefaults
-                                        }
-                                    }
-                                }
-                                .focused($isTextFieldFocused)
-                                .submitScope()
+                            Text(network)
+                                .foregroundColor(useTrustedNetworks ? .none : .gray)
                                 .tag(index)
-                            } else {
-                                Text(network)
-                                    .foregroundColor(useTrustedNetworks ? .none : .gray)
-                                    .tag(index)
-                            }
+                        }
+                        if isAdding {
+                            TextField("Network name", text: $tempAddText)
+                                .focused($isTextFieldFocused)
+                                .onSubmit(onSubmitNetworkName)
+                                .submitScope()
+                                .tag(-1)
                         }
                     }
                     .frame(minHeight: 100)
@@ -103,28 +99,29 @@ struct TrustedNetworksSettingsView: View {
                     HStack(spacing: 10) {
                         Button {
                             if !isAdding {
-                                trustedNetworks.append("")
-                                selectedNetworkIndex = trustedNetworks.count - 1
+                                selectedNetworkIndex = -1
                                 isAdding = true
+                                tempAddText = ""
                                 isTextFieldFocused = true
                             }
                         } label: {
                             Image(systemName: "plus")
+                                .frame(width: 13, height: 13)
                         }
                         .buttonStyle(.borderless)
                         .keyboardShortcut(KeyEquivalent.return, modifiers: [])
                         Button {
-                            if selectedNetworkIndex != nil {
-                                let prevSelectedNetworkIndex = selectedNetworkIndex!
-                                selectedNetworkIndex = nil
-                                isTextFieldFocused = false
-                                isAdding = false
-                                DispatchQueue.main.async {
-                                    trustedNetworks.remove(at: prevSelectedNetworkIndex)
-                                }
+                            let prevSelectedNetworkIndex = selectedNetworkIndex!
+                            selectedNetworkIndex = nil
+                            isTextFieldFocused = false
+                            isAdding = false
+                            tempAddText = ""
+                            if prevSelectedNetworkIndex != -1 {
+                                trustedNetworks.remove(at: prevSelectedNetworkIndex)
                             }
                         } label: {
                             Image(systemName: "minus")
+                                .frame(width: 13, height: 13)
                         }
                         .buttonStyle(.borderless)
                         .disabled(selectedNetworkIndex == nil)
@@ -137,5 +134,11 @@ struct TrustedNetworksSettingsView: View {
         }
         .padding(.vertical)
         .frame(width: 600, height: 400)
+        .onAppear {
+            trustedNetworks = defaults.stringArray(forKey: "trustedNetworks") ?? []
+        }
+        .onChange(of: trustedNetworks) { newValue in
+            defaults.set(trustedNetworks, forKey: "trustedNetworks")
+        }
     }
 }
