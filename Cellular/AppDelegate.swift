@@ -30,16 +30,24 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
     
     @objc func onWakeNotification(notification: NSNotification) {
-        wlanModel.evalAutoEnableHotspot()
-    }
-
-    @objc func onSleepNotification(notification: NSNotification) {
-        print("on sleep")
+        print("Computer has woken up.")
         
         let isAutoDisconnectWhenSleep = defaults.bool(forKey: "autoDisconnectWhenSleep")
         
-        if isAutoDisconnectWhenSleep && bluetoothModel.isDeviceConnected && (bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) {
+        if isAutoDisconnectWhenSleep {
+            wlanModel.evalAutoEnableHotspot()
+            isSleeping = false
+        }
+    }
+
+    @objc func onSleepNotification(notification: NSNotification) {
+        print("Computer is going to sleep.")
+        
+        let isAutoDisconnectWhenSleep = defaults.bool(forKey: "autoDisconnectWhenSleep")
+        
+        if isAutoDisconnectWhenSleep && (bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) {
             bluetoothModel.userDisconnectFromHotspot()
+            isSleeping = true
         }
     }
 }

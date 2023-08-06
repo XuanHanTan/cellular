@@ -11,6 +11,7 @@ import MenuBarExtraAccess
 
 let wlanModel = WLANModel()
 let bluetoothModel = BluetoothModel()
+var isSleeping = false
 
 @main
 struct CellularApp: App {

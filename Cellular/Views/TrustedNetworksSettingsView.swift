@@ -10,7 +10,7 @@ import SwiftUI
 struct TrustedNetworksSettingsView: View {
     @Binding var path: NavigationPath
     @AppStorage("useTrustedNetworks") private var useTrustedNetworks = true
-    @State private var trustedNetworks: [String] = []
+    @State private var trustedNetworkSSIDs: [String] = []
     @State private var selectedNetworkIndex: Int?
     @State private var isAdding = false
     @FocusState private var isTextFieldFocused: Bool
@@ -39,8 +39,8 @@ struct TrustedNetworksSettingsView: View {
         selectedNetworkIndex = nil
         isAdding = false
         
-        if tempAddText != "" {
-            trustedNetworks.append(tempAddText)
+        if tempAddText != "" && tempAddText != wlanModel.ssid && !trustedNetworkSSIDs.contains(tempAddText) {
+            trustedNetworkSSIDs.append(tempAddText)
             tempAddText = ""
         }
     }
@@ -65,7 +65,7 @@ struct TrustedNetworksSettingsView: View {
                 Section {
                     Toggle(isOn: $useTrustedNetworks) {
                         Text("Trusted networks")
-                        Text("Allow your Mac to switch from your phone's hotspot to your trusted networks automatically when they are available.")
+                        Text("Allow your Mac to switch from your phone's hotspot to your trusted networks automatically when they are available. Network names and passwords are stored locally on your Mac.")
                     }
                     .toggleStyle(.switch)
                     .controlSize(.large)
@@ -75,7 +75,7 @@ struct TrustedNetworksSettingsView: View {
                         }
                     }
                     List(selection: $selectedNetworkIndex) {
-                        ForEach(Array(trustedNetworks.enumerated()), id: \.offset) { index, network in
+                        ForEach(Array(trustedNetworkSSIDs.enumerated()), id: \.offset) { index, network in
                             Text(network)
                                 .foregroundColor(useTrustedNetworks ? .none : .gray)
                                 .tag(index)
@@ -90,7 +90,7 @@ struct TrustedNetworksSettingsView: View {
                     }
                     .frame(minHeight: 100)
                     .overlay {
-                        if useTrustedNetworks && trustedNetworks.isEmpty {
+                        if useTrustedNetworks && !isAdding && trustedNetworkSSIDs.isEmpty {
                             Text("No trusted networks added.\nClick Add (+) to add a network.")
                                 .multilineTextAlignment(.center)
                         }
@@ -117,7 +117,7 @@ struct TrustedNetworksSettingsView: View {
                             isAdding = false
                             tempAddText = ""
                             if prevSelectedNetworkIndex != -1 {
-                                trustedNetworks.remove(at: prevSelectedNetworkIndex)
+                                trustedNetworkSSIDs.remove(at: prevSelectedNetworkIndex)
                             }
                         } label: {
                             Image(systemName: "minus")
@@ -135,10 +135,10 @@ struct TrustedNetworksSettingsView: View {
         .padding(.vertical)
         .frame(width: 600, height: 400)
         .onAppear {
-            trustedNetworks = defaults.stringArray(forKey: "trustedNetworks") ?? []
+            trustedNetworkSSIDs = defaults.stringArray(forKey: "trustedNetworks") ?? []
         }
-        .onChange(of: trustedNetworks) { newValue in
-            defaults.set(trustedNetworks, forKey: "trustedNetworks")
+        .onChange(of: trustedNetworkSSIDs) { newValue in
+            defaults.set(trustedNetworkSSIDs, forKey: "trustedNetworks")
         }
     }
 }

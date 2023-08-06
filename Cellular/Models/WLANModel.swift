@@ -20,10 +20,10 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
     private let defaults = UserDefaults.standard
     private let cwWiFiClient = CWWiFiClient.shared()
     private let cwInterface: CWInterface!
-    private var ssid: String?
+    var ssid: String?
     private var password: String?
     private var connectHotspotRetryCount = 0
-    var autoConnectAllowed = true
+    private var connectionTimer: Timer?
     
     override init() {
         cwInterface = cwWiFiClient.interface()!
@@ -32,6 +32,7 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
         
         do {
             try cwWiFiClient.startMonitoringEvent(with: .linkDidChange)
+            try cwWiFiClient.startMonitoringEvent(with: .scanCacheUpdated)
         } catch {
             print("Failed to start Wi-Fi monitoring: \(error.localizedDescription)")
         }
@@ -68,7 +69,7 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
                     }
                 } else if (connectHotspotRetryCount < 3) {
                     _ = DispatchQueue.main.sync {
-                        Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { timer in
+                        connectionTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { timer in
                             DispatchQueue.global(qos: .userInitiated).async {
                                 self.connect(completionHandler: completionHandler, onError: onError)
                             }
@@ -96,9 +97,12 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
         }
     }
     
-    func disconnect() {
+    func disconnect(indicateOnly: Bool) {
         DispatchQueue.global(qos: .userInitiated).async { [self] in
-            cwInterface.disassociate()
+            connectionTimer?.invalidate()
+            if !indicateOnly {
+                cwInterface.disassociate()
+            }
         }
     }
     
@@ -121,6 +125,30 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
                 evalIndicateDisconnectHotspot()
                 evalIndicateConnectHotspot()
                 evalAutoEnableHotspot()
+            }
+        }
+    }
+    
+    func scanCacheUpdatedForWiFiInterface(withName interfaceName: String) {
+        print("Scan cache updated")
+        let useTrustedNetworks = defaults.bool(forKey: "useTrustedNetworks")
+        
+        if useTrustedNetworks && (bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot), let networks = cwInterface.cachedScanResults() {
+            let trustedNetworkSSIDs = Set(defaults.stringArray(forKey: "trustedNetworks") ?? [])
+            let availabeNetworkSSIDs = Set(networks.map { $0.ssid ?? "" })
+            let availableTrustedNetworkSSIDs = trustedNetworkSSIDs.intersection(availabeNetworkSSIDs)
+            // TODO: allow saving password
+            
+            if let firstAvailableTrustedNetwork = availableTrustedNetworkSSIDs.first {
+                do {
+                    DispatchQueue.main.sync {
+                        bluetoothModel.userDisconnectFromHotspot(indicateOnly: true)
+                    }
+                    let network = networks.first(where: { $0.ssid == firstAvailableTrustedNetwork })!
+                    try cwInterface.associate(to: network, password: nil)
+                } catch {
+                    print("Failed to associate to trusted network \(firstAvailableTrustedNetwork): \(error.localizedDescription)")
+                }
             }
         }
     }
@@ -161,7 +189,7 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
         let linkState = currSsid != nil
         let isAutoConnect = defaults.bool(forKey: "autoConnect")
         
-        if isAutoConnect && autoConnectAllowed && !(bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) && !linkState && !bluetoothModel.userRecentlyDisconnectedFromHotspot {
+        if isAutoConnect && !bluetoothModel.isLowBattery && !(bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) && !linkState && !bluetoothModel.userRecentlyDisconnectedFromHotspot {
             if immediate {
                 startAutoEnableHotspot()
             } else {

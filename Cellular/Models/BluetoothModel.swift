@@ -69,6 +69,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     @Published var isConnectingToHotspot = false
     @Published var isConnectedToHotspot = false
     var userRecentlyDisconnectedFromHotspot = false
+    var isLowBattery = false
     
     @Published var signalLevel = -1
     @Published var networkType = "-1"
@@ -459,11 +460,11 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     
     private func evalMinimumBattery(batteryLevel: Int) {
         let minimumBatteryLevel = defaults.integer(forKey: "minimumBatteryLevel")
-        if wlanModel.autoConnectAllowed && batteryLevel <= minimumBatteryLevel && (isConnectingToHotspot || isConnectedToHotspot) {
+        if !isLowBattery && batteryLevel <= minimumBatteryLevel && (isConnectingToHotspot || isConnectedToHotspot) {
             userDisconnectFromHotspot()
         }
         
-        wlanModel.autoConnectAllowed = batteryLevel > minimumBatteryLevel
+        isLowBattery = batteryLevel <= minimumBatteryLevel
     }
     
     private func updateCharacteristicValue(value: NotificationType) {
@@ -542,9 +543,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             updateCharacteristicValue(value: .DisableHotspot)
             userRecentlyDisconnectedFromHotspot = true
             
-            if !indicateOnly {
-                wlanModel.disconnect()
-            }
+            wlanModel.disconnect(indicateOnly: indicateOnly)
             
             isConnectedToHotspot = false
             isConnectingToHotspot = false
