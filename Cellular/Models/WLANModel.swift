@@ -20,6 +20,7 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
     private let defaults = UserDefaults.standard
     private let cwWiFiClient = CWWiFiClient.shared()
     private let cwInterface: CWInterface!
+    private var connectDispatchTask: DispatchWorkItem?
     var ssid: String?
     private var password: String?
     private var connectHotspotRetryCount = 0
@@ -53,7 +54,7 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
             return
         }
         
-        DispatchQueue.global(qos: .userInitiated).async { [self] in
+        connectDispatchTask = DispatchWorkItem { [self] in
             do {
                 var selNetwork: CWNetwork? = nil
                 for network in try cwInterface.scanForNetworks(withName: ssid) {
@@ -65,12 +66,13 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
                     try cwInterface.associate(to: selNetwork!, password: password)
                     DispatchQueue.main.sync {
                         connectHotspotRetryCount = 0
+                        connectDispatchTask = nil
                         completionHandler()
                     }
                 } else if (connectHotspotRetryCount < 3) {
                     _ = DispatchQueue.main.sync {
                         connectionTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { timer in
-                            DispatchQueue.global(qos: .userInitiated).async {
+                            if self.connectionTimer != nil {
                                 self.connect(completionHandler: completionHandler, onError: onError)
                             }
                         }
@@ -82,6 +84,7 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
                     connectHotspotRetryCount = 0
                     
                     DispatchQueue.main.sync {
+                        connectDispatchTask = nil
                         onError()
                     }
                 }
@@ -91,15 +94,20 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
                 connectHotspotRetryCount = 0
                 
                 DispatchQueue.main.sync {
+                    connectDispatchTask = nil
                     onError()
                 }
             }
         }
+        
+        DispatchQueue.global(qos: .userInitiated).async(execute: connectDispatchTask!)
     }
     
     func disconnect(indicateOnly: Bool) {
         DispatchQueue.global(qos: .userInitiated).async { [self] in
+            connectDispatchTask?.cancel()
             connectionTimer?.invalidate()
+            connectionTimer = nil
             if !indicateOnly {
                 cwInterface.disassociate()
             }
@@ -134,10 +142,11 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
         let useTrustedNetworks = defaults.bool(forKey: "useTrustedNetworks")
         
         if useTrustedNetworks && (bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot), let networks = cwInterface.cachedScanResults() {
-            let trustedNetworkSSIDs = Set(defaults.stringArray(forKey: "trustedNetworks") ?? [])
+            let trustedNetworkSSIDsArr = defaults.stringArray(forKey: "trustedNetworks") ?? []
+            let trustedNetworkSSIDs = Set(trustedNetworkSSIDsArr)
+            let trustedNetworkPasswords = defaults.stringArray(forKey: "trustedNetworkPasswords") ?? []
             let availabeNetworkSSIDs = Set(networks.map { $0.ssid ?? "" })
             let availableTrustedNetworkSSIDs = trustedNetworkSSIDs.intersection(availabeNetworkSSIDs)
-            // TODO: allow saving password
             
             if let firstAvailableTrustedNetwork = availableTrustedNetworkSSIDs.first {
                 do {
@@ -145,7 +154,8 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
                         bluetoothModel.userDisconnectFromHotspot(indicateOnly: true)
                     }
                     let network = networks.first(where: { $0.ssid == firstAvailableTrustedNetwork })!
-                    try cwInterface.associate(to: network, password: nil)
+                    let password = trustedNetworkPasswords[trustedNetworkSSIDsArr.firstIndex(of: firstAvailableTrustedNetwork)!]
+                    try cwInterface.associate(to: network, password: password)
                 } catch {
                     print("Failed to associate to trusted network \(firstAvailableTrustedNetwork): \(error.localizedDescription)")
                 }

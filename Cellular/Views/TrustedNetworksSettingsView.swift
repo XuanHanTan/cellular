@@ -11,10 +11,11 @@ struct TrustedNetworksSettingsView: View {
     @Binding var path: NavigationPath
     @AppStorage("useTrustedNetworks") private var useTrustedNetworks = true
     @State private var trustedNetworkSSIDs: [String] = []
+    @State private var trustedNetworkPasswords: [String] = []
     @State private var selectedNetworkIndex: Int?
     @State private var isAdding = false
-    @FocusState private var isTextFieldFocused: Bool
-    @State private var tempAddText = ""
+    @State private var tempAddName = ""
+    @State private var tempAddPassword = ""
     
     let defaults = UserDefaults.standard
     
@@ -31,17 +32,6 @@ struct TrustedNetworksSettingsView: View {
                 }
                 .cornerRadius(6.0)
                 .animation(.default, value: self.isOverButton)
-        }
-    }
-    
-    func onSubmitNetworkName() {
-        isTextFieldFocused = false
-        selectedNetworkIndex = nil
-        isAdding = false
-        
-        if tempAddText != "" && tempAddText != wlanModel.ssid && !trustedNetworkSSIDs.contains(tempAddText) {
-            trustedNetworkSSIDs.append(tempAddText)
-            tempAddText = ""
         }
     }
     
@@ -71,7 +61,8 @@ struct TrustedNetworksSettingsView: View {
                     .controlSize(.large)
                     .onChange(of: useTrustedNetworks) { newValue in
                         if !newValue {
-                            onSubmitNetworkName()
+                            selectedNetworkIndex = nil
+                            isAdding = false
                         }
                     }
                     List(selection: $selectedNetworkIndex) {
@@ -79,13 +70,6 @@ struct TrustedNetworksSettingsView: View {
                             Text(network)
                                 .foregroundColor(useTrustedNetworks ? .none : .gray)
                                 .tag(index)
-                        }
-                        if isAdding {
-                            TextField("Network name", text: $tempAddText)
-                                .focused($isTextFieldFocused)
-                                .onSubmit(onSubmitNetworkName)
-                                .submitScope()
-                                .tag(-1)
                         }
                     }
                     .frame(minHeight: 100)
@@ -99,25 +83,67 @@ struct TrustedNetworksSettingsView: View {
                     HStack(spacing: 10) {
                         Button {
                             if !isAdding {
-                                selectedNetworkIndex = -1
+                                selectedNetworkIndex = nil
                                 isAdding = true
-                                tempAddText = ""
-                                isTextFieldFocused = true
                             }
                         } label: {
                             Image(systemName: "plus")
                                 .frame(width: 13, height: 13)
                         }
+                        .sheet(isPresented: $isAdding, content: {
+                            VStack(spacing: 0) {
+                                VStack(spacing: 5) {
+                                    Text("Add trusted network")
+                                        .fontWeight(.bold)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                    Text("Network names and passwords are stored locally on your Mac.")
+                                        .font(.subheadline)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                    Form {
+                                        Section {
+                                            TextField("Name:", text: $tempAddName)
+                                            SecureField("Password:", text: $tempAddPassword)
+                                                .focusable(true)
+                                        }
+                                    }
+                                    .padding(.top, 15)
+                                    .padding(.bottom, 10)
+                                }
+                                .padding(.all, 20)
+                                Divider()
+                                HStack(spacing: 10) {
+                                    Spacer()
+                                    Button("Cancel") {
+                                        isAdding = false
+                                        tempAddName = ""
+                                        tempAddPassword = ""
+                                    }
+                                    .keyboardShortcut(.cancelAction)
+                                    Button("Add") {
+                                        selectedNetworkIndex = nil
+                                        isAdding = false
+                                        
+                                        if tempAddName != "" && tempAddName != wlanModel.ssid && !trustedNetworkSSIDs.contains(tempAddName) {
+                                            trustedNetworkSSIDs.append(tempAddName)
+                                            trustedNetworkPasswords.append(tempAddPassword)
+                                            tempAddName = ""
+                                            tempAddPassword = ""
+                                        }
+                                    }
+                                    .keyboardShortcut(.defaultAction)
+                                }.padding(.all, 20)
+                            }
+                            .frame(width: 400, alignment: .leading)
+                        })
                         .buttonStyle(.borderless)
                         .keyboardShortcut(KeyEquivalent.return, modifiers: [])
                         Button {
                             let prevSelectedNetworkIndex = selectedNetworkIndex!
                             selectedNetworkIndex = nil
-                            isTextFieldFocused = false
                             isAdding = false
-                            tempAddText = ""
                             if prevSelectedNetworkIndex != -1 {
                                 trustedNetworkSSIDs.remove(at: prevSelectedNetworkIndex)
+                                trustedNetworkPasswords.remove(at: prevSelectedNetworkIndex)
                             }
                         } label: {
                             Image(systemName: "minus")
@@ -136,9 +162,11 @@ struct TrustedNetworksSettingsView: View {
         .frame(width: 600, height: 400)
         .onAppear {
             trustedNetworkSSIDs = defaults.stringArray(forKey: "trustedNetworks") ?? []
+            trustedNetworkPasswords = defaults.stringArray(forKey: "trustedNetworkPasswords") ?? []
         }
         .onChange(of: trustedNetworkSSIDs) { newValue in
             defaults.set(trustedNetworkSSIDs, forKey: "trustedNetworks")
+            defaults.set(trustedNetworkPasswords, forKey: "trustedNetworkPasswords")
         }
     }
 }
