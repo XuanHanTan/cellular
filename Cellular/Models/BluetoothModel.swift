@@ -68,7 +68,6 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     @Published var isDeviceConnected = false
     @Published var isConnectingToHotspot = false
     @Published var isConnectedToHotspot = false
-    var userRecentlyDisconnectedFromHotspot = false
     var isLowBattery = false
     
     @Published var signalLevel = -1
@@ -541,8 +540,6 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     func userDisconnectFromHotspot(indicateOnly: Bool = false) {
         if isConnectingToHotspot || isConnectedToHotspot {
             updateCharacteristicValue(value: .DisableHotspot)
-            userRecentlyDisconnectedFromHotspot = true
-            
             wlanModel.disconnect(indicateOnly: indicateOnly)
             
             isConnectedToHotspot = false

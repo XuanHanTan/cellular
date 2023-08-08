@@ -20,11 +20,13 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
     private let defaults = UserDefaults.standard
     private let cwWiFiClient = CWWiFiClient.shared()
     private let cwInterface: CWInterface!
-    private var connectDispatchTask: DispatchWorkItem?
+    private var connectDispatchTask: DispatchWorkItem? // IMPT: Must not be set to nil or else connect() won't be able to check if task has been cancelled!
     var ssid: String?
     private var password: String?
     private var connectHotspotRetryCount = 0
     private var connectionTimer: Timer?
+    private var userRecentlyConnectedWhileOnTrustedNetwork = false
+    var userRecentlyDisconnectedFromHotspot = false
     
     override init() {
         cwInterface = cwWiFiClient.interface()!
@@ -56,6 +58,13 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
         
         connectDispatchTask = DispatchWorkItem { [self] in
             do {
+                if let currentSSID = cwInterface.ssid() {
+                    let trustedNetworkSSIDs = defaults.stringArray(forKey: "trustedNetworks") ?? []
+                    if trustedNetworkSSIDs.contains(currentSSID) {
+                        userRecentlyConnectedWhileOnTrustedNetwork = true
+                    }
+                }
+                
                 var selNetwork: CWNetwork? = nil
                 for network in try cwInterface.scanForNetworks(withName: ssid) {
                     if network.ssid == ssid {
@@ -64,15 +73,16 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
                 }
                 if selNetwork != nil {
                     try cwInterface.associate(to: selNetwork!, password: password)
+                    
                     DispatchQueue.main.sync {
                         connectHotspotRetryCount = 0
                         connectDispatchTask = nil
                         completionHandler()
                     }
-                } else if (connectHotspotRetryCount < 3) {
-                    _ = DispatchQueue.main.sync {
-                        connectionTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { timer in
-                            if self.connectionTimer != nil {
+                } else if connectHotspotRetryCount < 3 && !connectDispatchTask!.isCancelled {
+                    if connectHotspotRetryCount == 0 {
+                        _ = DispatchQueue.main.sync {
+                            connectionTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { timer in
                                 self.connect(completionHandler: completionHandler, onError: onError)
                             }
                         }
@@ -85,6 +95,7 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
                     
                     DispatchQueue.main.sync {
                         connectDispatchTask = nil
+                        userRecentlyConnectedWhileOnTrustedNetwork = false
                         onError()
                     }
                 }
@@ -95,6 +106,7 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
                 
                 DispatchQueue.main.sync {
                     connectDispatchTask = nil
+                    userRecentlyConnectedWhileOnTrustedNetwork = false
                     onError()
                 }
             }
@@ -105,9 +117,15 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
     
     func disconnect(indicateOnly: Bool) {
         DispatchQueue.global(qos: .userInitiated).async { [self] in
-            connectDispatchTask?.cancel()
-            connectionTimer?.invalidate()
-            connectionTimer = nil
+            DispatchQueue.main.sync {
+                connectDispatchTask?.cancel()
+                connectionTimer?.invalidate()
+                connectionTimer = nil
+            }
+            
+            userRecentlyConnectedWhileOnTrustedNetwork = false
+            userRecentlyDisconnectedFromHotspot = true
+            
             if !indicateOnly {
                 cwInterface.disassociate()
             }
@@ -121,11 +139,11 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
     func linkDidChangeForWiFiInterface(withName interfaceName: String) {
         let currSsid = cwInterface.ssid()
         let linkState = currSsid != nil
-
+        
         print("Link state changed: \(linkState)")
         
         if linkState {
-            bluetoothModel.userRecentlyDisconnectedFromHotspot = false
+            userRecentlyDisconnectedFromHotspot = false
         }
         
         if bluetoothModel.isDeviceConnected {
@@ -141,25 +159,30 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
         print("Scan cache updated")
         let useTrustedNetworks = defaults.bool(forKey: "useTrustedNetworks")
         
-        if useTrustedNetworks && (bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot), let networks = cwInterface.cachedScanResults() {
+        if let networks = cwInterface.cachedScanResults() {
             let trustedNetworkSSIDsArr = defaults.stringArray(forKey: "trustedNetworks") ?? []
             let trustedNetworkSSIDs = Set(trustedNetworkSSIDsArr)
             let trustedNetworkPasswords = defaults.stringArray(forKey: "trustedNetworkPasswords") ?? []
             let availabeNetworkSSIDs = Set(networks.map { $0.ssid ?? "" })
             let availableTrustedNetworkSSIDs = trustedNetworkSSIDs.intersection(availabeNetworkSSIDs)
             
+            
             if let firstAvailableTrustedNetwork = availableTrustedNetworkSSIDs.first {
-                do {
-                    DispatchQueue.main.sync {
-                        bluetoothModel.userDisconnectFromHotspot(indicateOnly: true)
+                if useTrustedNetworks && (bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) && !userRecentlyConnectedWhileOnTrustedNetwork {
+                    do {
+                        DispatchQueue.main.sync {
+                            bluetoothModel.userDisconnectFromHotspot(indicateOnly: true)
+                        }
+                        let network = networks.first(where: { $0.ssid == firstAvailableTrustedNetwork })!
+                        let password = trustedNetworkPasswords[trustedNetworkSSIDsArr.firstIndex(of: firstAvailableTrustedNetwork)!]
+                        try cwInterface.associate(to: network, password: password)
+                    } catch {
+                        print("Failed to associate to trusted network \(firstAvailableTrustedNetwork): \(error.localizedDescription)")
                     }
-                    let network = networks.first(where: { $0.ssid == firstAvailableTrustedNetwork })!
-                    let password = trustedNetworkPasswords[trustedNetworkSSIDsArr.firstIndex(of: firstAvailableTrustedNetwork)!]
-                    try cwInterface.associate(to: network, password: password)
-                } catch {
-                    print("Failed to associate to trusted network \(firstAvailableTrustedNetwork): \(error.localizedDescription)")
                 }
             }
+        } else {
+            userRecentlyConnectedWhileOnTrustedNetwork = false
         }
     }
     
@@ -199,7 +222,7 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
         let linkState = currSsid != nil
         let isAutoConnect = defaults.bool(forKey: "autoConnect")
         
-        if isAutoConnect && !bluetoothModel.isLowBattery && !(bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) && !linkState && !bluetoothModel.userRecentlyDisconnectedFromHotspot {
+        if isAutoConnect && !bluetoothModel.isLowBattery && !(bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) && !linkState && !userRecentlyDisconnectedFromHotspot {
             if immediate {
                 startAutoEnableHotspot()
             } else {
