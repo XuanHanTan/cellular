@@ -96,7 +96,7 @@ struct TrustedNetworksSettingsView: View {
                                     Text("Add trusted network")
                                         .fontWeight(.bold)
                                         .frame(maxWidth: .infinity, alignment: .leading)
-                                    Text("Network names and passwords are stored locally on your Mac.")
+                                    Text("Network names and passwords are stored locally on your Mac. Your phone's hotspot name must not be set as a trusted network.")
                                         .font(.subheadline)
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                     Form {
@@ -123,14 +123,13 @@ struct TrustedNetworksSettingsView: View {
                                         selectedNetworkIndex = nil
                                         isAdding = false
                                         
-                                        if tempAddName != "" && tempAddName != wlanModel.ssid && !trustedNetworkSSIDs.contains(tempAddName) {
-                                            trustedNetworkSSIDs.append(tempAddName)
-                                            trustedNetworkPasswords.append(tempAddPassword)
-                                            tempAddName = ""
-                                            tempAddPassword = ""
-                                        }
+                                        trustedNetworkSSIDs.append(tempAddName)
+                                        trustedNetworkPasswords.append(tempAddPassword)
+                                        tempAddName = ""
+                                        tempAddPassword = ""
                                     }
                                     .keyboardShortcut(.defaultAction)
+                                    .disabled(tempAddName == "" || tempAddName == wlanModel.ssid || trustedNetworkSSIDs.contains(tempAddName))
                                 }.padding(.all, 20)
                             }
                             .frame(width: 400, alignment: .leading)
