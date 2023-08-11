@@ -29,6 +29,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             name: NSWorkspace.willSleepNotification, object: nil)
     }
     
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        return !flag
+    }
+    
     @objc func onWakeNotification(notification: NSNotification) {
         print("Computer has woken up.")
         

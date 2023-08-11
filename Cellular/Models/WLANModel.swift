@@ -233,9 +233,24 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
         }
     }
     
-    func dispose() {
+    func reset() {
+        // Cancel all tasks
+        connectDispatchTask?.cancel()
+        connectionTimer?.invalidate()
+        
+        // Reset all variables
+        connectDispatchTask = nil
+        ssid = nil
+        password = nil
         connectHotspotRetryCount = 0
-        ssid = ""
-        password = ""
+        connectionTimer = nil
+        userRecentlyConnectedWhileOnTrustedNetwork = false
+        userRecentlyDisconnectedFromHotspot = false
+        
+        do {
+            try cwWiFiClient.stopMonitoringAllEvents()
+        } catch {
+            print("Error while resetting WLANModel: \(error.localizedDescription)")
+        }
     }
 }

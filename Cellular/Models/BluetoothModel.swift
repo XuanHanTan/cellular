@@ -55,6 +55,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     private var connectedCentral: CBCentral?
     private var resendValueQueue: [NotificationType] = []
     private var notificationCharacteristic: CBMutableCharacteristic!
+    private var resetCompletionHandler: (() -> Void)?
     private let acceptableNetworkTypes = ["-1", "GPRS", "E", "3G", "4G", "5G"]
     
     var isPoweredOn = false
@@ -80,12 +81,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         case IndicateConnectedHotspot = "2"
         case EnableSeePhoneInfo = "3"
         case DisableSeePhoneInfo = "4"
-        case SetMinimumBatteryLevel0 = "5 0"
-        case SetMinimumBatteryLevel10 = "5 10"
-        case SetMinimumBatteryLevel20 = "5 20"
-        case SetMinimumBatteryLevel30 = "5 30"
-        case SetMinimumBatteryLevel40 = "5 40"
-        case SetMinimumBatteryLevel50 = "5 50"
+        case IndicateReset = "5"
     }
     
     enum CommandType: String {
@@ -93,7 +89,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         case ShareHotspotDetails = "1"
         case SharePhoneInfo = "2"
         case ConnectToHotspot = "3"
-        case IndicateLowBattery = "4"
+        case IndicateReset = "4"
     }
     
     override init() {
@@ -334,8 +330,6 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                     let aes = AES(key: sharedKey!, ivData: ivData)
                     let cipherText = parts[2]
                     
-                    print(stringFromData)
-                    
                     guard let decodedData = Data(base64Encoded: cipherText.data(using: .utf8)!) else {
                         print("Error: Could not decode payload")
                         peripheral.respond(to: eachRequest, withResult: .attributeNotFound)
@@ -423,6 +417,15 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                     
                     // Indicate successful BLE operation
                     peripheral.respond(to: eachRequest, withResult: .success)
+                case .IndicateReset:
+                    print("Unlinking phone...")
+                    
+                    // Indicate successful BLE operation
+                    peripheral.respond(to: eachRequest, withResult: .success)
+                    
+                    // Unlink phone
+                    reset(indicateOnly: true)
+                    wlanModel.reset()
                 default:
                     print("Error: Unrecognised command")
                     peripheral.respond(to: eachRequest, withResult: .attributeNotFound)
@@ -558,34 +561,54 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         batteryLevel = -1
     }
     
+    func registerResetCompletionHandler(resetCompletionHandler: @escaping () -> Void) {
+        self.resetCompletionHandler = resetCompletionHandler
+    }
+    
     /**
      This function forgets the device paired to this Mac and prevents devices from connecting to it.
      */
-    func disposeBluetooth() {
+    func reset(indicateOnly: Bool = false, needCompletion: Bool = true) {
+        if (!indicateOnly) {
+            updateCharacteristicValue(value: .IndicateReset)
+        }
+        
         // Stop advertising services
         peripheralManager.stopAdvertising()
         peripheralManager.removeAllServices()
         
-        // Forget stored values
+        // Reset all variables
         serviceUUID = nil
         sharedKey = nil
         centralUUID = nil
         connectedCentral = nil
-        notificationCharacteristic = nil
         resendValueQueue.removeAll()
+        isPoweredOn = false
         isBluetoothOffDialogPresented = false
         isBluetoothNotGrantedDialogPresented = false
         isBluetoothNotSupportedDialogPresented = false
         isBluetoothUnknownErrorDialogPresented = false
         isHelloWorldReceived = false
         isSetupComplete = false
-        
-        // Dispose WLAN model
-        wlanModel.dispose()
-        
+        isDeviceConnected = false
+        isConnectingToHotspot = false
+        isConnectedToHotspot = false
+        isLowBattery = false
+        signalLevel = -1
+        networkType = "-1"
+        batteryLevel = -1
+
+        // Clear relevant User Defaults
         defaults.removeObject(forKey: "serviceUUID")
         defaults.removeObject(forKey: "sharedKey")
         defaults.removeObject(forKey: "centralUUID")
         defaults.removeObject(forKey: "isSetupComplete")
+        defaults.removeObject(forKey: "ssid")
+        defaults.removeObject(forKey: "password")
+        
+        // Get view to prepare for setup
+        if needCompletion {
+            resetCompletionHandler?()
+        }
     }
 }

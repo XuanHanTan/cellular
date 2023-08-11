@@ -61,7 +61,7 @@ struct CellularApp: App {
                         QRCodeView(
                             handleBackButton: {
                                 currentView = .downloadApp
-                                bluetoothModel.disposeBluetooth()
+                                bluetoothModel.reset()
                             },
                             handleNextScreen: {
                                 currentView = .settingUp
@@ -91,7 +91,7 @@ struct CellularApp: App {
                         )
                 }
             }
-            .frame(width: 1100, height: 900, alignment: .center)
+            .frame(width: 900, height: 700, alignment: .center)
             .alert("Turn on Bluetooth", isPresented: $bluetoothModel.isBluetoothOffDialogPresented) {
             } message: {
                 Text("You must leave Bluetooth on so Cellular can remain connected to your Android device.")
@@ -109,6 +109,16 @@ struct CellularApp: App {
                     NSApp.setActivationPolicy(.regular)
                     NSApp.activate(ignoringOtherApps: true)
                 }
+                
+                bluetoothModel.registerResetCompletionHandler {
+                    // Make app a regular app to show the setup window
+                    NSApp.setActivationPolicy(.regular)
+                    NSApp.activate(ignoringOtherApps: true)
+                    NSApplication.shared.keyWindow?.windowController?.newWindowForTab(nil)
+                    
+                    menuBarItemPresented = false
+                    currentView = .start
+                }
             }
         }
         .windowStyle(.hiddenTitleBar)
@@ -120,7 +130,10 @@ struct CellularApp: App {
         }
         Settings {
             if bluetoothModel.isSetupComplete {
-                SettingsView(wlanModel: wlanModel)
+                SettingsView(wlanModel: wlanModel) {
+                    bluetoothModel.reset()
+                    wlanModel.reset()
+                }
             }
         }
         .windowResizability(.contentSize)

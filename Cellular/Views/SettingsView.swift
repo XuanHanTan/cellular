@@ -19,6 +19,8 @@ struct SettingsView: View {
     @AppStorage("minimumBatteryLevel") var minimumBatteryLevel = 0
     @AppStorage("seePhoneInfo") var seePhoneInfo = true
     
+    let handleResetButton: () -> Void
+    
     var body: some View {
         NavigationStack(path: $path) {
             VStack {
@@ -84,12 +86,14 @@ struct SettingsView: View {
                 .formStyle(.grouped)
                 .padding(.bottom, 10)
                 HStack {
+                    Button("Unlink phone", action: handleResetButton)
+                    Spacer()
                     Button("Contact the creator...") {
                         let url = URL(string: "mailto:contactxuanhan@gmail.com")!
                         openURL(url)
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .trailing)
+                .frame(maxWidth: .infinity)
                 .padding(.all, 20)
             }
             .frame(minWidth: 600, idealWidth: 600, maxWidth: 600,
