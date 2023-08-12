@@ -222,7 +222,7 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
         let linkState = currSsid != nil
         let isAutoConnect = defaults.bool(forKey: "autoConnect")
         
-        if isAutoConnect && !bluetoothModel.isLowBattery && !(bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) && !linkState && !userRecentlyDisconnectedFromHotspot {
+        if isAutoConnect && !isSleeping && !bluetoothModel.isLowBattery && !(bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) && !linkState && !userRecentlyDisconnectedFromHotspot {
             if immediate {
                 startAutoEnableHotspot()
             } else {

@@ -61,7 +61,7 @@ struct CellularApp: App {
                         QRCodeView(
                             handleBackButton: {
                                 currentView = .downloadApp
-                                bluetoothModel.reset()
+                                bluetoothModel.reset(indicateOnly: true, needCompletion: false)
                             },
                             handleNextScreen: {
                                 currentView = .settingUp

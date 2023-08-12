@@ -23,10 +23,5 @@ struct MenuBarIconView: View {
                 Image(systemName: "iphone.gen3.slash")
             }
         }
-        .onAppear {
-            if bluetoothModel.isSetupComplete {
-                bluetoothModel.initializeBluetooth()
-            }
-        }
     }
 }

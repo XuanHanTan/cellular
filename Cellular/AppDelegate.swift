@@ -14,16 +14,20 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Make app an accessory if setup is complete (no icon in Dock)
         let isSetupComplete = defaults.bool(forKey: "isSetupComplete")
-        if isSetupComplete, let window = NSApplication.shared.windows.first {
-            window.close()
-            NSApp.setActivationPolicy(.accessory)
+        if isSetupComplete {
+            if let window = NSApplication.shared.windows.first {
+                window.close()
+                NSApp.setActivationPolicy(.accessory)
+            }
+            
+            bluetoothModel.initializeBluetooth()
         }
         
         // Register for sleep/wake notifications
         NSWorkspace.shared.notificationCenter.addObserver(
             self, selector: #selector(onWakeNotification(notification:)),
             name: NSWorkspace.didWakeNotification, object: nil)
-
+        
         NSWorkspace.shared.notificationCenter.addObserver(
             self, selector: #selector(onSleepNotification(notification:)),
             name: NSWorkspace.willSleepNotification, object: nil)
@@ -43,14 +47,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             isSleeping = false
         }
     }
-
+    
     @objc func onSleepNotification(notification: NSNotification) {
         print("Computer is going to sleep.")
         
         let isAutoDisconnectWhenSleep = defaults.bool(forKey: "autoDisconnectWhenSleep")
         
-        if isAutoDisconnectWhenSleep && (bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) {
-            bluetoothModel.userDisconnectFromHotspot()
+        if isAutoDisconnectWhenSleep {
+            if bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot {
+                bluetoothModel.userDisconnectFromHotspot()
+            }
             isSleeping = true
         }
     }
