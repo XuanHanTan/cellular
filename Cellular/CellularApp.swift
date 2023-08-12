@@ -114,7 +114,6 @@ struct CellularApp: App {
                     // Make app a regular app to show the setup window
                     NSApp.setActivationPolicy(.regular)
                     NSApp.activate(ignoringOtherApps: true)
-                    NSApplication.shared.keyWindow?.windowController?.newWindowForTab(nil)
                     
                     menuBarItemPresented = false
                     currentView = .start

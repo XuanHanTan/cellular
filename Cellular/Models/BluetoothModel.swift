@@ -70,6 +70,8 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     @Published var isConnectingToHotspot = false
     @Published var isConnectedToHotspot = false
     var isLowBattery = false
+    private var isResetting = false
+    private var reset2: () -> Void = {}
     
     @Published var signalLevel = -1
     @Published var networkType = "-1"
@@ -263,13 +265,16 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         connectedCentral = nil
         isDeviceConnected = false
         
-        // TODO: except when resetting
-        if isConnectedToHotspot || isConnectingToHotspot {
-            isConnectingToHotspot = false
-            isConnectedToHotspot = false
+        if isResetting {
+            reset2()
+        } else {
+            if isConnectedToHotspot || isConnectingToHotspot {
+                isConnectingToHotspot = false
+                isConnectedToHotspot = false
+            }
+            
+            peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [serviceUUID]])
         }
-        
-        peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [serviceUUID]])
     }
     
     func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
@@ -573,42 +578,48 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             updateCharacteristicValue(value: .IndicateReset)
         }
         
-        // Stop advertising services
-        peripheralManager.stopAdvertising()
-        peripheralManager.removeAllServices()
+        isResetting = true
         
-        // Reset all variables
-        serviceUUID = nil
-        sharedKey = nil
-        centralUUID = nil
-        connectedCentral = nil
-        resendValueQueue.removeAll()
-        isPoweredOn = false
-        isBluetoothOffDialogPresented = false
-        isBluetoothNotGrantedDialogPresented = false
-        isBluetoothNotSupportedDialogPresented = false
-        isBluetoothUnknownErrorDialogPresented = false
-        isHelloWorldReceived = false
-        isSetupComplete = false
-        isDeviceConnected = false
-        isConnectingToHotspot = false
-        isConnectedToHotspot = false
-        isLowBattery = false
-        signalLevel = -1
-        networkType = "-1"
-        batteryLevel = -1
+        reset2 = { [self] in
+            // Stop advertising services
+            peripheralManager.stopAdvertising()
+            peripheralManager.removeAllServices()
+            peripheralManager.delegate = nil
+            
+            // Reset all variables
+            serviceUUID = nil
+            sharedKey = nil
+            centralUUID = nil
+            connectedCentral = nil
+            resendValueQueue.removeAll()
+            isPoweredOn = false
+            isBluetoothOffDialogPresented = false
+            isBluetoothNotGrantedDialogPresented = false
+            isBluetoothNotSupportedDialogPresented = false
+            isBluetoothUnknownErrorDialogPresented = false
+            isHelloWorldReceived = false
+            isSetupComplete = false
+            isDeviceConnected = false
+            isConnectingToHotspot = false
+            isConnectedToHotspot = false
+            isLowBattery = false
+            isResetting = false
+            signalLevel = -1
+            networkType = "-1"
+            batteryLevel = -1
 
-        // Clear relevant User Defaults
-        defaults.removeObject(forKey: "serviceUUID")
-        defaults.removeObject(forKey: "sharedKey")
-        defaults.removeObject(forKey: "centralUUID")
-        defaults.removeObject(forKey: "isSetupComplete")
-        defaults.removeObject(forKey: "ssid")
-        defaults.removeObject(forKey: "password")
-        
-        // Get view to prepare for setup
-        if needCompletion {
-            resetCompletionHandler?()
+            // Clear relevant User Defaults
+            defaults.removeObject(forKey: "serviceUUID")
+            defaults.removeObject(forKey: "sharedKey")
+            defaults.removeObject(forKey: "centralUUID")
+            defaults.removeObject(forKey: "isSetupComplete")
+            defaults.removeObject(forKey: "ssid")
+            defaults.removeObject(forKey: "password")
+            
+            // Get view to prepare for setup
+            if needCompletion {
+                resetCompletionHandler?()
+            }
         }
     }
 }
