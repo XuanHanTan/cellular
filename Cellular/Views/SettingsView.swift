@@ -15,7 +15,6 @@ struct SettingsView: View {
     
     @AppStorage("autoConnect") var isAutoConnect = false
     @AppStorage("autoDisconnectWhenSleep") var isAutoDisconnectWhenSleep = false
-    // @AppStorage("autoDisconnectWhenTrustedWiFiAvailable") var isAutoDisconnectWhenTrustedWiFiAvailableOn = false
     @AppStorage("minimumBatteryLevel") var minimumBatteryLevel = 0
     @AppStorage("seePhoneInfo") var seePhoneInfo = true
     
@@ -51,10 +50,6 @@ struct SettingsView: View {
                             Text("Disconnect when your Mac is put to sleep")
                         }
                         .toggleStyle(.switch)
-                        /*Toggle(isOn: $isAutoDisconnectWhenTrustedWiFiAvailableOn) {
-                         Text("Disconnect when trusted Wi-Fi networks are available")
-                         }
-                         .toggleStyle(.switch)*/
                         Picker("Disconnect when phone battery is below", selection: $minimumBatteryLevel) {
                             Text("Never")
                                 .tag(0)
