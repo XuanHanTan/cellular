@@ -171,7 +171,7 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
                 if useTrustedNetworks && (bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) && !userRecentlyConnectedWhileOnTrustedNetwork {
                     do {
                         DispatchQueue.main.sync {
-                            bluetoothModel.userDisconnectFromHotspot(indicateOnly: true)
+                            bluetoothModel.disconnectFromHotspot(indicateOnly: true)
                         }
                         let network = networks.first(where: { $0.ssid == firstAvailableTrustedNetwork })!
                         let password = trustedNetworkPasswords[trustedNetworkSSIDsArr.firstIndex(of: firstAvailableTrustedNetwork)!]
@@ -189,7 +189,7 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
     private func evalIndicateDisconnectHotspot(immediate: Bool = false) {
         func startIndicateDisconnectHotspot() {
             print("Indicating disconnected from hotspot...")
-            bluetoothModel.userDisconnectFromHotspot(indicateOnly: true)
+            bluetoothModel.disconnectFromHotspot(indicateOnly: true)
         }
         
         let currSsid = cwInterface.ssid()

@@ -116,7 +116,7 @@ struct MenuBarContentView: View {
                     Spacer()
                     Button {
                         if bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot {
-                            bluetoothModel.userDisconnectFromHotspot()
+                            bluetoothModel.disconnectFromHotspot()
                         } else {
                             bluetoothModel.enableHotspot()
                         }

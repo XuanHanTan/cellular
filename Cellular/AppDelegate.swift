@@ -55,7 +55,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         
         if isAutoDisconnectWhenSleep {
             if bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot {
-                bluetoothModel.userDisconnectFromHotspot()
+                bluetoothModel.disconnectFromHotspot()
             }
             isSleeping = true
         }
