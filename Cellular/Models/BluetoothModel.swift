@@ -585,10 +585,6 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
      This function forgets the device paired to this Mac and prevents devices from connecting to it.
      */
     func reset(indicateOnly: Bool = false, needCompletion: Bool = true) {
-        if (!indicateOnly) {
-            updateCharacteristicValue(value: .IndicateReset)
-        }
-        
         isResetting = true
         
         reset2 = { [self] in
@@ -631,6 +627,14 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             if needCompletion {
                 resetCompletionHandler?()
             }
+        }
+        
+        if isDeviceConnected {
+            if (!indicateOnly) {
+                updateCharacteristicValue(value: .IndicateReset)
+            }
+        } else {
+            reset2()
         }
     }
 }
