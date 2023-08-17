@@ -158,12 +158,6 @@ struct MenuBarContentView: View {
                     .buttonStyle(.plain)
                     .disabled(!bluetoothModel.isDeviceConnected)
                     Spacer()
-                    if bluetoothModel.isPoweredOn {
-                        Text("Cellular will disconnect when a trusted network is available.")
-                            .font(.title3)
-                            .multilineTextAlignment(.center)
-                            .padding(.bottom, 10)
-                    }
                 } else {
                     HStack {
                         Spacer()
