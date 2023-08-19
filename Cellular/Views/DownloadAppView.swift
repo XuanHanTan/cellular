@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct DownloadAppView: View {
-    let handleBackButton: () -> Void
-    let handleNextButton: () -> Void
+    @Binding var path: NavigationPath
     
     var body: some View {
         VStack(spacing: 0) {
@@ -30,21 +29,26 @@ struct DownloadAppView: View {
             Divider()
             HStack {
                 Spacer()
-                Button("Back", action: handleBackButton)
-                    .controlSize(.large)
-                    .keyboardShortcut(.cancelAction)
-                    .padding(.trailing, 5)
-                Button("Continue", action: handleNextButton)
-                    .controlSize(.large)
-                    .keyboardShortcut(.defaultAction)
+                Button("Back") {
+                    path.removeLast()
+                }
+                .controlSize(.large)
+                .keyboardShortcut(.cancelAction)
+                .padding(.trailing, 5)
+                NavigationLink(value: "qrCodeView") {
+                    Text("Continue")
+                }
+                .controlSize(.large)
+                .keyboardShortcut(.defaultAction)
             }
             .padding(.all, 15)
         }
+        .frame(width: 900, height: 700, alignment: .center)
     }
 }
 
 struct DownloadAppView_Previews: PreviewProvider {
     static var previews: some View {
-        DownloadAppView(handleBackButton: {}, handleNextButton: {})
+        DownloadAppView(path: .constant(NavigationPath()))
     }
 }

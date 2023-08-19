@@ -34,7 +34,8 @@ struct SettingsView: View {
                                 Text("Trusted networks")
                                 Spacer()
                             }
-                        }.navigationBarBackButtonHidden(true)
+                        }
+                        .navigationBarBackButtonHidden(true)
                     }
                     Section {
                         Toggle(isOn: $isAutoConnect) {

@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import ServiceManagement
 import MenuBarExtraAccess
 
 let wlanModel = WLANModel()
@@ -15,83 +14,33 @@ var isSleeping = false
 
 @main
 struct CellularApp: App {
+    @Environment(\.openWindow) private var openWindow
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
-    enum Views {
-        case start, downloadApp, qrCode, settingUp, finishSetup
-    }
-    
-    @State private var currentView: Views = .start
     @State private var menuBarItemPresented = false
     @StateObject private var wlanModel = Cellular.wlanModel
     @StateObject private var bluetoothModel = Cellular.bluetoothModel
-    
-    func finishSetup() {
-        // Close setup window
-        NSApplication.shared.keyWindow?.close()
-        
-        // Register login item to auto-start app on startup
-        do {
-            try SMAppService.loginItem(identifier: "com.xuanhan.cellularhelper").register()
-        } catch {
-            print("Failed to register login item: \(error.localizedDescription)")
-        }
-    }
+    @State private var path = NavigationPath()
     
     var body: some Scene {
-        WindowGroup {
-            VStack {
-                switch currentView {
-                    case .start:
-                        StartView(
-                            handleNextButton: {
-                                currentView = .downloadApp
-                            }
-                        )
-                    case .downloadApp:
-                        DownloadAppView(
-                            handleBackButton: {
-                                currentView = .start
-                            },
-                            handleNextButton: {
-                                currentView = .qrCode
-                            }
-                        )
-                    case .qrCode:
-                        QRCodeView(
-                            handleBackButton: {
-                                currentView = .downloadApp
-                                bluetoothModel.reset(indicateOnly: true, needCompletion: false)
-                            },
-                            handleNextScreen: {
-                                currentView = .settingUp
-                            },
-                            bluetoothModel: bluetoothModel
-                        )
-                    case .settingUp:
-                        SettingUpView(
-                            handleNextScreen: {
-                                currentView = .finishSetup
-                            },
-                            bluetoothModel: bluetoothModel
-                        )
-                    case .finishSetup:
-                        FinishSetupView(
-                            handleSettingsButton: {
-                                finishSetup()
-                                
-                                // Open settings window
-                                NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
-                            }, handleFinishButton: {
-                                finishSetup()
-                                
-                                // Make app an accessory (no icon in Dock)
-                                NSApp.setActivationPolicy(.accessory)
-                            }
-                        )
-                }
+        WindowGroup(id: "main") {
+            NavigationStack(path: $path) {
+                StartView(path: $path)
+                    .navigationDestination(for: String.self) { textValue in
+                        switch textValue {
+                            case "downloadAppView":
+                                DownloadAppView(path: $path)
+                            case "qrCodeView":
+                                QRCodeView(path: $path)
+                            case "settingUpView":
+                                SettingUpView(path: $path)
+                            case "finishSetupView":
+                                FinishSetupView(path: $path)
+                            default:
+                                EmptyView()
+                        }
+                    }
             }
-            .frame(width: 900, height: 700, alignment: .center)
             .alert("Turn on Bluetooth", isPresented: $bluetoothModel.isBluetoothOffDialogPresented) {
             } message: {
                 Text("You must leave Bluetooth on so Cellular can remain connected to your Android device.")
@@ -111,12 +60,19 @@ struct CellularApp: App {
                 }
                 
                 bluetoothModel.registerResetCompletionHandler {
+                    let prevActivationPolicy = NSApp.activationPolicy()
+                    
+                    menuBarItemPresented = false
+                    
                     // Make app a regular app to show the setup window
                     NSApp.setActivationPolicy(.regular)
                     NSApp.activate(ignoringOtherApps: true)
                     
-                    menuBarItemPresented = false
-                    currentView = .start
+                    path.removeLast(path.count)
+                    if prevActivationPolicy != .regular {
+                        NSApplication.shared.keyWindow?.close()
+                        openWindow(id: "main")
+                    }
                 }
             }
         }

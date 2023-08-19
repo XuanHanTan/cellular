@@ -8,11 +8,10 @@
 import SwiftUI
 
 struct QRCodeView: View {
-    let handleBackButton: () -> Void
-    let handleNextScreen: () -> Void
+    @Binding var path: NavigationPath
     
     @State private var qrCodeNSImage: NSImage?
-    @ObservedObject var bluetoothModel: BluetoothModel
+    @StateObject private var bluetoothModel = Cellular.bluetoothModel
     
     var body: some View {
         VStack(spacing: 0) {
@@ -52,12 +51,15 @@ struct QRCodeView: View {
             Divider()
             HStack {
                 Spacer()
-                Button("Back", action: handleBackButton)
-                    .controlSize(.large)
-                    .keyboardShortcut(.cancelAction)
+                Button("Back") {
+                    path.removeLast()
+                }
+                .controlSize(.large)
+                .keyboardShortcut(.cancelAction)
             }
             .padding(.all, 15)
         }
+        .frame(width: 900, height: 700, alignment: .center)
         .onAppear {
             do {
                 let qrCodeData = try JSONSerialization.data(withJSONObject: bluetoothModel.prepareForNewConnection())
@@ -78,7 +80,7 @@ struct QRCodeView: View {
         }
         .onChange(of: bluetoothModel.isHelloWorldReceived) { newValue in
             if newValue {
-                handleNextScreen()
+                path.append("settingUpView")
             }
         }
     }
@@ -86,6 +88,6 @@ struct QRCodeView: View {
 
 struct QRCodeView_Previews: PreviewProvider {
     static var previews: some View {
-        QRCodeView(handleBackButton: {}, handleNextScreen: {}, bluetoothModel: BluetoothModel())
+        QRCodeView(path: .constant(NavigationPath()))
     }
 }

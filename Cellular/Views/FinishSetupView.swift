@@ -6,10 +6,22 @@
 //
 
 import SwiftUI
+import ServiceManagement
 
 struct FinishSetupView: View {
-    let handleSettingsButton: () -> Void
-    let handleFinishButton: () -> Void
+    @Binding var path: NavigationPath
+    
+    func finishSetup() {
+        // Close setup window
+        NSApplication.shared.keyWindow?.close()
+        
+        // Register login item to auto-start app on startup
+        do {
+            try SMAppService.loginItem(identifier: "com.xuanhan.cellularhelper").register()
+        } catch {
+            print("Failed to register login item: \(error.localizedDescription)")
+        }
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -30,20 +42,31 @@ struct FinishSetupView: View {
             Divider()
             HStack {
                 Spacer()
-                Button("Settings", action: handleSettingsButton)
-                    .controlSize(.large)
-                    .padding(.trailing, 5)
-                Button("Finish", action: handleFinishButton)
-                    .controlSize(.large)
-                    .keyboardShortcut(.defaultAction)
+                Button("Settings") {
+                    finishSetup()
+                    
+                    // Open settings window
+                    NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+                }
+                .controlSize(.large)
+                .padding(.trailing, 5)
+                Button("Finish") {
+                    finishSetup()
+                    
+                    // Make app an accessory (no icon in Dock)
+                    NSApp.setActivationPolicy(.accessory)
+                }
+                .controlSize(.large)
+                .keyboardShortcut(.defaultAction)
             }
             .padding(.all, 15)
         }
+        .frame(width: 900, height: 700, alignment: .center)
     }
 }
 
 struct FinishSetupView_Previews: PreviewProvider {
     static var previews: some View {
-        FinishSetupView(handleSettingsButton: {}, handleFinishButton: {})
+        FinishSetupView(path: .constant(NavigationPath()))
     }
 }

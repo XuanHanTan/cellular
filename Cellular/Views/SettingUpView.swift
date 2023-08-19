@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct SettingUpView: View {
-    let handleNextScreen: () -> Void
+    @Binding var path: NavigationPath
     
-    @ObservedObject var bluetoothModel: BluetoothModel
+    @StateObject private var bluetoothModel = Cellular.bluetoothModel
     
     var body: some View {
         VStack {
@@ -25,9 +25,10 @@ struct SettingUpView: View {
             Spacer()
         }
         .padding(.all, 30)
+        .frame(width: 900, height: 700, alignment: .center)
         .onChange(of: bluetoothModel.isSetupComplete) { newValue in
             if newValue {
-                handleNextScreen()
+                path.append("finishSetupView")
             }
         }
     }
@@ -35,6 +36,6 @@ struct SettingUpView: View {
 
 struct SettingUpView_Previews: PreviewProvider {
     static var previews: some View {
-        SettingUpView(handleNextScreen: {}, bluetoothModel: BluetoothModel())
+        SettingUpView(path: .constant(NavigationPath()))
     }
 }

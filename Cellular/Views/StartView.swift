@@ -9,10 +9,11 @@ import SwiftUI
 
 struct StartView: View {
     @Environment(\.colorScheme) var colorScheme
-    let handleNextButton: () -> Void
+    
+    @Binding var path: NavigationPath
     
     var body: some View {
-        VStack{
+        VStack {
             Spacer()
             Image(colorScheme == .dark ? "start_vector_night": "start_vector_day")
                 .resizable()
@@ -24,17 +25,21 @@ struct StartView: View {
             Text("Connect to your Android device’s mobile hotspot seamlessly, as if your Mac has cellular data.")
                 .padding(.bottom, 10)
             Spacer()
-            Button("Get started", action: handleNextButton)
-                .controlSize(.large)
-                .keyboardShortcut(.defaultAction)
-                .padding(.bottom, 20)
+            NavigationLink(value: "downloadAppView") {
+                Text("Get started")
+            }
+            .controlSize(.large)
+            .keyboardShortcut(.defaultAction)
+            .padding(.bottom, 20)
+            .navigationBarBackButtonHidden(true)
         }
         .padding(.all)
+        .frame(width: 900, height: 700, alignment: .center)
     }
 }
 
 struct StartView_Previews: PreviewProvider {
     static var previews: some View {
-        StartView {}
+        StartView(path: .constant(NavigationPath()))
     }
 }
