@@ -25,10 +25,12 @@ struct SettingUpView: View {
             Spacer()
         }
         .padding(.all, 30)
-        .frame(width: 900, height: 700, alignment: .center)
+        .frame(width: 900, height: 650, alignment: .center)
         .onChange(of: bluetoothModel.isSetupComplete) { newValue in
             if newValue {
-                path.append("finishSetupView")
+                DispatchQueue.main.async {
+                    path.append("trustedNetworksSetupView")
+                }
             }
         }
     }

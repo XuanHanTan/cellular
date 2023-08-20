@@ -43,7 +43,7 @@ struct DownloadAppView: View {
             }
             .padding(.all, 15)
         }
-        .frame(width: 900, height: 700, alignment: .center)
+        .frame(width: 900, height: 650, alignment: .center)
     }
 }
 

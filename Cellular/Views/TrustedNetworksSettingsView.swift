@@ -57,6 +57,6 @@ struct TrustedNetworksSettingsView: View {
             .formStyle(.grouped)
         }
         .padding(.vertical)
-        .frame(width: 600, height: 400)
+        .frame(width: 650, height: 400)
     }
 }

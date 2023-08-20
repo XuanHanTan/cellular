@@ -59,7 +59,7 @@ struct QRCodeView: View {
             }
             .padding(.all, 15)
         }
-        .frame(width: 900, height: 700, alignment: .center)
+        .frame(width: 900, height: 650, alignment: .center)
         .onAppear {
             do {
                 let qrCodeData = try JSONSerialization.data(withJSONObject: bluetoothModel.prepareForNewConnection())
@@ -80,7 +80,9 @@ struct QRCodeView: View {
         }
         .onChange(of: bluetoothModel.isHelloWorldReceived) { newValue in
             if newValue {
-                path.append("settingUpView")
+                DispatchQueue.main.async {
+                    path.append("settingUpView")
+                }
             }
         }
     }

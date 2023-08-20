@@ -36,6 +36,7 @@
 		19BDE0692A4878E300C038BA /* MenuBarContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19BDE0682A4878E300C038BA /* MenuBarContentView.swift */; };
 		19BDE06B2A4878ED00C038BA /* MenuBarIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19BDE06A2A4878ED00C038BA /* MenuBarIconView.swift */; };
 		19E714642A90D2FE0069DCCB /* TrustedNetworksListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19E714632A90D2FE0069DCCB /* TrustedNetworksListView.swift */; };
+		19E714662A90F0030069DCCB /* TrustedNetworkSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19E714652A90F0030069DCCB /* TrustedNetworkSetupView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -118,6 +119,7 @@
 		19BDE0682A4878E300C038BA /* MenuBarContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarContentView.swift; sourceTree = "<group>"; };
 		19BDE06A2A4878ED00C038BA /* MenuBarIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarIconView.swift; sourceTree = "<group>"; };
 		19E714632A90D2FE0069DCCB /* TrustedNetworksListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrustedNetworksListView.swift; sourceTree = "<group>"; };
+		19E714652A90F0030069DCCB /* TrustedNetworkSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrustedNetworkSetupView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -184,6 +186,7 @@
 				1928BBE62A3610DF0029BB8C /* DownloadAppView.swift */,
 				1928BBF42A374F360029BB8C /* QRCodeView.swift */,
 				198A7A1D2A45A4FA0097C0DD /* SettingUpView.swift */,
+				19E714652A90F0030069DCCB /* TrustedNetworkSetupView.swift */,
 				1959D9C62A46A711001BBE0F /* FinishSetupView.swift */,
 				1959D9C82A46AC03001BBE0F /* SettingsView.swift */,
 				19BDE0682A4878E300C038BA /* MenuBarContentView.swift */,
@@ -568,6 +571,7 @@
 				19E714642A90D2FE0069DCCB /* TrustedNetworksListView.swift in Sources */,
 				19A0ED342A2E240B00AF4A5F /* CellularApp.swift in Sources */,
 				19BDE06B2A4878ED00C038BA /* MenuBarIconView.swift in Sources */,
+				19E714662A90F0030069DCCB /* TrustedNetworkSetupView.swift in Sources */,
 				1978800A2A7CA3BD007F7B66 /* TrustedNetworksSettingsView.swift in Sources */,
 				1915C22F2A30938300A22788 /* BluetoothModel.swift in Sources */,
 				1959D9C72A46A711001BBE0F /* FinishSetupView.swift in Sources */,

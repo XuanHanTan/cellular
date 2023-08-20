@@ -34,7 +34,7 @@ struct StartView: View {
             .navigationBarBackButtonHidden(true)
         }
         .padding(.all)
-        .frame(width: 900, height: 700, alignment: .center)
+        .frame(width: 900, height: 650, alignment: .center)
     }
 }
 

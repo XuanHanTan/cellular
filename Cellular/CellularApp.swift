@@ -34,6 +34,8 @@ struct CellularApp: App {
                                 QRCodeView(path: $path)
                             case "settingUpView":
                                 SettingUpView(path: $path)
+                            case "trustedNetworksSetupView":
+                                TrustedNetworkSetupView(path: $path)
                             case "finishSetupView":
                                 FinishSetupView(path: $path)
                             default:

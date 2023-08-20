@@ -82,12 +82,12 @@ struct SettingsView: View {
                 .formStyle(.grouped)
                 .padding(.bottom, 10)
                 HStack {
-                    Button("Unlink phone", action: handleResetButton)
                     Spacer()
-                    Button("Contact the creator...") {
-                        let url = URL(string: "mailto:contactxuanhan@gmail.com")!
+                    Button("Unlink phone...", action: handleResetButton)
+                    /*Button("Contact the creator...") {
+                        let url = URL(string: "mailto:contact@xuanhan.me")!
                         openURL(url)
-                    }
+                    }*/
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.all, 20)
