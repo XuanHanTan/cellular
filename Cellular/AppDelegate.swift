@@ -41,6 +41,20 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 print(error.localizedDescription)
             }
         }
+        
+        // TODO: remove this
+        let content = UNMutableNotificationContent()
+        content.title = "Hotspot turned off"
+        content.subtitle = "Your phone's battery is below 30%."
+
+        // show this notification five seconds from now
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
+
+        // choose a random identifier
+        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+
+        // add our notification request
+        UNUserNotificationCenter.current().add(request)
     }
     
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {

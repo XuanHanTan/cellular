@@ -8,21 +8,37 @@
 import SwiftUI
 
 struct DownloadAppView: View {
+    @Environment(\.openURL) private var openURL
+    
     @Binding var path: NavigationPath
     
     var body: some View {
         VStack(spacing: 0) {
-            VStack {
+            VStack(spacing: 0) {
                 Text("Install the Cellular Companion app")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                 Spacer()
-                Image("companion_icon")
+                Image(nsImage: NSImage(named: "AppIcon")!)
                     .resizable()
-                    .frame(width: 128, height: 128)
-                    .padding(.bottom, 40)
-                Text("The Cellular Companion app will help your Mac remain connected to your Android device and control the mobile hotspot settings of your device. It is available on the Google Play Store. Click the Continue button once you have installed the Cellular Companion app.")
+                    .frame(width: 200, height: 200)
+                    .padding(.bottom, 5)
+                Button {
+                    let url = URL(string: "https://play.google.com/store/apps/details?id=com.xuanhan.cellularcompanion")!
+                    openURL(url)
+                } label: {
+                    Image("play_badge")
+                        .resizable()
+                        .frame(width: 207, height: 80)
+                }
+                .padding(.bottom, 20)
+                .buttonStyle(.plain)
+                Text("The Cellular Companion app will help your Mac connect to your Android device and control its mobile hotspot settings. Click the button above to open the Google Play Store.\n\n\nAlternatively, open this link on your phone:")
                     .multilineTextAlignment(.center)
+                    .padding(.bottom, 10)
+                Text("https://xuanhan.me/cellular-companion")
+                    .font(.title3)
+                    .fontWeight(.bold)
                 Spacer()
             }
             .padding(.all, 30)
