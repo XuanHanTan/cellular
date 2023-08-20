@@ -9,6 +9,7 @@ import Foundation
 import CoreBluetooth
 import CoreWLAN
 import HandySwift
+import UserNotifications
 
 extension Data {
     init?(fromHexEncodedString string: String) {
@@ -475,11 +476,24 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     
     private func evalMinimumBattery(batteryLevel: Int) {
         let minimumBatteryLevel = defaults.integer(forKey: "minimumBatteryLevel")
-        if !isLowBattery && batteryLevel <= minimumBatteryLevel && (isConnectingToHotspot || isConnectedToHotspot) {
+        if !isLowBattery && batteryLevel < minimumBatteryLevel && (isConnectingToHotspot || isConnectedToHotspot) {
             disconnectFromHotspot()
+         
+            let content = UNMutableNotificationContent()
+            content.title = "Hotspot turned off"
+            content.subtitle = "Your phone's battery is below \(minimumBatteryLevel)%."
+
+            // show this notification five seconds from now
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
+
+            // choose a random identifier
+            let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+
+            // add our notification request
+            UNUserNotificationCenter.current().add(request)
         }
         
-        isLowBattery = batteryLevel <= minimumBatteryLevel
+        isLowBattery = batteryLevel < minimumBatteryLevel
     }
     
     private func updateCharacteristicValue(value: NotificationType) {
