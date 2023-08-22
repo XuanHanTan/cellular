@@ -12,6 +12,23 @@ let wlanModel = WLANModel()
 let bluetoothModel = BluetoothModel()
 var isSleeping = false
 
+func openAboutPanel() {
+    NSApplication.shared.orderFrontStandardAboutPanel(
+        options: [
+            NSApplication.AboutPanelOptionKey.version: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String,
+            NSApplication.AboutPanelOptionKey.credits: NSAttributedString(
+                string: "This app was developed by Xuan Han Tan. I hope you find it useful! If you want to learn more about me and my other projects, visit my website. If you have any questions, feel free to contact me by email.",
+                attributes: [
+                    NSAttributedString.Key.font: NSFont.systemFont(ofSize: NSFont.labelFontSize),
+                ]
+            ),
+            NSApplication.AboutPanelOptionKey(
+                rawValue: "Copyright"
+            ): "© Xuan Han Tan 2023. All rights reserved.",
+        ]
+    )
+}
+
 @main
 struct CellularApp: App {
     @Environment(\.openWindow) private var openWindow
@@ -83,6 +100,11 @@ struct CellularApp: App {
         .commands {
             // Disable new window command in Menu Bar
             CommandGroup(replacing: CommandGroupPlacement.newItem) {
+            }
+            CommandGroup(replacing: .appInfo) {
+                Button("About") {
+                   openAboutPanel()
+                }
             }
         }
         Settings {
