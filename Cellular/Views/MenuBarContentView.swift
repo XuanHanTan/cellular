@@ -82,14 +82,15 @@ struct MenuBarContentView: View {
                                 .foregroundColor(.primary)
                                 .padding(.bottom, 1)
                         }
-                        .buttonStyle(.borderless)
+                        .buttonStyle(.plain)
                     }
                     .padding(.bottom, 30)
                     HStack(spacing: 0) {
                         if bluetoothModel.isDeviceConnected {
                             if seePhoneInfo && bluetoothModel.signalLevel != -1 && bluetoothModel.networkType != "-1" && bluetoothModel.batteryLevel != -1 {
                                 Image("cellularbars.\(bluetoothModel.signalLevel)")
-                                    .padding(.trailing, 7.5)
+                                    .font(.title3)
+                                    .padding(.trailing, 6)
                                 if bluetoothModel.networkType != "-1" {
                                     Text(bluetoothModel.networkType)
                                         .font(.title3)
@@ -105,11 +106,11 @@ struct MenuBarContentView: View {
                                         .padding(.bottom, 1)
                                 }
                             } else {
-                                Image(systemName: "iphone.gen3")
+                                Image("phone")
                                     .font(.title2)
                             }
                         } else {
-                            Image(systemName: "iphone.gen3.slash")
+                            Image("no.service")
                                 .font(.title2)
                         }
                     }.frame(height: 15)

@@ -17,10 +17,10 @@ struct MenuBarIconView: View {
                 if seePhoneInfo && bluetoothModel.signalLevel != -1 && bluetoothModel.networkType != "-1" && bluetoothModel.batteryLevel != -1 {
                     Image("cellularbars.\(bluetoothModel.signalLevel)")
                 } else {
-                    Image(systemName: "iphone.gen3")
+                    Image("phone")
                 }
             } else {
-                Image(systemName: "iphone.gen3.slash")
+                Image("no.service")
             }
         }
     }

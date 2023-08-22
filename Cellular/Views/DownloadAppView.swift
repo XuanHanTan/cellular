@@ -36,7 +36,7 @@ struct DownloadAppView: View {
                 Text("The Cellular Companion app will help your Mac connect to your Android device and control its mobile hotspot settings. Click the button above to open the Google Play Store.\n\n\nAlternatively, open this link on your phone:")
                     .multilineTextAlignment(.center)
                     .padding(.bottom, 10)
-                Text("https://xuanhan.me/cellular-companion")
+                Text("https://xuanhan.me/short/cellular-companion")
                     .font(.title3)
                     .fontWeight(.bold)
                 Spacer()
