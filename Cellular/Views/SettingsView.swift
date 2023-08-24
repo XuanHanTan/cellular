@@ -105,7 +105,9 @@ struct SettingsView: View {
             }
             .frame(width: 650, height: 400)
             .onReceive(NotificationCenter.default.publisher(for: NSWindow.willCloseNotification)) { newValue in
-                NSApp.setActivationPolicy(.accessory)
+                if bluetoothModel.isSetupComplete {
+                    NSApp.setActivationPolicy(.accessory)
+                }
             }
             .navigationDestination(for: String.self) { textValue in
                 if textValue == "trustedNetworksSettingsView" {
