@@ -102,7 +102,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     }
     
     /**
-     This function generates and stores in UserDefaults a new service UUID and shared key for connecting to a new device.
+     This function generates and stores in UserDefaults a new service UUID and shared key for connecting to a new device. It then prepares the device for incoming BLE connections.
      - Returns: A dictionary containing data to be added to a QR code for scanning by the Companion app
      */
     func prepareForNewConnection() -> [String: String] {
@@ -268,18 +268,22 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         isDeviceConnected = false
         
         if isResetting {
+            // Complete reset if reset is in progress
             reset2()
         } else {
+            // Indicate disconnected from hotspot
             if isConnectedToHotspot || isConnectingToHotspot {
                 isConnectingToHotspot = false
                 isConnectedToHotspot = false
             }
             
+            // Restart advertising so the phone can reconnect later
             peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [serviceUUID]])
         }
     }
     
     func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
+        // Retry writing the first value in the resend queue to the notification characteristic if it exists
         if let firstResendValue = resendValueQueue.first {
             peripheralManager.updateValue(firstResendValue.rawValue.data(using: .utf8)!, for: notificationCharacteristic, onSubscribedCentrals: [connectedCentral!])
             resendValueQueue.removeFirst()
@@ -460,6 +464,12 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         print("Saved hotspot info: \(ssid) \(password)")
     }
     
+    /**
+     This function updates the phone info UI with the provided signal level, network type and battery level.
+     - parameter signalLevel: The signal level of the phone (0 to 3), -1 if unchanged
+     - parameter networkType: The network type of the phone (must be present in `acceptableNetworkTypes`), "-1" if unchanged
+     - parameter batteryLevel: The battery level of the phone (0 to 100), -1 if unchanged
+     */
     private func setPhoneInfo(signalLevel: Int, networkType: String, batteryLevel: Int) {
         if signalLevel != -1 {
             self.signalLevel = signalLevel
@@ -474,28 +484,33 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         print("Phone info set: \(signalLevel) \(networkType) \(batteryLevel)")
     }
     
+    /**
+     This function decides if the phone's battery level is below the minimum battery level and disconnects from the hotspot if needed.
+     - parameter batteryLevel: The battery level of the phone (0 to 100)
+     */
     private func evalMinimumBattery(batteryLevel: Int) {
         let minimumBatteryLevel = defaults.integer(forKey: "minimumBatteryLevel")
+        
+        // Disconnect from hotspot if needed
         if !isLowBattery && batteryLevel < minimumBatteryLevel && (isConnectingToHotspot || isConnectedToHotspot) {
             disconnectFromHotspot()
-         
+            
+            // Show notification to inform user that hotspot has disconnected due to low battery
             let content = UNMutableNotificationContent()
             content.title = "Hotspot turned off"
             content.subtitle = "Your phone's battery is below \(minimumBatteryLevel)%."
-
-            // show this notification five seconds from now
             let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
-
-            // choose a random identifier
             let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
-
-            // add our notification request
             UNUserNotificationCenter.current().add(request)
         }
         
         isLowBattery = batteryLevel < minimumBatteryLevel
     }
     
+    /**
+     This function updates the value of the notification characteristic.
+     - parameter value: The new value of the notification characteristic
+     */
     private func updateCharacteristicValue(value: NotificationType) {
         guard isPoweredOn else {
             print("Error: Peripheral manager is not powered on.")
@@ -517,6 +532,9 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         }
     }
     
+    /**
+     This function enables the mobile hotspot.
+     */
     func enableHotspot() {
         guard isPoweredOn else {
             print("Error: Peripheral manager is not powered on.")
@@ -534,6 +552,9 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         }
     }
     
+    /**
+     This function connects the device to the mobile hotspot.
+     */
     private func connectToHotspot() {
         isConnectingToHotspot = true
         
@@ -545,7 +566,10 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         }
     }
     
-    func indicateConnectedToHotspot() {
+    /**
+     This function notifies the phone that the device is connected to the mobile hotspot.
+     */
+    func notifyConnectedToHotspot() {
         guard isPoweredOn else {
             print("Error: Peripheral manager is not powered on.")
             return
@@ -567,6 +591,10 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         isConnectingToHotspot = false
     }
     
+    /**
+     This function disconnects the device from the mobile hotspot.
+     - parameter indicateOnly: Whether the Mac should only update itself that hotspot has been disconnected
+     */
     func disconnectFromHotspot(indicateOnly: Bool = false) {
         if isConnectingToHotspot || isConnectedToHotspot {
             if !indicateOnly {
@@ -580,10 +608,16 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         }
     }
     
+    /**
+     This function enables the "See phone info" feature.
+     */
     func enableSeePhoneInfo() {
         updateCharacteristicValue(value: .EnableSeePhoneInfo)
     }
     
+    /**
+     This function disables the "See phone info" feature.
+     */
     func disableSeePhoneInfo() {
         updateCharacteristicValue(value: .DisableSeePhoneInfo)
         signalLevel = -1
@@ -591,14 +625,18 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         batteryLevel = -1
     }
     
+    /**
+     This function registers a reset completion handler that will be called when the device finishes resetting. This is typically used to update UI.
+     */
     func registerResetCompletionHandler(resetCompletionHandler: @escaping () -> Void) {
         self.resetCompletionHandler = resetCompletionHandler
     }
     
     /**
      This function forgets the device paired to this Mac and prevents devices from connecting to it.
+     - parameter indicateOnly: Whether the Mac should only update itself that reset has been initiated
      */
-    func reset(indicateOnly: Bool = false, needCompletion: Bool = true) {
+    func reset(indicateOnly: Bool = false) {
         isResetting = true
         
         reset2 = { [self] in
@@ -628,7 +666,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             signalLevel = -1
             networkType = "-1"
             batteryLevel = -1
-
+            
             // Clear relevant User Defaults
             defaults.removeObject(forKey: "serviceUUID")
             defaults.removeObject(forKey: "sharedKey")
@@ -638,9 +676,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             defaults.removeObject(forKey: "password")
             
             // Get view to prepare for setup
-            if needCompletion {
-                resetCompletionHandler?()
-            }
+            resetCompletionHandler?()
         }
         
         if isDeviceConnected {

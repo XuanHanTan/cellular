@@ -208,7 +208,7 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
         let currSsid = cwInterface.ssid()
         if !(bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) && currSsid == ssid {
             print("Indicating connected to hotspot...")
-            bluetoothModel.indicateConnectedToHotspot()
+            bluetoothModel.notifyConnectedToHotspot()
         }
     }
     
