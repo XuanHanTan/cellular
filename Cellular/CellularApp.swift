@@ -108,12 +108,10 @@ struct CellularApp: App {
             }
         }
         Settings {
-            if bluetoothModel.isSetupComplete {
-                SettingsView(wlanModel: wlanModel) {
-                    NSApplication.shared.keyWindow?.close()
-                    bluetoothModel.reset()
-                    wlanModel.reset()
-                }
+            SettingsView(wlanModel: wlanModel) {
+                NSApplication.shared.keyWindow?.close()
+                bluetoothModel.reset()
+                wlanModel.reset()
             }
         }
         .windowResizability(.contentSize)

@@ -70,4 +70,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             isSleeping = true
         }
     }
+    
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        return !bluetoothModel.isSetupComplete
+    }
 }
