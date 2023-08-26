@@ -188,8 +188,8 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
     
     private func evalIndicateDisconnectHotspot(immediate: Bool = false) {
         func startIndicateDisconnectHotspot() {
-            print("Indicating disconnected from hotspot...")
-            bluetoothModel.disconnectFromHotspot(indicateOnly: true)
+            print("Disconnecting from hotspot...")
+            bluetoothModel.disconnectFromHotspot()
         }
         
         let currSsid = cwInterface.ssid()
