@@ -13,8 +13,8 @@ struct SettingsView: View {
     
     @ObservedObject var wlanModel: WLANModel
     
-    @AppStorage("autoConnect") var isAutoConnect = false
-    @AppStorage("autoDisconnectWhenSleep") var isAutoDisconnectWhenSleep = false
+    @AppStorage("autoConnect") var isAutoConnect = true
+    @AppStorage("autoDisconnectWhenSleep") var isAutoDisconnectWhenSleep = true
     @AppStorage("minimumBatteryLevel") var minimumBatteryLevel = 0
     @AppStorage("seePhoneInfo") var seePhoneInfo = true
     
