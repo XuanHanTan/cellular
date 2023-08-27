@@ -431,7 +431,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                 case .DisconnectFromHotspot:
                     print("Disconnecting from hotspot...")
                     // Disconnect from hotspot
-                    disconnectFromHotspot(indicateOnly: true)
+                    disconnectFromHotspot(indicateOnly: true, userInitiated: true)
                     
                     // Indicate successful BLE operation
                     peripheral.respond(to: eachRequest, withResult: .success)
@@ -595,13 +595,13 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
      This function disconnects the device from the mobile hotspot.
      - parameter indicateOnly: Whether the Mac should only update itself that hotspot has been disconnected
      */
-    func disconnectFromHotspot(indicateOnly: Bool = false) {
+    func disconnectFromHotspot(indicateOnly: Bool = false, systemControlling: Bool = true, userInitiated: Bool = false) {
         if isConnectingToHotspot || isConnectedToHotspot {
             if !indicateOnly {
                 updateCharacteristicValue(value: .DisableHotspot)
             }
             
-            wlanModel.disconnect(indicateOnly: indicateOnly)
+            wlanModel.disconnect(indicateOnly: indicateOnly, systemControlling: systemControlling, userInitiated: userInitiated)
             
             isConnectedToHotspot = false
             isConnectingToHotspot = false

@@ -115,7 +115,7 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
         DispatchQueue.global(qos: .userInitiated).async(execute: connectDispatchTask!)
     }
     
-    func disconnect(indicateOnly: Bool) {
+    func disconnect(indicateOnly: Bool, systemControlling: Bool, userInitiated: Bool) {
         DispatchQueue.global(qos: .userInitiated).async { [self] in
             DispatchQueue.main.sync {
                 connectDispatchTask?.cancel()
@@ -124,9 +124,11 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
             }
             
             userRecentlyConnectedWhileOnTrustedNetwork = false
-            userRecentlyDisconnectedFromHotspot = true
+            if userInitiated {
+                userRecentlyDisconnectedFromHotspot = true
+            }
             
-            if !indicateOnly {
+            if systemControlling {
                 cwInterface.disassociate()
             }
         }
@@ -171,7 +173,7 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
                 if useTrustedNetworks && (bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) && !userRecentlyConnectedWhileOnTrustedNetwork {
                     do {
                         DispatchQueue.main.sync {
-                            bluetoothModel.disconnectFromHotspot(indicateOnly: true)
+                            bluetoothModel.disconnectFromHotspot()
                         }
                         let network = networks.first(where: { $0.ssid == firstAvailableTrustedNetwork })!
                         let password = trustedNetworkPasswords[trustedNetworkSSIDsArr.firstIndex(of: firstAvailableTrustedNetwork)!]
@@ -189,7 +191,7 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
     private func evalIndicateDisconnectHotspot(immediate: Bool = false) {
         func startIndicateDisconnectHotspot() {
             print("Disconnecting from hotspot...")
-            bluetoothModel.disconnectFromHotspot()
+            bluetoothModel.disconnectFromHotspot(systemControlling: false, userInitiated: true)
         }
         
         let currSsid = cwInterface.ssid()
