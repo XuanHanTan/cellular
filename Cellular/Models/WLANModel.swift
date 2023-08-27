@@ -172,14 +172,20 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
             if let firstAvailableTrustedNetwork = availableTrustedNetworkSSIDs.first {
                 if useTrustedNetworks && (bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) && !userRecentlyConnectedWhileOnTrustedNetwork {
                     do {
-                        DispatchQueue.main.sync {
-                            bluetoothModel.disconnectFromHotspot()
-                        }
+                        print("Found trusted network!")
                         let network = networks.first(where: { $0.ssid == firstAvailableTrustedNetwork })!
                         let password = trustedNetworkPasswords[trustedNetworkSSIDsArr.firstIndex(of: firstAvailableTrustedNetwork)!]
                         try cwInterface.associate(to: network, password: password)
+                        DispatchQueue.main.sync {
+                            bluetoothModel.disconnectFromHotspot(systemControlling: false)
+                        }
                     } catch {
                         print("Failed to associate to trusted network \(firstAvailableTrustedNetwork): \(error.localizedDescription)")
+                        do {
+                            try cwInterface.scanForNetworks(withName: nil)
+                        } catch {
+                            print("Failed to scan for networks: \(error.localizedDescription)")
+                        }
                     }
                 }
             }
