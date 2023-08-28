@@ -195,17 +195,13 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
     }
     
     private func evalIndicateDisconnectHotspot(immediate: Bool = false) {
-        func startIndicateDisconnectHotspot() {
-            print("Disconnecting from hotspot...")
-            bluetoothModel.disconnectFromHotspot(systemControlling: false, userInitiated: true)
-        }
-        
         let currSsid = cwInterface.ssid()
         if bluetoothModel.isConnectedToHotspot && currSsid != ssid {
             if immediate {
-                startIndicateDisconnectHotspot()
+                print("Disconnecting from hotspot...")
+                bluetoothModel.disconnectFromHotspot(systemControlling: false, userInitiated: currSsid == nil)
             } else {
-                _ = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { [self] timer in
+                _ = Timer.scheduledTimer(withTimeInterval: 5, repeats: false) { [self] timer in
                     evalIndicateDisconnectHotspot(immediate: true)
                 }
             }
@@ -221,20 +217,16 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
     }
     
     func evalAutoEnableHotspot(immediate: Bool = false) {
-        func startAutoEnableHotspot() {
-            print("Enabling hotspot because known Wi-Fi network is not available")
-            bluetoothModel.enableHotspot()
-        }
-        
         let currSsid = cwInterface.ssid()
         let linkState = currSsid != nil
         let isAutoConnect = defaults.bool(forKey: "autoConnect")
         
         if isAutoConnect && !isSleeping && !bluetoothModel.isLowBattery && !(bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) && !linkState && !userRecentlyDisconnectedFromHotspot {
             if immediate {
-                startAutoEnableHotspot()
+                print("Enabling hotspot because known Wi-Fi network is not available")
+                bluetoothModel.enableHotspot()
             } else {
-                _ = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { [self] timer in
+                _ = Timer.scheduledTimer(withTimeInterval: 7, repeats: false) { [self] timer in
                     evalAutoEnableHotspot(immediate: true)
                 }
             }
