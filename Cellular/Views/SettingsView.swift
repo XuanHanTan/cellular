@@ -18,8 +18,6 @@ struct SettingsView: View {
     @AppStorage("minimumBatteryLevel") var minimumBatteryLevel = 0
     @AppStorage("seePhoneInfo") var seePhoneInfo = true
     
-    let handleResetButton: () -> Void
-    
     var body: some View {
         NavigationStack(path: $path) {
             VStack {
@@ -83,7 +81,10 @@ struct SettingsView: View {
                     .formStyle(.grouped)
                     .padding(.bottom, 10)
                     HStack {
-                        Button("Unlink phone...", action: handleResetButton)
+                        Button("Unlink phone...") {
+                            bluetoothModel.reset()
+                            wlanModel.reset()
+                        }
                         Spacer()
                         Button("About Cellular...", action: openAboutPanel)
                     }

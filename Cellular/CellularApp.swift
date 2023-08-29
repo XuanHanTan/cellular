@@ -12,6 +12,9 @@ let wlanModel = WLANModel()
 let bluetoothModel = BluetoothModel()
 var isSleeping = false
 
+/**
+ This function displays the about panel.
+ */
 func openAboutPanel() {
     NSApplication.shared.orderFrontStandardAboutPanel(
         options: [
@@ -81,13 +84,17 @@ struct CellularApp: App {
                 bluetoothModel.registerResetCompletionHandler {
                     let prevActivationPolicy = NSApp.activationPolicy()
                     
+                    // Close menu bar item
                     menuBarItemPresented = false
                     
                     // Make app a regular app to show the setup window
                     NSApp.setActivationPolicy(.regular)
                     NSApp.activate(ignoringOtherApps: true)
                     
+                    // Go back to first page (StartView) in navigation stack
                     path.removeLast(path.count)
+                    
+                    // Close settings window if it is open, and open the main setup window
                     if prevActivationPolicy != .regular {
                         NSApplication.shared.keyWindow?.close()
                         openWindow(id: "main")
@@ -108,11 +115,7 @@ struct CellularApp: App {
             }
         }
         Settings {
-            SettingsView(wlanModel: wlanModel) {
-                NSApplication.shared.keyWindow?.close()
-                bluetoothModel.reset()
-                wlanModel.reset()
-            }
+            SettingsView(wlanModel: wlanModel)
         }
         .windowResizability(.contentSize)
         MenuBarExtra(
