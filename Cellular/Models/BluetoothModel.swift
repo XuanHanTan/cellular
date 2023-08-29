@@ -596,16 +596,14 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
      - parameter indicateOnly: Whether the Mac should only update itself that hotspot has been disconnected
      */
     func disconnectFromHotspot(indicateOnly: Bool = false, systemControlling: Bool = true, userInitiated: Bool = false) {
-        if isConnectingToHotspot || isConnectedToHotspot {
-            if !indicateOnly {
-                updateCharacteristicValue(value: .DisableHotspot)
-            }
-            
-            wlanModel.disconnect(indicateOnly: indicateOnly, systemControlling: systemControlling, userInitiated: userInitiated)
-            
-            isConnectedToHotspot = false
-            isConnectingToHotspot = false
+        if !indicateOnly {
+            updateCharacteristicValue(value: .DisableHotspot)
         }
+        
+        wlanModel.disconnect(indicateOnly: indicateOnly, systemControlling: systemControlling, userInitiated: userInitiated)
+        
+        isConnectedToHotspot = false
+        isConnectingToHotspot = false
     }
     
     /**

@@ -16,6 +16,9 @@ func syncMain<T>(_ closure: () -> T) -> T {
     }
 }
 
+/**
+ This class handles all things related to Wi-Fi.
+ */
 class WLANModel: NSObject, ObservableObject, CWEventDelegate {
     private let defaults = UserDefaults.standard
     private let cwWiFiClient = CWWiFiClient.shared()
@@ -41,11 +44,21 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
         }
     }
     
+    /**
+     This function sets the hotspot details for later use.
+     - parameter ssid: The SSID of the hotspot
+     - parameter password: The password of the hotspot
+     */
     func setHotspotDetails(ssid: String, password: String) {
         self.ssid = ssid
         self.password = password
     }
     
+    /**
+     This function connects to the hotspot.
+     - parameter completionHandler: The function to call when connection is successful
+     - parameter onError: The function to call when connection is unsuccessful
+     */
     func connect(completionHandler: @escaping () -> Void, onError: @escaping () -> Void) {
         guard ssid != nil else {
             print("Hotspot SSID must be set before calling this function.")
@@ -58,6 +71,7 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
         
         connectDispatchTask = DispatchWorkItem { [self] in
             do {
+                // Check if user is currently connected to a trusted network
                 if let currentSSID = cwInterface.ssid() {
                     let trustedNetworkSSIDs = defaults.stringArray(forKey: "trustedNetworks") ?? []
                     if trustedNetworkSSIDs.contains(currentSSID) {
@@ -65,13 +79,16 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
                     }
                 }
                 
+                // Scan for hotspot
                 var selNetwork: CWNetwork? = nil
                 for network in try cwInterface.scanForNetworks(withName: ssid) {
                     if network.ssid == ssid {
                         selNetwork = network
                     }
                 }
+                
                 if selNetwork != nil {
+                    // Attempt to connect to hotspot if it is found
                     try cwInterface.associate(to: selNetwork!, password: password)
                     
                     DispatchQueue.main.sync {
@@ -81,8 +98,9 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
                     }
                 } else if connectHotspotRetryCount < 3 && !connectDispatchTask!.isCancelled {
                     if connectHotspotRetryCount == 0 {
+                        // Schedule 10s timer for next two attempts at connecting to hotspot
                         _ = DispatchQueue.main.sync {
-                            connectionTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { timer in
+                            connectionTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { timer in
                                 self.connect(completionHandler: completionHandler, onError: onError)
                             }
                         }
@@ -91,10 +109,14 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
                     connectHotspotRetryCount += 1
                     print("Connection attempt \(connectHotspotRetryCount)")
                 } else {
-                    connectHotspotRetryCount = 0
+                    print("Connection to hotspot cancelled.")
                     
+                    // Cancel connection to hotspot
                     DispatchQueue.main.sync {
+                        connectionTimer?.invalidate()
+                        connectionTimer = nil
                         connectDispatchTask = nil
+                        connectHotspotRetryCount = 0
                         userRecentlyConnectedWhileOnTrustedNetwork = false
                         onError()
                     }
@@ -102,12 +124,17 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
             } catch {
                 print(error.localizedDescription)
                 
-                connectHotspotRetryCount = 0
-                
+                // Cancel connection to hotspot
                 DispatchQueue.main.sync {
+                    connectionTimer?.invalidate()
+                    connectionTimer = nil
                     connectDispatchTask = nil
+                    connectHotspotRetryCount = 0
                     userRecentlyConnectedWhileOnTrustedNetwork = false
                     onError()
+                    
+                    // Disconnect from hotspot if connection failed
+                    bluetoothModel.disconnectFromHotspot(systemControlling: false)
                 }
             }
         }
@@ -115,19 +142,29 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
         DispatchQueue.global(qos: .userInitiated).async(execute: connectDispatchTask!)
     }
     
+    /**
+     This function disconnects from the hotspot.
+     - parameter indicateOnly: Whether the Mac should only update itself that hotspot has been disconnected
+     - parameter systemControlling: Whether this app should disconnect from Wi-Fi for the user
+     - parameter userInitiated: Whether the user initiated this disconnection
+     */
     func disconnect(indicateOnly: Bool, systemControlling: Bool, userInitiated: Bool) {
         DispatchQueue.global(qos: .userInitiated).async { [self] in
+            // Cancel any attempts to connect to hotspot
             DispatchQueue.main.sync {
                 connectDispatchTask?.cancel()
                 connectionTimer?.invalidate()
                 connectionTimer = nil
+                connectHotspotRetryCount = 0
             }
             
             userRecentlyConnectedWhileOnTrustedNetwork = false
+            
             if userInitiated {
                 userRecentlyDisconnectedFromHotspot = true
             }
             
+            // Disconnect from hotspot if needed
             if systemControlling {
                 cwInterface.disassociate()
             }
@@ -150,72 +187,46 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
         
         if bluetoothModel.isDeviceConnected {
             syncMain {
-                evalIndicateDisconnectHotspot()
-                evalIndicateConnectHotspot()
+                evalNotifyDisconnectHotspot()
+                evalNotifyConnectHotspot()
                 evalAutoEnableHotspot()
             }
         }
     }
     
-    func scanCacheUpdatedForWiFiInterface(withName interfaceName: String) {
-        print("Scan cache updated")
-        let useTrustedNetworks = defaults.bool(forKey: "useTrustedNetworks")
-        
-        if let networks = cwInterface.cachedScanResults() {
-            let trustedNetworkSSIDsArr = defaults.stringArray(forKey: "trustedNetworks") ?? []
-            let trustedNetworkSSIDs = Set(trustedNetworkSSIDsArr)
-            let trustedNetworkPasswords = defaults.stringArray(forKey: "trustedNetworkPasswords") ?? []
-            let availabeNetworkSSIDs = Set(networks.map { $0.ssid ?? "" })
-            let availableTrustedNetworkSSIDs = trustedNetworkSSIDs.intersection(availabeNetworkSSIDs)
-            
-            
-            if let firstAvailableTrustedNetwork = availableTrustedNetworkSSIDs.first {
-                if useTrustedNetworks && (bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) && !userRecentlyConnectedWhileOnTrustedNetwork {
-                    do {
-                        print("Found trusted network!")
-                        let network = networks.first(where: { $0.ssid == firstAvailableTrustedNetwork })!
-                        let password = trustedNetworkPasswords[trustedNetworkSSIDsArr.firstIndex(of: firstAvailableTrustedNetwork)!]
-                        try cwInterface.associate(to: network, password: password)
-                        DispatchQueue.main.sync {
-                            bluetoothModel.disconnectFromHotspot(systemControlling: false)
-                        }
-                    } catch {
-                        print("Failed to associate to trusted network \(firstAvailableTrustedNetwork): \(error.localizedDescription)")
-                        do {
-                            try cwInterface.scanForNetworks(withName: nil)
-                        } catch {
-                            print("Failed to scan for networks: \(error.localizedDescription)")
-                        }
-                    }
-                }
-            }
-        } else {
-            userRecentlyConnectedWhileOnTrustedNetwork = false
-        }
-    }
-    
-    private func evalIndicateDisconnectHotspot(immediate: Bool = false) {
+    /**
+     This function notifies the phone of a manual disconnection from hotspot.
+     - parameter immediate: Whether the phone should be notified immediately
+     */
+    private func evalNotifyDisconnectHotspot(immediate: Bool = false) {
         let currSsid = cwInterface.ssid()
         if bluetoothModel.isConnectedToHotspot && currSsid != ssid {
             if immediate {
-                print("Disconnecting from hotspot...")
+                print("Notifying disconnected from hotspot...")
                 bluetoothModel.disconnectFromHotspot(systemControlling: false, userInitiated: currSsid == nil)
             } else {
                 _ = Timer.scheduledTimer(withTimeInterval: 5, repeats: false) { [self] timer in
-                    evalIndicateDisconnectHotspot(immediate: true)
+                    evalNotifyDisconnectHotspot(immediate: true)
                 }
             }
         }
     }
     
-    private func evalIndicateConnectHotspot() {
+    /**
+     This function notifies the phone of a manual connection from hotspot. This function runs immediately when executed.
+     */
+    private func evalNotifyConnectHotspot() {
         let currSsid = cwInterface.ssid()
         if !(bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) && currSsid == ssid {
-            print("Indicating connected to hotspot...")
+            print("Notifying connected to hotspot...")
             bluetoothModel.notifyConnectedToHotspot()
         }
     }
     
+    /**
+     This function automatically enables hotspot if known Wi-Fi networks are not available.
+     - parameter immediate: Whether the evaluation if auto-connect is needed should be done immediately
+     */
     func evalAutoEnableHotspot(immediate: Bool = false) {
         let currSsid = cwInterface.ssid()
         let linkState = currSsid != nil
@@ -233,6 +244,51 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
         }
     }
     
+    func scanCacheUpdatedForWiFiInterface(withName interfaceName: String) {
+        print("Scan cache updated")
+        let useTrustedNetworks = defaults.bool(forKey: "useTrustedNetworks")
+        
+        if let networks = cwInterface.cachedScanResults() {
+            // Check for available trusted networks
+            let trustedNetworkSSIDsArr = defaults.stringArray(forKey: "trustedNetworks") ?? []
+            let trustedNetworkSSIDs = Set(trustedNetworkSSIDsArr)
+            let trustedNetworkPasswords = defaults.stringArray(forKey: "trustedNetworkPasswords") ?? []
+            let availabeNetworkSSIDs = Set(networks.map { $0.ssid ?? "" })
+            let availableTrustedNetworkSSIDs = trustedNetworkSSIDs.intersection(availabeNetworkSSIDs)
+            
+            if let firstAvailableTrustedNetwork = availableTrustedNetworkSSIDs.first {
+                if useTrustedNetworks && (bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) && !userRecentlyConnectedWhileOnTrustedNetwork {
+                    // Connect to the first trusted network if it is available and user did not connect to hotspot on trusted network
+                    do {
+                        print("Found trusted network!")
+                        let network = networks.first(where: { $0.ssid == firstAvailableTrustedNetwork })!
+                        let password = trustedNetworkPasswords[trustedNetworkSSIDsArr.firstIndex(of: firstAvailableTrustedNetwork)!]
+                        try cwInterface.associate(to: network, password: password)
+                        
+                        // Disconnect from hotspot if successfully connected to trusted network
+                        DispatchQueue.main.sync {
+                            bluetoothModel.disconnectFromHotspot(systemControlling: false)
+                        }
+                    } catch {
+                        print("Failed to associate to trusted network \(firstAvailableTrustedNetwork): \(error.localizedDescription)")
+                        
+                        // Re-scan for networks in case the error was caused by outdated scan cache
+                        do {
+                            try cwInterface.scanForNetworks(withName: nil)
+                        } catch {
+                            print("Failed to scan for networks: \(error.localizedDescription)")
+                        }
+                    }
+                }
+            }
+        } else {
+            userRecentlyConnectedWhileOnTrustedNetwork = false
+        }
+    }
+    
+    /**
+     This function helps reset all hotspot settings for setup again.
+     */
     func reset() {
         // Cancel all tasks
         connectDispatchTask?.cancel()
