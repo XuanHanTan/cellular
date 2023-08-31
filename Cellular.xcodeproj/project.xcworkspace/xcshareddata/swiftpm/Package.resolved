@@ -1,0 +1,23 @@
+{
+  "pins" : [
+    {
+      "identity" : "handyswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/FlineDev/HandySwift.git",
+      "state" : {
+        "revision" : "5d6a6df5232eff28f9f71048e5745706d02be1f8",
+        "version" : "3.4.0"
+      }
+    },
+    {
+      "identity" : "menubarextraaccess",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/orchetect/MenuBarExtraAccess",
+      "state" : {
+        "revision" : "f5896b47e15e114975897354c7e1082c51a2bffd",
+        "version" : "1.0.5"
+      }
+    }
+  ],
+  "version" : 2
+}

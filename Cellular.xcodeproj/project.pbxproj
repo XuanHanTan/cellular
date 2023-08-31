@@ -23,6 +23,7 @@
 		1959D9F12A472B70001BBE0F /* Cellular_HelperUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1959D9F02A472B70001BBE0F /* Cellular_HelperUITestsLaunchTests.swift */; };
 		1959DA002A472DD5001BBE0F /* Cellular Helper.app in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1959D9D02A472B6E001BBE0F /* Cellular Helper.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		1978800A2A7CA3BD007F7B66 /* TrustedNetworksSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 197880092A7CA3BD007F7B66 /* TrustedNetworksSettingsView.swift */; };
+		198680252AA0B08000FFCADE /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 198680242AA0B08000FFCADE /* Info.plist */; };
 		198A7A1E2A45A4FA0097C0DD /* SettingUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 198A7A1D2A45A4FA0097C0DD /* SettingUpView.swift */; };
 		19A0ED342A2E240B00AF4A5F /* CellularApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A0ED332A2E240B00AF4A5F /* CellularApp.swift */; };
 		19A0ED382A2E240C00AF4A5F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 19A0ED372A2E240C00AF4A5F /* Assets.xcassets */; };
@@ -85,7 +86,6 @@
 
 /* Begin PBXFileReference section */
 		1915C22E2A30938300A22788 /* BluetoothModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothModel.swift; sourceTree = "<group>"; };
-		1915C2302A30986400A22788 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		1928BBDF2A35B1030029BB8C /* StartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartView.swift; sourceTree = "<group>"; };
 		1928BBE62A3610DF0029BB8C /* DownloadAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadAppView.swift; sourceTree = "<group>"; };
 		1928BBEA2A371C0C0029BB8C /* AES.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AES.swift; sourceTree = "<group>"; };
@@ -103,6 +103,7 @@
 		1959D9EE2A472B70001BBE0F /* Cellular_HelperUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cellular_HelperUITests.swift; sourceTree = "<group>"; };
 		1959D9F02A472B70001BBE0F /* Cellular_HelperUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cellular_HelperUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		197880092A7CA3BD007F7B66 /* TrustedNetworksSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrustedNetworksSettingsView.swift; sourceTree = "<group>"; };
+		198680242AA0B08000FFCADE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		198A7A1D2A45A4FA0097C0DD /* SettingUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingUpView.swift; sourceTree = "<group>"; };
 		19A0ED302A2E240B00AF4A5F /* Cellular.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cellular.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		19A0ED332A2E240B00AF4A5F /* CellularApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellularApp.swift; sourceTree = "<group>"; };
@@ -262,7 +263,7 @@
 		19A0ED322A2E240B00AF4A5F /* Cellular */ = {
 			isa = PBXGroup;
 			children = (
-				1915C2302A30986400A22788 /* Info.plist */,
+				198680242AA0B08000FFCADE /* Info.plist */,
 				19A0ED372A2E240C00AF4A5F /* Assets.xcassets */,
 				19A0ED3C2A2E240C00AF4A5F /* Cellular.entitlements */,
 				19A0ED392A2E240C00AF4A5F /* Preview Content */,
@@ -513,6 +514,7 @@
 			files = (
 				19A0ED3B2A2E240C00AF4A5F /* Preview Assets.xcassets in Resources */,
 				19A0ED382A2E240C00AF4A5F /* Assets.xcassets in Resources */,
+				198680252AA0B08000FFCADE /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -630,6 +632,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Cellular Helper/Cellular_Helper.entitlements";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -661,6 +664,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Cellular Helper/Cellular_Helper.entitlements";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -875,6 +879,7 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = Cellular/Cellular.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 6;
@@ -910,6 +915,7 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = Cellular/Cellular.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 6;
