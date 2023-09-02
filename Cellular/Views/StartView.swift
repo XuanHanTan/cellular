@@ -11,6 +11,7 @@ struct StartView: View {
     @Environment(\.colorScheme) var colorScheme
     
     @Binding var path: NavigationPath
+    @StateObject private var locationModel = Cellular.locationModel
     
     var body: some View {
         VStack {
@@ -28,6 +29,7 @@ struct StartView: View {
             NavigationLink(value: "downloadAppView") {
                 Text("Get started")
             }
+            .disabled(locationModel.isLocationPermissionDenied)
             .controlSize(.large)
             .keyboardShortcut(.defaultAction)
             .padding(.bottom, 20)

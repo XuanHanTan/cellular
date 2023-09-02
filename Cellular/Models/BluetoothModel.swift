@@ -17,14 +17,14 @@ extension Data {
         // return nil for all other input characters
         func decodeNibble(u: UInt8) -> UInt8? {
             switch(u) {
-                case 0x30 ... 0x39:
-                    return u - 0x30
-                case 0x41 ... 0x46:
-                    return u - 0x41 + 10
-                case 0x61 ... 0x66:
-                    return u - 0x61 + 10
-                default:
-                    return nil
+            case 0x30 ... 0x39:
+                return u - 0x30
+            case 0x41 ... 0x46:
+                return u - 0x41 + 10
+            case 0x61 ... 0x66:
+                return u - 0x61 + 10
+            default:
+                return nil
             }
         }
         
@@ -159,40 +159,52 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     
     func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
         switch peripheral.state {
-            case .poweredOn:
-                print("CBManager is powered on")
-                isPoweredOn = true
-                isBluetoothOffDialogPresented = false
-                isBluetoothNotGrantedDialogPresented = false
-                isBluetoothNotSupportedDialogPresented = false
-                isBluetoothUnknownErrorDialogPresented = false
-                setupPeripheral()
-                return
-            case .poweredOff:
-                print("CBManager is not powered on")
-                isBluetoothOffDialogPresented = true
-                isPoweredOn = false
-                return
-            case .resetting:
-                print("CBManager is resetting")
-                isBluetoothUnknownErrorDialogPresented = true
-                isPoweredOn = false
-                return
-            case .unauthorized:
-                print("Bluetooth permission was not granted")
-                isBluetoothNotGrantedDialogPresented = true
-                isPoweredOn = false
-                return
-            case .unsupported:
-                print("Bluetooth is not supported on this device")
-                isBluetoothNotSupportedDialogPresented = true
-                isPoweredOn = false
-                return
-            default:
-                print("A previously unknown peripheral manager state occurred")
-                isBluetoothUnknownErrorDialogPresented = true
-                isPoweredOn = false
-                return
+        case .poweredOn:
+            print("CBManager is powered on")
+            isPoweredOn = true
+            isBluetoothOffDialogPresented = false
+            isBluetoothNotGrantedDialogPresented = false
+            isBluetoothNotSupportedDialogPresented = false
+            isBluetoothUnknownErrorDialogPresented = false
+            setupPeripheral()
+            return
+        case .poweredOff:
+            print("CBManager is not powered on")
+            isBluetoothOffDialogPresented = true
+            isPoweredOn = false
+            return
+        case .resetting:
+            print("CBManager is resetting")
+            isBluetoothUnknownErrorDialogPresented = true
+            isPoweredOn = false
+            if bluetoothModel.isSetupComplete {
+                showFailedToStartNotification(reason: .UnknownBluetoothError)
+            }
+            return
+        case .unauthorized:
+            print("Bluetooth permission was not granted")
+            isBluetoothNotGrantedDialogPresented = true
+            isPoweredOn = false
+            if bluetoothModel.isSetupComplete {
+                showFailedToStartNotification(reason: .BluetoothPermissionNotGranted)
+            }
+            return
+        case .unsupported:
+            print("Bluetooth is not supported on this device")
+            isBluetoothNotSupportedDialogPresented = true
+            isPoweredOn = false
+            if bluetoothModel.isSetupComplete {
+                showFailedToStartNotification(reason: .BluetoothNotSupported)
+            }
+            return
+        default:
+            print("A previously unknown peripheral manager state occurred")
+            isBluetoothUnknownErrorDialogPresented = true
+            isPoweredOn = false
+            if bluetoothModel.isSetupComplete {
+                showFailedToStartNotification(reason: .UnknownBluetoothError)
+            }
+            return
         }
     }
     
@@ -355,98 +367,98 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             }
             
             switch command {
-                case .HelloWorld:
-                    // Ensure that the Hello World command is only received during setup
-                    if !isSetupComplete {
-                        print("Received Hello World")
-                        isHelloWorldReceived = true
-                        
-                        // Store central UUID
-                        centralUUID = eachRequest.central.identifier
-                        defaults.setValue(centralUUID!.uuidString, forKey: "centralUUID")
-                        
-                        // Indicate successful BLE operation
-                        peripheral.respond(to: eachRequest, withResult: .success)
-                    } else {
-                        print("Error: Setup has completed but Hello World is received.")
-                        peripheral.respond(to: eachRequest, withResult: .requestNotSupported)
-                    }
-                case .ShareHotspotDetails:
-                    // Ensure that plaintext has two parts
-                    guard plainTextSplit!.count == 2 else {
-                        print("Error: Payload is invalid.")
-                        peripheral.respond(to: eachRequest, withResult: .unlikelyError)
-                        continue
-                    }
+            case .HelloWorld:
+                // Ensure that the Hello World command is only received during setup
+                if !isSetupComplete {
+                    print("Received Hello World")
+                    isHelloWorldReceived = true
                     
-                    // Split plaintext to SSID and password and trim leading/trailing quotation marks
-                    let ssid = plainTextSplit![0].trimmingCharacters(in: CharacterSet(charactersIn: "\""))
-                    let password = plainTextSplit![1].trimmingCharacters(in: CharacterSet(charactersIn: "\""))
-                    
-                    // Store hotspot info in UserDefaults
-                    saveHotspotInfo(ssid: String(ssid), password: String(password))
+                    // Store central UUID
+                    centralUUID = eachRequest.central.identifier
+                    defaults.setValue(centralUUID!.uuidString, forKey: "centralUUID")
                     
                     // Indicate successful BLE operation
                     peripheral.respond(to: eachRequest, withResult: .success)
-                    
-                    // Set setup to be complete if needed
-                    if !isSetupComplete {
-                        isSetupComplete = true
-                        defaults.set(isSetupComplete, forKey: "isSetupComplete")
-                    }
-                case .SharePhoneInfo:
-                    // Ensure that plaintext has three parts
-                    guard plainTextSplit!.count == 3 else {
-                        print("Error: Payload is invalid.")
-                        peripheral.respond(to: eachRequest, withResult: .unlikelyError)
-                        continue
-                    }
-                    
-                    let networkType = String(plainTextSplit![1])
-                    
-                    // Split plaintext to signal level, network type and battery level
-                    guard let signalLevel = Int(plainTextSplit![0]), let batteryLevel = Int(plainTextSplit![2]), signalLevel >= -1, signalLevel <= 3, batteryLevel >= -1, batteryLevel <= 100, acceptableNetworkTypes.contains(networkType) else {
-                        print("Error: Payload is invalid.")
-                        peripheral.respond(to: eachRequest, withResult: .unlikelyError)
-                        continue
-                    }
-                    
-                    // Update UI with new phone info accordingly
-                    setPhoneInfo(signalLevel: signalLevel, networkType: networkType, batteryLevel: batteryLevel)
-                    
-                    if batteryLevel != -1 {
-                        // Evaluate if minimum battery reached
-                        evalMinimumBattery(batteryLevel: batteryLevel)
-                    }
-                    
-                    // Indicate successful BLE operation
-                    peripheral.respond(to: eachRequest, withResult: .success)
-                case .ConnectToHotspot:
-                    print("Connecting to hotspot...")
-                    // Connect to hotspot
-                    connectToHotspot()
-                    
-                    // Indicate successful BLE operation
-                    peripheral.respond(to: eachRequest, withResult: .success)
-                case .DisconnectFromHotspot:
-                    print("Disconnecting from hotspot...")
-                    // Disconnect from hotspot
-                    disconnectFromHotspot(indicateOnly: true, userInitiated: true)
-                    
-                    // Indicate successful BLE operation
-                    peripheral.respond(to: eachRequest, withResult: .success)
-                case .IndicateReset:
-                    print("Unlinking phone...")
-                    
-                    // Indicate successful BLE operation
-                    peripheral.respond(to: eachRequest, withResult: .success)
-                    
-                    // Unlink phone
-                    reset(indicateOnly: true)
-                    wlanModel.reset()
-                default:
-                    print("Error: Unrecognised command")
-                    peripheral.respond(to: eachRequest, withResult: .attributeNotFound)
+                } else {
+                    print("Error: Setup has completed but Hello World is received.")
+                    peripheral.respond(to: eachRequest, withResult: .requestNotSupported)
+                }
+            case .ShareHotspotDetails:
+                // Ensure that plaintext has two parts
+                guard plainTextSplit!.count == 2 else {
+                    print("Error: Payload is invalid.")
+                    peripheral.respond(to: eachRequest, withResult: .unlikelyError)
+                    continue
+                }
+                
+                // Split plaintext to SSID and password and trim leading/trailing quotation marks
+                let ssid = plainTextSplit![0].trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+                let password = plainTextSplit![1].trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+                
+                // Store hotspot info in UserDefaults
+                saveHotspotInfo(ssid: String(ssid), password: String(password))
+                
+                // Indicate successful BLE operation
+                peripheral.respond(to: eachRequest, withResult: .success)
+                
+                // Set setup to be complete if needed
+                if !isSetupComplete {
+                    isSetupComplete = true
+                    defaults.set(isSetupComplete, forKey: "isSetupComplete")
+                }
+            case .SharePhoneInfo:
+                // Ensure that plaintext has three parts
+                guard plainTextSplit!.count == 3 else {
+                    print("Error: Payload is invalid.")
+                    peripheral.respond(to: eachRequest, withResult: .unlikelyError)
+                    continue
+                }
+                
+                let networkType = String(plainTextSplit![1])
+                
+                // Split plaintext to signal level, network type and battery level
+                guard let signalLevel = Int(plainTextSplit![0]), let batteryLevel = Int(plainTextSplit![2]), signalLevel >= -1, signalLevel <= 3, batteryLevel >= -1, batteryLevel <= 100, acceptableNetworkTypes.contains(networkType) else {
+                    print("Error: Payload is invalid.")
+                    peripheral.respond(to: eachRequest, withResult: .unlikelyError)
+                    continue
+                }
+                
+                // Update UI with new phone info accordingly
+                setPhoneInfo(signalLevel: signalLevel, networkType: networkType, batteryLevel: batteryLevel)
+                
+                if batteryLevel != -1 {
+                    // Evaluate if minimum battery reached
+                    evalMinimumBattery(batteryLevel: batteryLevel)
+                }
+                
+                // Indicate successful BLE operation
+                peripheral.respond(to: eachRequest, withResult: .success)
+            case .ConnectToHotspot:
+                print("Connecting to hotspot...")
+                // Connect to hotspot
+                connectToHotspot()
+                
+                // Indicate successful BLE operation
+                peripheral.respond(to: eachRequest, withResult: .success)
+            case .DisconnectFromHotspot:
+                print("Disconnecting from hotspot...")
+                // Disconnect from hotspot
+                disconnectFromHotspot(indicateOnly: true, userInitiated: true)
+                
+                // Indicate successful BLE operation
+                peripheral.respond(to: eachRequest, withResult: .success)
+            case .IndicateReset:
+                print("Unlinking phone...")
+                
+                // Indicate successful BLE operation
+                peripheral.respond(to: eachRequest, withResult: .success)
+                
+                // Unlink phone
+                reset(indicateOnly: true)
+                wlanModel.reset()
+            default:
+                print("Error: Unrecognised command")
+                peripheral.respond(to: eachRequest, withResult: .attributeNotFound)
             }
         }
     }

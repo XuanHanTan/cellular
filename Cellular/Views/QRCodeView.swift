@@ -12,6 +12,26 @@ struct QRCodeView: View {
     
     @State private var qrCodeNSImage: NSImage?
     @StateObject private var bluetoothModel = Cellular.bluetoothModel
+    @StateObject private var locationModel = Cellular.locationModel
+    
+    private func generateQRCode() {
+        do {
+            let qrCodeData = try JSONSerialization.data(withJSONObject: bluetoothModel.prepareForNewConnection())
+            
+            let filter = CIFilter(name: "CIQRCodeGenerator")!
+            let data = qrCodeData
+            filter.setValue(data, forKey: "inputMessage")
+            let CIImage = filter.outputImage!
+            let transform = CGAffineTransform(scaleX: 10, y: 10)
+            let scaledCIImage = CIImage.transformed(by: transform)
+            let representation = NSCIImageRep(ciImage: scaledCIImage)
+            
+            qrCodeNSImage = NSImage(size: representation.size)
+            qrCodeNSImage!.addRepresentation(representation)
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -61,21 +81,8 @@ struct QRCodeView: View {
         }
         .frame(width: 900, height: 650, alignment: .center)
         .onAppear {
-            do {
-                let qrCodeData = try JSONSerialization.data(withJSONObject: bluetoothModel.prepareForNewConnection())
-                
-                let filter = CIFilter(name: "CIQRCodeGenerator")!
-                let data = qrCodeData
-                filter.setValue(data, forKey: "inputMessage")
-                let CIImage = filter.outputImage!
-                let transform = CGAffineTransform(scaleX: 10, y: 10)
-                let scaledCIImage = CIImage.transformed(by: transform)
-                let representation = NSCIImageRep(ciImage: scaledCIImage)
-                
-                qrCodeNSImage = NSImage(size: representation.size)
-                qrCodeNSImage!.addRepresentation(representation)
-            } catch {
-                print(error.localizedDescription)
+            if !locationModel.isLocationPermissionDenied {
+                generateQRCode()
             }
         }
         .onChange(of: bluetoothModel.isHelloWorldReceived) { newValue in
@@ -83,6 +90,13 @@ struct QRCodeView: View {
                 DispatchQueue.main.async {
                     path.append("settingUpView")
                 }
+            }
+        }
+        .onChange(of: locationModel.isLocationPermissionDenied) { newValue in
+            if newValue {
+                qrCodeNSImage = nil
+            } else {
+                generateQRCode()
             }
         }
     }

@@ -7,10 +7,36 @@
 
 import SwiftUI
 import MenuBarExtraAccess
+import UserNotifications
 
 let wlanModel = WLANModel()
 let bluetoothModel = BluetoothModel()
+let locationModel = LocationModel()
 var isSleeping = false
+
+enum FailedToStartReason {
+    case BluetoothPermissionNotGranted
+    case BluetoothNotSupported
+    case LocationPermissionNotGranted
+    case UnknownBluetoothError
+}
+
+func getDescriptionForFailedToStart(reason: FailedToStartReason) -> String {
+    let description: String
+    
+    switch reason {
+    case .BluetoothPermissionNotGranted:
+        description = "The Bluetooth permission is required for Cellular to communicate with your Android device. Please grant it in System Settings."
+    case .BluetoothNotSupported:
+        description = "Bluetooth is not supported on this Mac."
+    case .LocationPermissionNotGranted:
+        description = "The Location Services permission is required for Cellular to get the connection state of Wi-Fi. Please grant it in System Settings."
+    case .UnknownBluetoothError:
+        description = "Cellular has encountered an unknown error. Please wait while Cellular restarts."
+    }
+    
+    return description
+}
 
 /**
  This function displays the about panel.
@@ -32,6 +58,15 @@ func openAboutPanel() {
     )
 }
 
+func showFailedToStartNotification(reason: FailedToStartReason) {
+    let content = UNMutableNotificationContent()
+    content.title = "Failed to start Cellular"
+    content.subtitle = getDescriptionForFailedToStart(reason: reason)
+    let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
+    let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+    UNUserNotificationCenter.current().add(request)
+}
+
 @main
 struct CellularApp: App {
     @Environment(\.openWindow) private var openWindow
@@ -40,7 +75,9 @@ struct CellularApp: App {
     @State private var menuBarItemPresented = false
     @StateObject private var wlanModel = Cellular.wlanModel
     @StateObject private var bluetoothModel = Cellular.bluetoothModel
+    @StateObject private var locationModel = Cellular.locationModel
     @State private var path = NavigationPath()
+    @State private var isLocationPermissionDenied = false
     
     var body: some Scene {
         WindowGroup(id: "main") {
@@ -48,20 +85,23 @@ struct CellularApp: App {
                 StartView(path: $path)
                     .navigationDestination(for: String.self) { textValue in
                         switch textValue {
-                            case "downloadAppView":
-                                DownloadAppView(path: $path)
-                            case "qrCodeView":
-                                QRCodeView(path: $path)
-                            case "settingUpView":
-                                SettingUpView(path: $path)
-                            case "trustedNetworksSetupView":
-                                TrustedNetworkSetupView(path: $path)
-                            case "finishSetupView":
-                                FinishSetupView(path: $path)
-                            default:
-                                EmptyView()
+                        case "downloadAppView":
+                            DownloadAppView(path: $path)
+                        case "qrCodeView":
+                            QRCodeView(path: $path)
+                        case "settingUpView":
+                            SettingUpView(path: $path)
+                        case "trustedNetworksSetupView":
+                            TrustedNetworkSetupView(path: $path)
+                        case "finishSetupView":
+                            FinishSetupView(path: $path)
+                        default:
+                            EmptyView()
                         }
                     }
+            }
+            .onChange(of: locationModel.isLocationPermissionDenied) { isLocationPermissionDenied in
+                self.isLocationPermissionDenied = isLocationPermissionDenied
             }
             .alert("Turn on Bluetooth", isPresented: $bluetoothModel.isBluetoothOffDialogPresented) {
             } message: {
@@ -69,11 +109,19 @@ struct CellularApp: App {
             }
             .alert("Grant the Bluetooth permission", isPresented: $bluetoothModel.isBluetoothNotGrantedDialogPresented) {
             } message: {
-                Text("The Bluetooth permission is required for Cellular to communicate with your Android device using Bluetooth. Please grant it in System Settings.")
+                Text(getDescriptionForFailedToStart(reason: .BluetoothPermissionNotGranted))
+            }
+            .alert("Bluetooth is unsupported", isPresented: $bluetoothModel.isBluetoothNotSupportedDialogPresented) {
+            } message: {
+                Text(getDescriptionForFailedToStart(reason: .BluetoothNotSupported))
             }
             .alert("An unknown error occurred", isPresented: $bluetoothModel.isBluetoothUnknownErrorDialogPresented) {
             } message: {
-                Text("Cellular is not able to communicate with the Bluetooth service and will retry automatically.")
+                Text(getDescriptionForFailedToStart(reason: .UnknownBluetoothError))
+            }
+            .alert("Grant the Location Services permission", isPresented: $isLocationPermissionDenied) {
+            } message: {
+                Text(getDescriptionForFailedToStart(reason: .LocationPermissionNotGranted))
             }.onAppear {
                 if !bluetoothModel.isSetupComplete {
                     // Make app a regular app to show the setup window
@@ -110,7 +158,7 @@ struct CellularApp: App {
             }
             CommandGroup(replacing: .appInfo) {
                 Button("About") {
-                   openAboutPanel()
+                    openAboutPanel()
                 }
             }
         }

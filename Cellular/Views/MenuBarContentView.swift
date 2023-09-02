@@ -25,18 +25,6 @@ struct MenuBarContentView: View {
     @Binding var isMenuBarItemPresented: Bool
     @AppStorage("seePhoneInfo") var seePhoneInfo = true
     
-    func getBluetoothError() -> String {
-        if bluetoothModel.isBluetoothOffDialogPresented {
-            return "Enable Bluetooth to use Cellular"
-        } else if bluetoothModel.isBluetoothNotGrantedDialogPresented {
-            return "Bluetooth permission is not granted"
-        } else if bluetoothModel.isBluetoothNotSupportedDialogPresented {
-            return "Bluetooth is not supported"
-        } else {
-            return "An unknown error occured"
-        }
-    }
-    
     func getHotspotStatus() -> String {
         if bluetoothModel.isConnectedToHotspot {
             return "Connected"
@@ -51,13 +39,13 @@ struct MenuBarContentView: View {
     
     var body: some View {
         VStack {
-            if !bluetoothModel.isPoweredOn && bluetoothModel.isSetupComplete {
+            if bluetoothModel.isBluetoothOffDialogPresented && bluetoothModel.isSetupComplete {
                 HStack {
                     Spacer()
                     Image(systemName: "exclamationmark.circle")
                         .font(.title3)
                         .padding(.trailing, 2)
-                    Text(getBluetoothError())
+                    Text("Enable Bluetooth to use Cellular")
                         .font(.title3)
                         .padding(.bottom, 1)
                     Spacer()
@@ -80,6 +68,9 @@ struct MenuBarContentView: View {
                                     .padding(.bottom, 1)
                             }
                             .buttonStyle(.plain)
+                            .simultaneousGesture(TapGesture().onEnded{
+                                isMenuBarItemPresented = false
+                            })
                         } else {
                             Button {
                                 isMenuBarItemPresented = false

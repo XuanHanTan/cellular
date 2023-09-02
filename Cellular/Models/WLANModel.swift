@@ -99,7 +99,7 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
                 } else if connectHotspotRetryCount < 3 && !connectDispatchTask!.isCancelled {
                     if connectHotspotRetryCount == 0 {
                         // Schedule 10s timer for next two attempts at connecting to hotspot
-                        _ = DispatchQueue.main.sync {
+                        DispatchQueue.main.sync {
                             connectionTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { timer in
                                 self.connect(completionHandler: completionHandler, onError: onError)
                             }

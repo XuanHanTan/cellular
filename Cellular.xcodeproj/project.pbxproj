@@ -32,6 +32,7 @@
 		19A0ED502A2E240C00AF4A5F /* CellularUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A0ED4F2A2E240C00AF4A5F /* CellularUITests.swift */; };
 		19A0ED522A2E240C00AF4A5F /* CellularUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A0ED512A2E240C00AF4A5F /* CellularUITestsLaunchTests.swift */; };
 		19B4F8D82A49D66900AC2B90 /* MenuBarExtraAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 19B4F8D72A49D66900AC2B90 /* MenuBarExtraAccess */; };
+		19B5E6482AA2F78600031257 /* LocationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B5E6472AA2F78600031257 /* LocationModel.swift */; };
 		19BA1A292A6D5E0300477517 /* WLANModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19BA1A282A6D5E0300477517 /* WLANModel.swift */; };
 		19BA1A2B2A6D6B9500477517 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 19BA1A2A2A6D6B9500477517 /* Main.storyboard */; };
 		19BDE0692A4878E300C038BA /* MenuBarContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19BDE0682A4878E300C038BA /* MenuBarContentView.swift */; };
@@ -115,6 +116,7 @@
 		19A0ED4B2A2E240C00AF4A5F /* CellularUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CellularUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		19A0ED4F2A2E240C00AF4A5F /* CellularUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellularUITests.swift; sourceTree = "<group>"; };
 		19A0ED512A2E240C00AF4A5F /* CellularUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellularUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		19B5E6472AA2F78600031257 /* LocationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationModel.swift; sourceTree = "<group>"; };
 		19BA1A282A6D5E0300477517 /* WLANModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WLANModel.swift; sourceTree = "<group>"; };
 		19BA1A2A2A6D6B9500477517 /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		19BDE0682A4878E300C038BA /* MenuBarContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarContentView.swift; sourceTree = "<group>"; };
@@ -202,6 +204,7 @@
 			children = (
 				1915C22E2A30938300A22788 /* BluetoothModel.swift */,
 				19BA1A282A6D5E0300477517 /* WLANModel.swift */,
+				19B5E6472AA2F78600031257 /* LocationModel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -579,6 +582,7 @@
 				1959D9C72A46A711001BBE0F /* FinishSetupView.swift in Sources */,
 				1928BBE02A35B1030029BB8C /* StartView.swift in Sources */,
 				1959D9CB2A46E68F001BBE0F /* AppDelegate.swift in Sources */,
+				19B5E6482AA2F78600031257 /* LocationModel.swift in Sources */,
 				1928BBEB2A371C0C0029BB8C /* AES.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -891,8 +895,9 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Cellular;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
-				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "To discover your Android device and start the mobile hotspot intelligently.";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "To communicate with your Android device.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSLocationUsageDescription = "To get the connection state of Wi-Fi.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -927,8 +932,9 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Cellular;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
-				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "To discover your Android device and start the mobile hotspot intelligently.";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "To communicate with your Android device.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSLocationUsageDescription = "To get the connection state of Wi-Fi.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

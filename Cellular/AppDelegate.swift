@@ -8,8 +8,11 @@
 import Foundation
 import AppKit
 import UserNotifications
+import CoreLocation
 
-class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
+// TODO: Move location stuff to LocationModel, Make BluetoothModel able to be disabled
+
+class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, CLLocationManagerDelegate {
     let defaults = UserDefaults.standard
     
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -20,8 +23,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 window.close()
                 NSApp.setActivationPolicy(.accessory)
             }
-            
-            bluetoothModel.initializeBluetooth()
         }
         
         // Register for sleep/wake notifications
@@ -34,13 +35,27 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             name: NSWorkspace.willSleepNotification, object: nil)
         
         // Get local notification permission
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound, .provisional]) { success, error in
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { success, error in
             if success {
                 print("Notification permission granted.")
             } else if let error = error {
                 print(error.localizedDescription)
             }
         }
+        
+        locationModel.registerForAuthorizationChanges {
+            if bluetoothModel.isSetupComplete {
+                bluetoothModel.initializeBluetooth()
+            }
+        } onError: {
+            if bluetoothModel.isSetupComplete {
+                showFailedToStartNotification(reason: .LocationPermissionNotGranted)
+            }
+            
+            // Disconnect device
+            
+        }
+
     }
     
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
