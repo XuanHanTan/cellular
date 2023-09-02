@@ -171,10 +171,6 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
         }
     }
     
-    /// Temporary info (will be tidied up later):
-    ///  1. Disconnect from hotspot when network ssid is not hotspot ssid and hotspot is supposed to be connected
-    ///  2. Indicate to android device that hotspot has been connected if hotspot connected when not supposed to
-    ///  3. Connect to hotspot when device is not connecting/connected to hotspot and user has not disconnected from hotspot recently
     func linkDidChangeForWiFiInterface(withName interfaceName: String) {
         let currSsid = cwInterface.ssid()
         let linkState = currSsid != nil
@@ -253,8 +249,8 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
             let trustedNetworkSSIDsArr = defaults.stringArray(forKey: "trustedNetworks") ?? []
             let trustedNetworkSSIDs = Set(trustedNetworkSSIDsArr)
             let trustedNetworkPasswords = defaults.stringArray(forKey: "trustedNetworkPasswords") ?? []
-            let availabeNetworkSSIDs = Set(networks.map { $0.ssid ?? "" })
-            let availableTrustedNetworkSSIDs = trustedNetworkSSIDs.intersection(availabeNetworkSSIDs)
+            let availableNetworkSSIDs = Set(networks.map { $0.ssid ?? "" })
+            let availableTrustedNetworkSSIDs = trustedNetworkSSIDs.intersection(availableNetworkSSIDs)
             
             if let firstAvailableTrustedNetwork = availableTrustedNetworkSSIDs.first {
                 if useTrustedNetworks && (bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) && !userRecentlyConnectedWhileOnTrustedNetwork {
