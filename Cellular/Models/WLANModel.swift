@@ -253,7 +253,7 @@ class WLANModel: NSObject, ObservableObject, CWEventDelegate {
             let availableTrustedNetworkSSIDs = trustedNetworkSSIDs.intersection(availableNetworkSSIDs)
             
             if let firstAvailableTrustedNetwork = availableTrustedNetworkSSIDs.first {
-                if useTrustedNetworks && (bluetoothModel.isConnectedToHotspot || bluetoothModel.isConnectingToHotspot) && !userRecentlyConnectedWhileOnTrustedNetwork {
+                if useTrustedNetworks && bluetoothModel.isConnectedToHotspot && !userRecentlyConnectedWhileOnTrustedNetwork {
                     // Connect to the first trusted network if it is available and user did not connect to hotspot on trusted network
                     do {
                         print("Found trusted network!")

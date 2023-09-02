@@ -38,7 +38,12 @@ class LocationModel: NSObject, ObservableObject, CLLocationManagerDelegate {
             break
             
         case .notDetermined:        // Authorization not determined yet.
-            manager.requestWhenInUseAuthorization()
+            if bluetoothModel.isSetupComplete {
+                isLocationPermissionDenied = true
+                onError()
+            } else {
+                manager.requestWhenInUseAuthorization()
+            }
             break
             
         default:
