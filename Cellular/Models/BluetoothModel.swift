@@ -72,6 +72,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     @Published var isConnectedToHotspot = false
     var isLowBattery = false
     private var isResetting = false
+    private var isDisposing = false
     private var reset2: () -> Void = {}
     
     @Published var signalLevel = -1
@@ -291,8 +292,13 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                 isConnectedToHotspot = false
             }
             
-            // Restart advertising so the phone can reconnect later
-            peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [serviceUUID]])
+            if isDisposing {
+                // Skip restarting advertising if disposing
+                isDisposing = false
+            } else {
+                // Restart advertising so the phone can reconnect later
+                peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [serviceUUID]])
+            }
         }
     }
     
@@ -646,7 +652,10 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     
     func dispose() {
         if isPoweredOn {
+            isDisposing = true
+            peripheralManager.stopAdvertising()
             peripheralManager.removeAllServices()
+            peripheralManager.delegate = nil
             if isDeviceConnected {
                 peripheralManager(peripheralManager, central: connectedCentral!, didUnsubscribeFrom: notificationCharacteristic)
             }
@@ -684,6 +693,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             isConnectedToHotspot = false
             isLowBattery = false
             isResetting = false
+            isDisposing = false
             signalLevel = -1
             networkType = "-1"
             batteryLevel = -1

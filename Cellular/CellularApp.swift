@@ -11,7 +11,23 @@ import UserNotifications
 
 let wlanModel = WLANModel()
 let bluetoothModel = BluetoothModel()
-let locationModel = LocationModel()
+var locationModel = {
+    let locationModel = LocationModel()
+    locationModel.registerForAuthorizationChanges {
+        if bluetoothModel.isSetupComplete {
+            UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: ["location"])
+            bluetoothModel.initializeBluetooth()
+        }
+    } onError: {
+        if bluetoothModel.isSetupComplete {
+            showFailedToStartNotification(reason: .LocationPermissionNotGranted)
+            
+            // Disconnect device
+            bluetoothModel.dispose()
+        }
+    }
+    return locationModel
+}()
 var isSleeping = false
 
 enum FailedToStartReason {
@@ -23,23 +39,23 @@ enum FailedToStartReason {
 
 func getDescriptionForFailedToStart(reason: FailedToStartReason) -> String {
     switch reason {
-    case .BluetoothPermissionNotGranted:
-        return "The Bluetooth permission is required for Cellular to communicate with your Android device. Please grant it in System Settings."
-    case .BluetoothNotSupported:
-        return "Bluetooth is not supported on this Mac."
-    case .LocationPermissionNotGranted:
-        return "The Location Services permission is required for Cellular to get the connection state of Wi-Fi. Please grant it in System Settings."
-    case .UnknownBluetoothError:
-        return "Cellular has encountered an unknown error. Please wait while Cellular restarts."
+        case .BluetoothPermissionNotGranted:
+            return "The Bluetooth permission is required for Cellular to communicate with your Android device. Please grant it in System Settings."
+        case .BluetoothNotSupported:
+            return "Bluetooth is not supported on this Mac."
+        case .LocationPermissionNotGranted:
+            return "The Location Services permission is required for Cellular to get the connection state of Wi-Fi. Please grant it in System Settings."
+        case .UnknownBluetoothError:
+            return "Cellular has encountered an unknown error. Please wait while Cellular restarts."
     }
 }
 
 func getIdentifierForFailedToStart(reason: FailedToStartReason) -> String {
     switch reason {
-    case .BluetoothPermissionNotGranted, .BluetoothNotSupported, .UnknownBluetoothError:
-        return "bluetooth"
-    case .LocationPermissionNotGranted:
-        return "location"
+        case .BluetoothPermissionNotGranted, .BluetoothNotSupported, .UnknownBluetoothError:
+            return "bluetooth"
+        case .LocationPermissionNotGranted:
+            return "location"
     }
 }
 
@@ -90,18 +106,18 @@ struct CellularApp: App {
                 StartView(path: $path)
                     .navigationDestination(for: String.self) { textValue in
                         switch textValue {
-                        case "downloadAppView":
-                            DownloadAppView(path: $path)
-                        case "qrCodeView":
-                            QRCodeView(path: $path)
-                        case "settingUpView":
-                            SettingUpView(path: $path)
-                        case "trustedNetworksSetupView":
-                            TrustedNetworkSetupView(path: $path)
-                        case "finishSetupView":
-                            FinishSetupView(path: $path)
-                        default:
-                            EmptyView()
+                            case "downloadAppView":
+                                DownloadAppView(path: $path)
+                            case "qrCodeView":
+                                QRCodeView(path: $path)
+                            case "settingUpView":
+                                SettingUpView(path: $path)
+                            case "trustedNetworksSetupView":
+                                TrustedNetworkSetupView(path: $path)
+                            case "finishSetupView":
+                                FinishSetupView(path: $path)
+                            default:
+                                EmptyView()
                         }
                     }
             }

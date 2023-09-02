@@ -40,21 +40,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, CLLocationMa
                 print(error.localizedDescription)
             }
         }
-        
-        locationModel.registerForAuthorizationChanges {
-            if bluetoothModel.isSetupComplete {
-                UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: ["location"])
-                bluetoothModel.initializeBluetooth()
-            }
-        } onError: {
-            if bluetoothModel.isSetupComplete {
-                showFailedToStartNotification(reason: .LocationPermissionNotGranted)
-                
-                // Disconnect device
-                bluetoothModel.dispose()
-            }
-        }
-
     }
     
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
