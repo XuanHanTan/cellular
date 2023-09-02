@@ -10,8 +10,6 @@ import AppKit
 import UserNotifications
 import CoreLocation
 
-// TODO: Move location stuff to LocationModel, Make BluetoothModel able to be disabled
-
 class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, CLLocationManagerDelegate {
     let defaults = UserDefaults.standard
     
@@ -45,15 +43,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, CLLocationMa
         
         locationModel.registerForAuthorizationChanges {
             if bluetoothModel.isSetupComplete {
+                UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: ["location"])
                 bluetoothModel.initializeBluetooth()
             }
         } onError: {
             if bluetoothModel.isSetupComplete {
                 showFailedToStartNotification(reason: .LocationPermissionNotGranted)
+                
+                // Disconnect device
+                bluetoothModel.dispose()
             }
-            
-            // Disconnect device
-            
         }
 
     }

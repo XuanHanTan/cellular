@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CoreLocation
 
 struct SettingUpView: View {
     @Binding var path: NavigationPath
@@ -28,6 +29,12 @@ struct SettingUpView: View {
         .frame(width: 900, height: 650, alignment: .center)
         .onChange(of: bluetoothModel.isSetupComplete) { newValue in
             if newValue {
+                if locationModel.isLocationPermissionDenied {
+                    showFailedToStartNotification(reason: .LocationPermissionNotGranted)
+                    
+                    // Disconnect device
+                    bluetoothModel.dispose()
+                }
                 DispatchQueue.main.async {
                     path.append("trustedNetworksSetupView")
                 }

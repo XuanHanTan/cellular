@@ -85,6 +85,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         case EnableSeePhoneInfo = "3"
         case DisableSeePhoneInfo = "4"
         case IndicateReset = "5"
+        case DisconnectDevice = "6"
     }
     
     enum CommandType: String {
@@ -166,6 +167,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             isBluetoothNotGrantedDialogPresented = false
             isBluetoothNotSupportedDialogPresented = false
             isBluetoothUnknownErrorDialogPresented = false
+            UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: ["bluetooth"])
             setupPeripheral()
             return
         case .poweredOff:
@@ -640,6 +642,15 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
      */
     func registerResetCompletionHandler(resetCompletionHandler: @escaping () -> Void) {
         self.resetCompletionHandler = resetCompletionHandler
+    }
+    
+    func dispose() {
+        if isPoweredOn {
+            peripheralManager.removeAllServices()
+            if isDeviceConnected {
+                peripheralManager(peripheralManager, central: connectedCentral!, didUnsubscribeFrom: notificationCharacteristic)
+            }
+        }
     }
     
     /**

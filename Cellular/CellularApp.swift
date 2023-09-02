@@ -22,20 +22,25 @@ enum FailedToStartReason {
 }
 
 func getDescriptionForFailedToStart(reason: FailedToStartReason) -> String {
-    let description: String
-    
     switch reason {
     case .BluetoothPermissionNotGranted:
-        description = "The Bluetooth permission is required for Cellular to communicate with your Android device. Please grant it in System Settings."
+        return "The Bluetooth permission is required for Cellular to communicate with your Android device. Please grant it in System Settings."
     case .BluetoothNotSupported:
-        description = "Bluetooth is not supported on this Mac."
+        return "Bluetooth is not supported on this Mac."
     case .LocationPermissionNotGranted:
-        description = "The Location Services permission is required for Cellular to get the connection state of Wi-Fi. Please grant it in System Settings."
+        return "The Location Services permission is required for Cellular to get the connection state of Wi-Fi. Please grant it in System Settings."
     case .UnknownBluetoothError:
-        description = "Cellular has encountered an unknown error. Please wait while Cellular restarts."
+        return "Cellular has encountered an unknown error. Please wait while Cellular restarts."
     }
-    
-    return description
+}
+
+func getIdentifierForFailedToStart(reason: FailedToStartReason) -> String {
+    switch reason {
+    case .BluetoothPermissionNotGranted, .BluetoothNotSupported, .UnknownBluetoothError:
+        return "bluetooth"
+    case .LocationPermissionNotGranted:
+        return "location"
+    }
 }
 
 /**
@@ -63,7 +68,7 @@ func showFailedToStartNotification(reason: FailedToStartReason) {
     content.title = "Failed to start Cellular"
     content.subtitle = getDescriptionForFailedToStart(reason: reason)
     let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
-    let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+    let request = UNNotificationRequest(identifier: getIdentifierForFailedToStart(reason: reason), content: content, trigger: trigger)
     UNUserNotificationCenter.current().add(request)
 }
 
