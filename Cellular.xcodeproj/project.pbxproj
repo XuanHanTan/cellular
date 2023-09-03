@@ -886,7 +886,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_ASSET_PATHS = "\"Cellular/Preview Content\"";
 				DEVELOPMENT_TEAM = Z53V82N954;
 				ENABLE_PREVIEWS = YES;
@@ -923,7 +923,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_ASSET_PATHS = "\"Cellular/Preview Content\"";
 				DEVELOPMENT_TEAM = Z53V82N954;
 				ENABLE_PREVIEWS = YES;
