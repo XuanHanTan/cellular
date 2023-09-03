@@ -22,8 +22,27 @@ extension Color {
 struct MenuBarContentView: View {
     @Environment(\.colorScheme) var colorScheme
     @ObservedObject var bluetoothModel: BluetoothModel
+    @ObservedObject var locationModel: LocationModel
     @Binding var isMenuBarItemPresented: Bool
     @AppStorage("seePhoneInfo") var seePhoneInfo = true
+    
+    func getError() -> String {
+        var reason: FailedToStartReason = .LocationPermissionNotGranted
+        
+        if locationModel.isLocationPermissionDenied {
+            reason = .LocationPermissionNotGranted
+        } else if bluetoothModel.isBluetoothOffDialogPresented {
+            reason = .BluetoothOff
+        } else if bluetoothModel.isBluetoothNotGrantedDialogPresented {
+            reason = .BluetoothPermissionNotGranted
+        } else if bluetoothModel.isBluetoothNotSupportedDialogPresented {
+            reason = .BluetoothNotSupported
+        } else if bluetoothModel.isBluetoothUnknownErrorDialogPresented {
+            reason = .UnknownBluetoothError
+        }
+        
+        return getShortDescriptionForFailedToStart(reason: reason)
+    }
     
     func getHotspotStatus() -> String {
         if bluetoothModel.isConnectedToHotspot {
@@ -39,18 +58,18 @@ struct MenuBarContentView: View {
     
     var body: some View {
         VStack {
-            if bluetoothModel.isBluetoothOffDialogPresented && bluetoothModel.isSetupComplete {
+            if !bluetoothModel.isPoweredOn && bluetoothModel.isSetupComplete {
                 HStack {
-                    Spacer()
                     Image(systemName: "exclamationmark.circle")
                         .font(.title3)
                         .padding(.trailing, 2)
-                    Text("Enable Bluetooth to use Cellular")
+                    Text(getError())
                         .font(.title3)
                         .padding(.bottom, 1)
                     Spacer()
                 }
                 .padding(.vertical, 10)
+                .padding(.horizontal, 20)
                 .background(Color(hex: 0xA91C1C))
             }
             VStack {

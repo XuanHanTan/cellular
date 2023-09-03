@@ -35,7 +35,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, CLLocationMa
         // Get local notification permission
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { success, error in
             if success {
-                print("Notification permission granted.")
+                print("Notification permission granted (AppDelegate).")
             } else if let error = error {
                 print(error.localizedDescription)
             }

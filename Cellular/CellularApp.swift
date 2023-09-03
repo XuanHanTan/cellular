@@ -13,17 +13,23 @@ let wlanModel = WLANModel()
 let bluetoothModel = BluetoothModel()
 var locationModel = {
     let locationModel = LocationModel()
-    locationModel.registerForAuthorizationChanges {
-        if bluetoothModel.isSetupComplete {
-            UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: ["location"])
-            bluetoothModel.initializeBluetooth()
+    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { success, error in
+        if success {
+            print("Notification permission granted (main).")
         }
-    } onError: {
-        if bluetoothModel.isSetupComplete {
-            showFailedToStartNotification(reason: .LocationPermissionNotGranted)
-            
-            // Disconnect device
-            bluetoothModel.dispose()
+        
+        locationModel.registerForAuthorizationChanges {
+            if bluetoothModel.isSetupComplete {
+                UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: ["location"])
+                bluetoothModel.initializeBluetooth()
+            }
+        } onError: {
+            if bluetoothModel.isSetupComplete {
+                showFailedToStartNotification(reason: .LocationPermissionNotGranted)
+                
+                // Disconnect device
+                bluetoothModel.dispose()
+            }
         }
     }
     return locationModel
@@ -31,10 +37,26 @@ var locationModel = {
 var isSleeping = false
 
 enum FailedToStartReason {
+    case BluetoothOff
     case BluetoothPermissionNotGranted
     case BluetoothNotSupported
     case LocationPermissionNotGranted
     case UnknownBluetoothError
+}
+
+func getShortDescriptionForFailedToStart(reason: FailedToStartReason) -> String {
+    switch reason {
+        case .BluetoothOff:
+            return "Enable Bluetooth to use Cellular"
+        case .BluetoothPermissionNotGranted:
+            return "Bluetooth permission is not granted"
+        case .BluetoothNotSupported:
+            return "Bluetooth is not supported"
+        case .LocationPermissionNotGranted:
+            return "Location Services permission is not granted."
+        case .UnknownBluetoothError:
+            return "An unknown error occured"
+    }
 }
 
 func getDescriptionForFailedToStart(reason: FailedToStartReason) -> String {
@@ -47,6 +69,8 @@ func getDescriptionForFailedToStart(reason: FailedToStartReason) -> String {
             return "The Location Services permission is required for Cellular to get the connection state of Wi-Fi. Please grant it in System Settings."
         case .UnknownBluetoothError:
             return "Cellular has encountered an unknown error. Please wait while Cellular restarts."
+        default:
+            return ""
     }
 }
 
@@ -56,6 +80,8 @@ func getIdentifierForFailedToStart(reason: FailedToStartReason) -> String {
             return "bluetooth"
         case .LocationPermissionNotGranted:
             return "location"
+        default:
+            return ""
     }
 }
 
@@ -189,7 +215,7 @@ struct CellularApp: App {
         .windowResizability(.contentSize)
         MenuBarExtra(
             content: {
-                MenuBarContentView(bluetoothModel: bluetoothModel, isMenuBarItemPresented: $menuBarItemPresented)
+                MenuBarContentView(bluetoothModel: bluetoothModel, locationModel: locationModel, isMenuBarItemPresented: $menuBarItemPresented)
                     .frame(width: 280, height: 400)
             },
             label: {

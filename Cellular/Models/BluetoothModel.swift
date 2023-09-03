@@ -659,6 +659,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             if isDeviceConnected {
                 peripheralManager(peripheralManager, central: connectedCentral!, didUnsubscribeFrom: notificationCharacteristic)
             }
+            isPoweredOn = false
         }
     }
     
