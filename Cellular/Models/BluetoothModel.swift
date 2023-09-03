@@ -650,16 +650,26 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
         self.resetCompletionHandler = resetCompletionHandler
     }
     
+    /**
+     This function disconnects the device from the Android companion and de-initialises the peripheral manager. To re-initialise, call `initializeBluetooth()` again.
+     */
     func dispose() {
         if isPoweredOn {
+            // Prevent advertising from starting again
             isDisposing = true
+            
+            // De-initialise peripheral manager
             peripheralManager.stopAdvertising()
             peripheralManager.removeAllServices()
             peripheralManager.delegate = nil
+            
+            // Make peripheral manager believe that the phone has unsubscribed from the notification characteristic
             if isDeviceConnected {
                 peripheralManager(peripheralManager, central: connectedCentral!, didUnsubscribeFrom: notificationCharacteristic)
             }
+            
             isPoweredOn = false
+            print("Disposed Bluetooth model successfully.")
         }
     }
     

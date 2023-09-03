@@ -13,18 +13,25 @@ let wlanModel = WLANModel()
 let bluetoothModel = BluetoothModel()
 var locationModel = {
     let locationModel = LocationModel()
+    
+    // Get local notification permission (this is run before applicationDidFinishLaunching)
     UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { success, error in
         if success {
             print("Notification permission granted (main).")
         }
         
+        // Register for Location Services permission changes
         locationModel.registerForAuthorizationChanges {
             if bluetoothModel.isSetupComplete {
+                // Remove all notifications related to failed to start because of missing Location Services permission
                 UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: ["location"])
+                
+                // Start Bluetooth
                 bluetoothModel.initializeBluetooth()
             }
         } onError: {
             if bluetoothModel.isSetupComplete {
+                // Show notification to inform the user that Cellular has failed to start
                 showFailedToStartNotification(reason: .LocationPermissionNotGranted)
                 
                 // Disconnect device
