@@ -583,6 +583,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             isConnectingToHotspot = false
         } onError: { [self] in
             isConnectingToHotspot = false
+            disconnectFromHotspot(systemControlling: false)
         }
     }
     
@@ -614,6 +615,8 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
     /**
      This function disconnects the device from the mobile hotspot.
      - parameter indicateOnly: Whether the Mac should only update itself that hotspot has been disconnected
+     - parameter systemControlling: Whether this app should disconnect from Wi-Fi for the user
+     - parameter userInitiated: Whether the user initiated this disconnection
      */
     func disconnectFromHotspot(indicateOnly: Bool = false, systemControlling: Bool = true, userInitiated: Bool = false) {
         if !indicateOnly {
