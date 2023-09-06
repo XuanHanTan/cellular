@@ -22,6 +22,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
             NSWorkspace.shared.launchApplication(path as String)
         }
+        
+        NSApplication.shared.terminate(self)
     }
     
     func applicationWillTerminate(_ aNotification: Notification) {
