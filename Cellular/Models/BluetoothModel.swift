@@ -297,7 +297,7 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                 isDisposing = false
             } else {
                 // Restart advertising so the phone can reconnect later
-                peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [serviceUUID]])
+                setupPeripheral()
             }
         }
     }
