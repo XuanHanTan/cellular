@@ -53,8 +53,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, CLLocationMa
         
         if isAutoDisconnectWhenSleep {
             isSleeping = false
-            wlanModel.evalAutoEnableHotspot()
         }
+        wlanModel.evalAutoEnableHotspot()
     }
     
     @objc func onSleepNotification(notification: NSNotification) {
