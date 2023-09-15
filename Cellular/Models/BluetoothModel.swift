@@ -175,6 +175,8 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
             print("CBManager is not powered on")
             isBluetoothOffDialogPresented = true
             isPoweredOn = false
+            peripheralManager.stopAdvertising()
+            peripheralManager.removeAllServices()
             return
         case .resetting:
             print("CBManager is resetting")
@@ -296,6 +298,8 @@ class BluetoothModel: NSObject, ObservableObject, CBPeripheralDelegate, CBPeriph
                 // Skip restarting advertising if disposing
                 isDisposing = false
             } else {
+                peripheralManager.removeAllServices()
+                
                 // Restart advertising so the phone can reconnect later
                 setupPeripheral()
             }
