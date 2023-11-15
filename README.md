@@ -38,6 +38,10 @@ Purchase Cellular for a fixed fee of USD 2.99 (prices vary in different countrie
 
 Download [here](https://apps.apple.com/app/cellular/id6463124697).
 
+# Looking for Cellular Companion?
+
+View the source code for Cellular Companion on [this repository](https://github.com/XuanHanTan/cellular-companion).
+
 # Credits
 
 This app was designed and built by Xuan Han Tan. Learn more about me by visiting [my website](https://xuanhan.me/).
